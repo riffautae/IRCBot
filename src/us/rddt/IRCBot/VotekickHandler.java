@@ -105,7 +105,7 @@ public class VotekickHandler implements Runnable {
 			// If we don't need any more votes to pass, kick the user and reset the system
 			if(requiredVotes <= 0) {
 				event.getBot().sendMessage(event.getChannel(), "Vote succeeded - kicking " + votekickUser + "!");
-				event.getBot().kick(event.getChannel(), event.getBot().getUser(votekickUser));
+				event.getBot().kick(event.getChannel(), event.getBot().getUser(votekickUser), "You have been voted out of the channel!");
 				resetKick();
 			}
 		}
