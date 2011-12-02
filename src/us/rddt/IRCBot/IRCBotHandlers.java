@@ -43,16 +43,20 @@ public class IRCBotHandlers extends ListenerAdapter {
 			return;
 		}
 		// If the message contains !who at the start, spawn a new thread to handle the request
-		if(event.getMessage().substring(0, 4).equals("!who")) {
+		if(event.getMessage().startsWith("!who")) {
 			new Thread(new ShoutHandler(event)).start();
 			return;
 		}
-		if(event.getMessage().substring(0, 7).equals("!decide")) {
+		if(event.getMessage().startsWith("!decide")) {
 			new Thread(new FortuneHandler(event)).start();
 			return;
 		}
-		if(event.getMessage().substring(0, 9).equals("!votekick")) {
+		if(event.getMessage().startsWith("!votekick")) {
 			new Thread(new VotekickHandler(event)).start();
+			return;
+		}
+		if(event.getMessage().startsWith("!seen")) {
+			new Thread(new SeenHandler(event)).start();
 			return;
 		}
 		// Split the message using a space delimiter and attempt to form a URL from each split string
@@ -92,6 +96,10 @@ public class IRCBotHandlers extends ListenerAdapter {
 		if(event.getRecipient() == event.getBot().getUserBot() && !event.getSource().getNick().equals("got_milk")) {
 			event.getBot().joinChannel(event.getChannel().getName());
 		}
+	}
+	
+	public void onPart(PartEvent event) {
+		new Thread(new SeenHandler(event, true)).start();
 	}
 	
 	// Method to check if a string is uppercase
