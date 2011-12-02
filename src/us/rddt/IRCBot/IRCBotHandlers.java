@@ -84,10 +84,11 @@ public class IRCBotHandlers extends ListenerAdapter {
 	}
 	
 	// This handler is called when an invite has been sent to the bot
-	// TODO: Accept invitations from certain users only
 	public void onInvite(InviteEvent event) throws Exception {
 		// If the bot is invited to a channel, join it
-		event.getBot().joinChannel(event.getChannel());
+		if(event.getUser().equals("got_milk")) {
+			event.getBot().joinChannel(event.getChannel());
+		}
 	}
 	
 	// This handler is called when a user has been kicked from the channel
