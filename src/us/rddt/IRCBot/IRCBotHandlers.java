@@ -42,23 +42,7 @@ public class IRCBotHandlers extends ListenerAdapter {
 			new Thread(new ShoutHandler(event, true)).start();
 			return;
 		}
-		// If the message contains !who at the start, spawn a new thread to handle the request
-		if(event.getMessage().startsWith("!who")) {
-			new Thread(new ShoutHandler(event)).start();
-			return;
-		}
-		if(event.getMessage().startsWith("!decide")) {
-			new Thread(new FortuneHandler(event)).start();
-			return;
-		}
-		if(event.getMessage().startsWith("!votekick")) {
-			new Thread(new VotekickHandler(event)).start();
-			return;
-		}
-		if(event.getMessage().startsWith("!seen")) {
-			new Thread(new SeenHandler(event)).start();
-			return;
-		}
+		if(checkForCommands(event)) return;
 		// Split the message using a space delimiter and attempt to form a URL from each split string
 		// If a MalformedURLException is thrown, the string isn't a valid URL and continue on
 		// If a URL can be formed from it, spawn a new thread to process it for a title
@@ -100,11 +84,11 @@ public class IRCBotHandlers extends ListenerAdapter {
 	}
 	
 	public void onPart(PartEvent event) {
-		new Thread(new SeenHandler(event, true)).start();
+		new Thread(new SeenHandler(event)).start();
 	}
 	
 	// Method to check if a string is uppercase
-	public boolean isUpperCase(String s) {
+	private boolean isUpperCase(String s) {
 		// Boolean value to ensure that an all numeric string does not trigger the shouting functions
 		boolean includesLetter = false;
 		// Loop through each character in the string individually
@@ -117,5 +101,30 @@ public class IRCBotHandlers extends ListenerAdapter {
 		// If there's at least one letter in the string return true, otherwise disqualify it
 		if(includesLetter) return true;
 		else return false;
+	}
+	
+	// Method to check for any commands that may be received from a user
+	private boolean checkForCommands(MessageEvent event) {
+		// If the message contains !who at the start, spawn a new thread to handle the request
+		if(event.getMessage().startsWith("!who")) {
+			new Thread(new ShoutHandler(event)).start();
+			return true;
+		}
+		// ..or !decide
+		if(event.getMessage().startsWith("!decide")) {
+			new Thread(new FortuneHandler(event)).start();
+			return true;
+		}
+		// ..or !votekick
+		if(event.getMessage().startsWith("!votekick")) {
+			new Thread(new VotekickHandler(event)).start();
+			return true;
+		}
+		// ..or !seen
+		if(event.getMessage().startsWith("!seen")) {
+			new Thread(new SeenHandler(event)).start();
+			return true;
+		}
+		return false;
 	}
 }
