@@ -44,6 +44,8 @@ public class ShoutHandler implements Runnable {
 	
 	// We need this variable to be accessible from other threads, so we make it static and volatile
 	private static volatile String lastQuote = "";
+	private static volatile String lastSubmitter = "";
+	private static volatile String lastReadableDate = "";
 	
 	// Method that executes upon start of thread
 	public void run() {
@@ -104,10 +106,16 @@ public class ShoutHandler implements Runnable {
 		// Execute our query against the database
 		resultSet = preparedStatement.executeQuery();
 		if(resultSet.next()) {
-			// Strings are not thread-safe, so ensure synchronization on our shared string to prevent thread
+			// Strings are not thread-safe, so ensure synchronization on our shared variables to prevent thread
 			// interference and memory consistency issues
 			synchronized(lastQuote) {
 				lastQuote = resultSet.getString("Quote");
+			}
+			synchronized(lastSubmitter) {
+				lastSubmitter = resultSet.getString("Nick");
+			}
+			synchronized(lastReadableDate) {
+				lastReadableDate = toReadableTime((Date)resultSet.getTimestamp("Date"));
 			}
 			// Return the random quote
 			return resultSet.getString("Quote");
@@ -132,15 +140,18 @@ public class ShoutHandler implements Runnable {
 	}
 	
 	// Method to handle !who requests from users, returns submitter and timestamp
-	// TODO: We can do one less hit on the database if we store everything from the last quote in the JVM
 	private String getQuoteInfo(String quote) throws SQLException {
 		// Variable to track whether the user requested the last quote from the bot
-		boolean isLast = false;
+		// If the user wants the last quote, prevent hitting the database twice and simply retrieve details from memory
 		if(quote.equals("last")) {
 			// On startup there is no previous quote, so return as such if a user attempts a !who last
 			if(lastQuote == null || lastQuote == "") return "No previous quote.";
-			quote = lastQuote;
-			isLast = true;
+			// Provide context if the !who last command was used, but trim it if the quote is longer than 10 characters (use 60% of the quote instead)
+			if(quote.length() < 11) {
+				return lastSubmitter + " shouted \"" + lastQuote + "\" " + lastReadableDate + ".";
+			} else {
+				return lastSubmitter + " shouted \"" + lastQuote.substring(0, (int)(lastQuote.length() * 0.6)) + "...\" " + lastReadableDate + ".";
+			}
 		}
 		// You should know why by now.
 		preparedStatement = connect.prepareStatement("SELECT * FROM Quotes WHERE Quote = ? AND Channel = ?");
@@ -150,14 +161,6 @@ public class ShoutHandler implements Runnable {
 		if(resultSet.next()) {
 			// Tease the user if it's their own quote
 			if(resultSet.getString("Nick").equals(event.getUser().getNick())) return "don't you remember? YOU submitted this! Put down the bong!";
-			if(isLast) {
-				// Provide context if the !who last command was used, but trim it if the quote is longer than 10 characters (use 60% of the quote instead)
-				if(quote.length() < 11) {
-					return resultSet.getString("Nick") + " shouted \"" + quote + "\" " + toReadableTime((Date)resultSet.getTimestamp("Date")) + ".";
-				} else {
-					return resultSet.getString("Nick") + " shouted \"" + quote.substring(0, (int)(quote.length() * 0.6)) + "...\" " + toReadableTime((Date)resultSet.getTimestamp("Date")) + ".";
-				}
-			}
 			return resultSet.getString("Nick") + " shouted this " + toReadableTime((Date)resultSet.getTimestamp("Date")) + ".";
 		} else {
 			return "Quote not found.";
