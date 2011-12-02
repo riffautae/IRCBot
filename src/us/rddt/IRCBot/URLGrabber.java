@@ -29,6 +29,7 @@
 package us.rddt.IRCBot;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import twitter4j.*;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -49,15 +50,22 @@ public class URLGrabber implements Runnable {
 	
 	// Regex pattern to match the HTML title tag to extract from the URL
 	private static final Pattern TITLE_TAG = Pattern.compile("\\<title>(.*)\\</title>", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+	// Regex pattern to match Twitter tweets
+	private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
 	
 	// Method that executes upon start of thread
 	public void run() {
-		try {
-			event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
-		} catch (Exception ex) {
-			// TODO: Better exception handling
-			ex.printStackTrace();
-			event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + ex.getMessage() + ")"));
+		Matcher tweetMatcher = TWITTER_TWEET.matcher(url.toString());
+		if(tweetMatcher.find()) {
+			returnTweet(Long.parseLong(url.toString().substring(url.toString().lastIndexOf("/")).replaceAll("/", "")));
+		} else {
+			try {
+				event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
+			} catch (Exception ex) {
+				// TODO: Better exception handling
+				ex.printStackTrace();
+				event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + ex.getMessage() + ")"));
+			}
 		}
 	}
 	
@@ -192,7 +200,7 @@ public class URLGrabber implements Runnable {
     }
     
     // Convert a data measurement value to a more human-readable format
-    public static String humanReadableByteCount(long bytes, boolean si) {
+    private static String humanReadableByteCount(long bytes, boolean si) {
     	// Variable for the unit of measurement used
         int unit = si ? 1000 : 1024;
         // If our value is less than a kilobyte than just return the value untouched in bytes
@@ -201,5 +209,15 @@ public class URLGrabber implements Runnable {
         int exp = (int) (Math.log(bytes) / Math.log(unit));
         String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+    
+    private void returnTweet(long tweetID) {
+    	try {
+    		Twitter twitter = new TwitterFactory().getInstance();
+    		Status status = twitter.showStatus(tweetID);
+    		event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] @" + status.getUser().getScreenName() + ": " + status.getText());
+    	} catch (TwitterException te) {
+    		te.printStackTrace();
+    	}
     }
 }
