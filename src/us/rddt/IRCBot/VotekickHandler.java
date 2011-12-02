@@ -55,7 +55,6 @@ public class VotekickHandler implements Runnable {
 			// Determine the number of required votes to pass
 			requiredVotes = (int)(event.getChannel().getUsers().size() * 0.2);
 			// Ensure the user we wish to kick exists - if not, fail and reset for the next vote
-			if(!event.getBot().userExists(votekickUser)) {
 			if(!event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(votekickUser))) {
 				event.respond("Cannot votekick user - user doesn't exist!");
 				resetKick();
@@ -75,6 +74,12 @@ public class VotekickHandler implements Runnable {
 			event.getBot().sendMessage(event.getChannel(), event.getUser().getNick() + " has voted to kick " + votekickUser + "! Type !votekick " + votekickUser + " to cast a vote. (" + requiredVotes + " needed)");
 			// Start ticking. Votes will reset the tick counter, keeping the vote alive.
 			while(timeRemaining > 0) {
+				// Ensure our user still exists on the channel, if not cancel the votekick
+				if(!event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(votekickUser))) {
+					event.getBot().sendMessage(event.getChannel(), "The vote to kick " + votekickUser + " has failed! (" + votekickUser + " has left the channel)");
+					resetKick();
+					return;
+				}
 				timeRemaining--;
 				try {
 					Thread.sleep(1000);
