@@ -56,6 +56,7 @@ public class VotekickHandler implements Runnable {
 			requiredVotes = (int)(event.getChannel().getUsers().size() * 0.2);
 			// Ensure the user we wish to kick exists - if not, fail and reset for the next vote
 			if(!event.getBot().userExists(votekickUser)) {
+			if(!event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(votekickUser))) {
 				event.respond("Cannot votekick user - user doesn't exist!");
 				resetKick();
 				return;
@@ -85,6 +86,7 @@ public class VotekickHandler implements Runnable {
 			if(!votekickUser.equals("") && timeRemaining != 60) {
 				event.getBot().sendMessage(event.getChannel(), "The vote to kick " + votekickUser + " has failed! (" + requiredVotes + " more needed)");
 				resetKick();
+				return;
 			}
 		}
 		// There is a vote in progress and the user has voted to kick
@@ -107,11 +109,13 @@ public class VotekickHandler implements Runnable {
 				event.getBot().sendMessage(event.getChannel(), "Vote succeeded - kicking " + votekickUser + "!");
 				event.getBot().kick(event.getChannel(), event.getBot().getUser(votekickUser), "You have been voted out of the channel!");
 				resetKick();
+				return;
 			}
 		}
 		// A votekick is in progress and someone is trying to start a new one
 		else {
 			event.respond("You cannot vote to kick another user while a votekick is currently in progress.");
+			return;
 		}
 	}
 	
