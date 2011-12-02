@@ -68,6 +68,8 @@ public class VotekickHandler implements Runnable {
 			}
 			// Add the vote starter as a voted user
 			votedUsers.add(event.getUser().getNick());
+			// Reset the votekick timer (just in case it has not been reset)
+			timeRemaining = 60;
 			// Announce the votekick
 			event.getBot().sendMessage(event.getChannel(), event.getUser().getNick() + " has voted to kick " + votekickUser + "! Type !votekick " + votekickUser + " to cast a vote. (" + requiredVotes + " needed)");
 			// Start ticking. Votes will reset the tick counter, keeping the vote alive.
