@@ -30,6 +30,7 @@ package us.rddt.IRCBot;
 
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
+import org.pircbotx.hooks.events.QuitEvent;
 
 import java.util.Collections;
 import java.util.Date;
@@ -40,6 +41,7 @@ public class SeenHandler implements Runnable {
 	// Variables
 	private MessageEvent event;
 	private PartEvent pEvent;
+	private QuitEvent qEvent;
 	private boolean hasParted;
 	private String seenUser;
 	
@@ -69,6 +71,12 @@ public class SeenHandler implements Runnable {
 	// Overloaded class constructor used for parting events
 	public SeenHandler(PartEvent pEvent) {
 		this.pEvent = pEvent;
+		this.hasParted = true;
+	}
+	
+	// Overloaded class constructor used for parting events
+	public SeenHandler(QuitEvent event) {
+		this.qEvent = event;
 		this.hasParted = true;
 	}
 	
@@ -104,10 +112,11 @@ public class SeenHandler implements Runnable {
 		}
 	}
 	
-	// Method called when a user parts. Update their key/value with the timestamp of when they left.
+	// Method called when a user parts/quits. Update their key/value with the timestamp of when they left.
 	private void updateSeen() {
 		synchronized(userList) {
-			userList.put(pEvent.getUser().getNick(), new Date());
+			if(pEvent != null) userList.put(pEvent.getUser().getNick(), new Date());
+			else userList.put(qEvent.getUser().getNick(), new Date());
 		}
 	}
 	
