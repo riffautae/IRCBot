@@ -62,7 +62,7 @@ public class VotekickHandler implements Runnable {
 			}
 			// Ensure the vote isn't against the bot - we can't let that happen!
 			if(votekickUser.equals(event.getBot().getNick())) {
-				event.respond("I'm sorry " + event.getUser().getNick() + ", but I cannot allow you to do that.");
+				event.getBot().sendMessage(event.getChannel(), "I'm sorry " + event.getUser().getNick() + ", but I cannot allow you to do that.");
 				resetKick();
 				return;
 			}
