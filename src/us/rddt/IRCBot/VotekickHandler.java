@@ -41,6 +41,7 @@ public class VotekickHandler implements Runnable {
 	// We need these variables to be accessible from other threads, so we make it static and volatile
 	private static volatile String votekickUser = "";
 	private static volatile int requiredVotes = -1;
+	private static volatile int timeRemaining = 60;
 	private static volatile List<String> votedUsers = new ArrayList<String>();
 	
 	// Method that executes upon start of thread
@@ -52,7 +53,7 @@ public class VotekickHandler implements Runnable {
 				votekickUser = event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
 			}
 			// Determine the number of required votes to pass
-			requiredVotes = (int)(event.getChannel().getUsers().size() * 0.4);
+			requiredVotes = (int)(event.getChannel().getUsers().size() * 0.2);
 			// Ensure the user we wish to kick exists - if not, fail and reset for the next vote
 			if(event.getBot().userExists(votekickUser) == false) {
 				event.respond("Cannot votekick user - user doesn't exist!");
@@ -63,14 +64,17 @@ public class VotekickHandler implements Runnable {
 			votedUsers.add(event.getUser().getNick());
 			// Announce the votekick
 			event.getBot().sendMessage(event.getChannel(), event.getUser().getNick() + " has voted to kick " + votekickUser + "! Type !votekick " + votekickUser + " to cast a vote. (" + requiredVotes + " needed)");
-			// Sleep for a certain period of time.
-			try {
-				Thread.sleep(60000);
-			} catch (InterruptedException ex) {
-				ex.printStackTrace();
+			// Start ticking. Votes will reset the tick counter, keeping the vote alive.
+			while(timeRemaining > 0) {
+				timeRemaining--;
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException ex) {
+					ex.printStackTrace();
+				}
 			}
 			// See if the vote has reached a conclusion. If not, fail and reset the vote.
-			if(!votekickUser.equals("")) {
+			if(!votekickUser.equals("") && timeRemaining != 60) {
 				event.getBot().sendMessage(event.getChannel(), "The vote to kick " + votekickUser + " has failed! (" + requiredVotes + " more needed)");
 				resetKick();
 			}
@@ -84,12 +88,14 @@ public class VotekickHandler implements Runnable {
 			}
 			// One less required vote to pass
 			requiredVotes--;
+			// Reset the time remaining to 30 seconds if there's less than 30 seconds remaining to vote
+			if(timeRemaining < 30) timeRemaining = 30;
 			// Announce the vote to kick
 			event.getBot().sendMessage(event.getChannel(), event.getUser().getNick() + " has voted to kick " + votekickUser + "! (" + requiredVotes + " needed)");
 			// Add the user to the voted list
 			votedUsers.add(event.getUser().getNick());
 			// If we don't need any more votes to pass, kick the user and reset the system
-			if(requiredVotes == 0) {
+			if(requiredVotes <= 0) {
 				event.getBot().sendMessage(event.getChannel(), "Vote succeeded - kicking " + votekickUser + "!");
 				event.getBot().kick(event.getChannel(), event.getBot().getUser(votekickUser));
 				resetKick();
@@ -115,6 +121,7 @@ public class VotekickHandler implements Runnable {
 			votedUsers = new ArrayList<String>();
 		}
 		requiredVotes = -1;
+		timeRemaining = 60;
 	}
 	
 	// Method to check if a user has voted in the votekick
