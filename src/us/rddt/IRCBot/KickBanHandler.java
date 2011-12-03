@@ -28,25 +28,40 @@
 
 package us.rddt.IRCBot;
 
-import org.pircbotx.User;
 import org.pircbotx.hooks.events.MessageEvent;
 
 public class KickBanHandler implements Runnable {
 	private MessageEvent event;
 	private boolean isBan;
-	
+
 	public void run() {
 		String kickUser = event.getMessage().split(" ")[1];
+		String kickReason = getReason();
 		if((event.getUser().getChannelsOpIn().contains(event.getChannel()) && !event.getBot().getUser(kickUser).getChannelsSuperOpIn().contains(event.getChannel()) && !event.getBot().getUser(kickUser).getChannelsOwnerIn().contains(event.getChannel()))
-	|| (event.getUser().getChannelsSuperOpIn().contains(event.getChannel()) && !event.getBot().getUser(kickUser).getChannelsOwnerIn().contains(event.getChannel()))
-	|| (event.getUser().getChannelsOwnerIn().contains(event.getChannel()))) {
-			event.getBot().kick(event.getChannel(), event.getBot().getUser(kickUser), "Requested (" + event.getUser().getNick() + ")");
+				|| (event.getUser().getChannelsSuperOpIn().contains(event.getChannel()) && !event.getBot().getUser(kickUser).getChannelsOwnerIn().contains(event.getChannel()))
+				|| (event.getUser().getChannelsOwnerIn().contains(event.getChannel()))) {
+			if(kickReason != "") {
+				event.getBot().kick(event.getChannel(), event.getBot().getUser(kickUser), kickReason + " (" + event.getUser().getNick() + ")");
+			} else {
+				event.getBot().kick(event.getChannel(), event.getBot().getUser(kickUser), "Requested (" + event.getUser().getNick() + ")");
+			}
 			if(isBan) event.getBot().ban(event.getChannel(), event.getBot().getUser(kickUser).getHostmask());
 		}
 	}
-	
+
 	public KickBanHandler(MessageEvent event, boolean isBan) {
 		this.event = event;
 		this.isBan = isBan;
+	}
+	
+	private String getReason() {
+		String[] split = event.getMessage().split(" ");
+		String reason = "";
+		if(split.length > 1) {
+			for(int i = 2; i < split.length; i++) {
+				reason += split[i] + " ";
+			}
+		}
+		return reason.replaceAll("^\\s+", "").replaceAll("\\s+$", "");
 	}
 }
