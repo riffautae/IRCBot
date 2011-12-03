@@ -133,6 +133,11 @@ public class IRCBotHandlers extends ListenerAdapter {
 			new Thread(new SeenHandler(event)).start();
 			return true;
 		}
+		// ..or !lottery
+		if(event.getMessage().startsWith("!lottery")) {
+			new Thread(new OpLotteryHandler(event)).start();
+			return true;
+		}
 		return false;
 	}
 }
