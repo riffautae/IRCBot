@@ -33,6 +33,8 @@ import org.pircbotx.hooks.events.MessageEvent;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class VotekickHandler implements Runnable {
 	// Variables
@@ -40,9 +42,10 @@ public class VotekickHandler implements Runnable {
 	
 	// We need these variables to be accessible from other threads, so we make it static and volatile
 	private static volatile String votekickUser = "";
-	private static volatile int requiredVotes = -1;
-	private static volatile int timeRemaining = 60;
+	private static volatile AtomicInteger requiredVotes = new AtomicInteger(-1);
+	private static volatile AtomicInteger timeRemaining = new AtomicInteger(60);
 	private static volatile List<String> votedUsers = new ArrayList<String>();
+	private static volatile AtomicBoolean voteInProgress = new AtomicBoolean(false);
 	
 	// Method that executes upon start of thread
 	public void run() {
@@ -53,7 +56,7 @@ public class VotekickHandler implements Runnable {
 				votekickUser = event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
 			}
 			// Determine the number of required votes to pass
-			requiredVotes = (int)(event.getChannel().getUsers().size() * 0.2);
+			requiredVotes.set((int)(event.getChannel().getUsers().size() * 0.25));
 			// Ensure the user we wish to kick exists - if not, fail and reset for the next vote
 			if(!event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(votekickUser))) {
 				event.respond("Cannot votekick user - user doesn't exist!");
@@ -75,18 +78,20 @@ public class VotekickHandler implements Runnable {
 			// Add the vote starter as a voted user
 			votedUsers.add(event.getUser().getNick());
 			// Reset the votekick timer (just in case it has not been reset)
-			timeRemaining = 60;
+			timeRemaining.set(60);
+			// Set the AtomicBoolean to reflect a vote in progress
+			voteInProgress.set(true);
 			// Announce the votekick
 			event.getBot().sendMessage(event.getChannel(), event.getUser().getNick() + " has voted to kick " + votekickUser + "! Type !votekick " + votekickUser + " to cast a vote. (" + requiredVotes + " needed)");
 			// Start ticking. Votes will reset the tick counter, keeping the vote alive.
-			while(timeRemaining > 0) {
+			while(timeRemaining.get() > 0) {
 				// Ensure our user still exists on the channel, if not cancel the votekick
 				if(!event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(votekickUser)) && !votekickUser.equals("")) {
 					event.getBot().sendMessage(event.getChannel(), "The vote to kick " + votekickUser + " has failed! (" + votekickUser + " has left the channel)");
 					resetKick();
 					return;
 				}
-				timeRemaining--;
+				timeRemaining.decrementAndGet();
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException ex) {
@@ -94,7 +99,7 @@ public class VotekickHandler implements Runnable {
 				}
 			}
 			// See if the vote has reached a conclusion. If not, fail and reset the vote.
-			if(!votekickUser.equals("") && timeRemaining != 60) {
+			if(voteInProgress.get()) {
 				event.getBot().sendMessage(event.getChannel(), "The vote to kick " + votekickUser + " has failed! (" + requiredVotes + " more needed)");
 				resetKick();
 				return;
@@ -108,15 +113,15 @@ public class VotekickHandler implements Runnable {
 				return;
 			}
 			// One less required vote to pass
-			requiredVotes--;
+			requiredVotes.decrementAndGet();
 			// Reset the time remaining to 30 seconds if there's less than 30 seconds remaining to vote
-			if(timeRemaining < 30) timeRemaining = 30;
+			if(timeRemaining.get() < 30) timeRemaining.set(30);
 			// Announce the vote to kick
 			event.getBot().sendMessage(event.getChannel(), event.getUser().getNick() + " has voted to kick " + votekickUser + "! (" + requiredVotes + " needed)");
 			// Add the user to the voted list
 			votedUsers.add(event.getUser().getNick());
 			// If we don't need any more votes to pass, kick the user and reset the system
-			if(requiredVotes <= 0) {
+			if(requiredVotes.get() <= 0) {
 				event.getBot().sendMessage(event.getChannel(), "Vote succeeded - kicking " + votekickUser + "!");
 				event.getBot().kick(event.getChannel(), event.getBot().getUser(votekickUser), "You have been voted out of the channel!");
 				resetKick();
@@ -143,8 +148,9 @@ public class VotekickHandler implements Runnable {
 		synchronized(votedUsers) {
 			votedUsers = new ArrayList<String>();
 		}
-		requiredVotes = -1;
-		timeRemaining = 60;
+		requiredVotes.set(-1);
+		timeRemaining.set(60);
+		voteInProgress.set(false);
 	}
 	
 	// Method to check if a user has voted in the votekick
