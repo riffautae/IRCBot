@@ -50,13 +50,19 @@ public class VotekickHandler implements Runnable {
 	// Method that executes upon start of thread
 	public void run() {
 		// There is no votekick in progress
-		if(votekickUser.equals("")) {
+		if(!voteInProgress.get()) {
 			// Set the current votekick user
 			synchronized(votekickUser) {
 				votekickUser = event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
 			}
 			// Determine the number of required votes to pass
 			requiredVotes.set((int)(event.getChannel().getUsers().size() * 0.25));
+			// If we don't have enough people to warrant a votekick, then fail it immediately
+			if(requiredVotes.get() < 2) {
+				event.respond("There are not enough people to start a votekick!");
+				resetKick();
+				return;
+			}
 			// Ensure the user we wish to kick exists - if not, fail and reset for the next vote
 			if(!event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(votekickUser))) {
 				event.respond("Cannot votekick user - user doesn't exist!");
@@ -121,11 +127,11 @@ public class VotekickHandler implements Runnable {
 			// Add the user to the voted list
 			votedUsers.add(event.getUser().getHostmask());
 			// If we don't need any more votes to pass, kick the user and reset the system
-			if(requiredVotes.get() <= 0) {
-				event.getBot().sendMessage(event.getChannel(), "Vote succeeded - kicking " + votekickUser + "!");
-				event.getBot().kick(event.getChannel(), event.getBot().getUser(votekickUser), "You have been voted out of the channel!");
-				resetKick();
-				return;
+			synchronized(requiredVotes) {
+				if(requiredVotes.get() <= 0) {
+					kickUser();
+					return;
+				}
 			}
 		}
 		// A votekick is in progress and someone is trying to start a new one
@@ -172,6 +178,13 @@ public class VotekickHandler implements Runnable {
 	private boolean hasVoted(String nick) {
 		if(votedUsers.contains(nick)) return true;
 		else return false;
+	}
+	
+	// Method called when a vote passes to kick the offending user
+	private void kickUser() {
+		event.getBot().sendMessage(event.getChannel(), "Vote succeeded - kicking " + votekickUser + "!");
+		event.getBot().kick(event.getChannel(), event.getBot().getUser(votekickUser), "You have been voted out of the channel!");
+		resetKick();
 	}
 
 }
