@@ -153,6 +153,22 @@ public class ShoutHandler implements Runnable {
 				return lastSubmitter + " shouted \"" + lastQuote.substring(0, (int)(lastQuote.length() * 0.6)) + "...\" " + lastReadableDate + ".";
 			}
 		}
+		// We need 2 queries to pull details about the database (for now), sadly.
+		else if(quote.equals("list")) {
+			// First query to pull the total number of quotes
+			preparedStatement = connect.prepareStatement("SELECT COUNT(*) FROM Quotes");
+			resultSet = preparedStatement.executeQuery();
+			if(resultSet.next()) {
+				int count = resultSet.getInt("COUNT(*)");
+				// and the second to pull the most active shouter.
+				preparedStatement = connect.prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 1");
+				resultSet = preparedStatement.executeQuery();
+				if(resultSet.next()) {
+					// If both of these execute successfully (which they always should) then return the details the user asked for
+					return "I have " + count + " quotes in my database. The most active shouter is " + resultSet.getString("Nick") + " with " + resultSet.getInt("COUNT(Nick)") + ".";
+				}
+			}
+		}
 		// You should know why by now.
 		preparedStatement = connect.prepareStatement("SELECT * FROM Quotes WHERE Quote = ? AND Channel = ?");
 		preparedStatement.setString(1, quote);
