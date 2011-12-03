@@ -38,7 +38,7 @@ public class IRCBotHandlers extends ListenerAdapter {
 	// This handler is called upon receiving any message in a channel
 	public void onMessage(MessageEvent event) throws Exception {
 		// If the message is in upper case and not from ourselves, spawn a new thread to handle the shout
-		if(isUpperCase(event.getMessage()) && event.getMessage().length() > 5 && event.getUser() != event.getBot().getUserBot()) {
+		if(isUpperCase(event.getMessage()) && event.getMessage().replaceAll("^\\s+", "").replaceAll("\\s+$", "").length() > 5 && event.getUser() != event.getBot().getUserBot()) {
 			new Thread(new ShoutHandler(event, true)).start();
 			return;
 		}
