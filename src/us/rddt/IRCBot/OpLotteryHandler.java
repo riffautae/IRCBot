@@ -59,6 +59,7 @@ public class OpLotteryHandler implements Runnable {
 					// They did! Op them and let everyone know!
 					event.getBot().op(event.getChannel(), event.getUser());
 					event.respond("YOU WON! Enjoy your op status!");
+					System.out.println("[INFO] User " + event.getUser().getNick() + " won the lottery.");
 				} else {
 					// Not this time.
 					event.respond("Sorry, you lost! You can try again in 30 minutes. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");

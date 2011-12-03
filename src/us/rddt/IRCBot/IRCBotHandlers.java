@@ -37,6 +37,8 @@ import org.pircbotx.hooks.events.*;
 public class IRCBotHandlers extends ListenerAdapter {
 	// This handler is called upon receiving any message in a channel
 	public void onMessage(MessageEvent event) throws Exception {
+		// Print the message to the console (for debugging purposes)
+		System.out.println("<" + event.getUser().getNick() + "> " + event.getMessage());
 		// If the message is in upper case and not from ourselves, spawn a new thread to handle the shout
 		if(isUpperCase(event.getMessage()) && event.getMessage().length() > 5 && event.getUser() != event.getBot().getUserBot()) {
 			new Thread(new ShoutHandler(event, true)).start();
@@ -65,14 +67,6 @@ public class IRCBotHandlers extends ListenerAdapter {
 	public void onPrivateMessage(PrivateMessageEvent event) throws Exception {
 		// There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
 		event.respond("Hi! If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my creator, got_milk, instead!");
-	}
-	
-	// This handler is called when an invite has been sent to the bot
-	public void onInvite(InviteEvent event) throws Exception {
-		// If the bot is invited to a channel, join it
-		if(event.getUser().equals("got_milk")) {
-			event.getBot().joinChannel(event.getChannel());
-		}
 	}
 	
 	// This handler is called when a user has been kicked from the channel

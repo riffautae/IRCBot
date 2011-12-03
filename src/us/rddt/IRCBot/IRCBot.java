@@ -33,6 +33,7 @@ import org.pircbotx.hooks.ListenerAdapter;
 
 public class IRCBot extends ListenerAdapter {
 	public static void main(String[] args) throws Exception {
+		System.out.println("Initialzing bot...");
 		// Create a new instance of the IRC bot
 		PircBotX bot = new PircBotX();
 		// Add new listeners for the actions we want the bot to handle
@@ -40,6 +41,7 @@ public class IRCBot extends ListenerAdapter {
 		// Set the bot's nick
 		bot.setName(args[0]);
 		// Attempt to connect to the server and join the required channel(s)
+		System.out.println("Connecting to the network and joining channel...");
 		try {
 			bot.connect("localhost");
 			bot.joinChannel("#rddt");
