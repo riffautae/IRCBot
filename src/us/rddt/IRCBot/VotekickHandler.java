@@ -66,6 +66,12 @@ public class VotekickHandler implements Runnable {
 				resetKick();
 				return;
 			}
+			// Ensure we can actually kick the user - there's no point if we can't
+			if(event.getBot().getUser(votekickUser).getChannelsOwnerIn().contains(event.getChannel())) {
+				event.respond("Cannot votekick user - it is impossible to kick a channel owner!");
+				resetKick();
+				return;
+			}
 			// Add the vote starter as a voted user
 			votedUsers.add(event.getUser().getNick());
 			// Reset the votekick timer (just in case it has not been reset)
@@ -75,7 +81,7 @@ public class VotekickHandler implements Runnable {
 			// Start ticking. Votes will reset the tick counter, keeping the vote alive.
 			while(timeRemaining > 0) {
 				// Ensure our user still exists on the channel, if not cancel the votekick
-				if(!event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(votekickUser))) {
+				if(!event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(votekickUser)) && !votekickUser.equals("")) {
 					event.getBot().sendMessage(event.getChannel(), "The vote to kick " + votekickUser + " has failed! (" + votekickUser + " has left the channel)");
 					resetKick();
 					return;
