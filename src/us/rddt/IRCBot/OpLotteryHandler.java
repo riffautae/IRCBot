@@ -48,14 +48,14 @@ public class OpLotteryHandler implements Runnable {
 		// If the user submitted an actual guess
 		if(event.getMessage() != "") {
 			// If the user hasn't guessed previously or their 30-minute window is up
-			if(lotteryPlayers.get(event.getUser().getHostmask()) == null || ((new Date().getTime() / 1000) - (lotteryPlayers.get(event.getUser().getHostmask()).getTime() / 1000) > 1800)) {
+			if(lotteryPlayers.get(event.getUser().getHostmask()) == null || (((lotteryPlayers.get(event.getUser().getHostmask()).getTime() / 1000) - new Date().getTime() / 1000) < 0)) {
 				// Store that they guessed
-				lotteryPlayers.put(event.getUser().getHostmask(), new Date());
+				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (1800 * 1000)));
 				// Generate the winning number
 				Random generator = new Random();
 				int lotteryNumber = generator.nextInt(26);
 				// Did they win?
-				if(Integer.parseInt(event.getMessage().substring(9)) == lotteryNumber) {
+				if(Integer.parseInt(event.getMessage().substring(9).replaceAll("^\\s+", "").replaceAll("\\s+$", "")) == lotteryNumber) {
 					// They did! Op them and let everyone know!
 					event.getBot().op(event.getChannel(), event.getUser());
 					event.respond("YOU WON! Enjoy your op status!");
@@ -64,12 +64,29 @@ public class OpLotteryHandler implements Runnable {
 					// Not this time.
 					event.respond("Sorry, you lost! You can try again in 30 minutes. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
 				}
+			} else {
+				event.respond("You still need to wait " + toReadableTime(lotteryPlayers.get(event.getUser().getHostmask())) + " until you can play again.");
 			}
-		}
+		} 
 	}
 	
 	// Class constructor
 	public OpLotteryHandler(MessageEvent event) {
 		this.event = event;
+	}
+	
+	private String toReadableTime(Date date) {
+		// Calculate the difference in seconds between the quote's submission and now
+		long diffInSeconds = (date.getTime() - new Date().getTime()) / 1000;
+
+		// Calculate the appropriate minute/seconds ago values and insert them into a long array
+	    long diff[] = new long[] { 0, 0 };
+	    diff[1] = (diffInSeconds >= 60 ? diffInSeconds % 60 : diffInSeconds);
+	    diff[0] = (diffInSeconds = (diffInSeconds / 60)) >= 60 ? diffInSeconds % 60 : diffInSeconds;
+	    
+	    // Build the readable format string
+	    if(diff[0] != 0) return String.format("%d minute%s", diff[0], diff[0] > 1 ? "s" : "");
+	    if(diff[1] != 0) return String.format("%d second%s", diff[1], diff[1] > 1 ? "s" : "");
+	    else return "unknown";
 	}
 }
