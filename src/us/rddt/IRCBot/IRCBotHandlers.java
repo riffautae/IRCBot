@@ -108,28 +108,36 @@ public class IRCBotHandlers extends ListenerAdapter {
 	// Method to check for any commands that may be received from a user
 	private boolean checkForCommands(MessageEvent event) {
 		// If the message contains !who at the start, spawn a new thread to handle the request
-		if(event.getMessage().startsWith("!who")) {
+		if(event.getMessage().startsWith("!who ")) {
 			new Thread(new ShoutHandler(event)).start();
 			return true;
 		}
 		// ..or !decide
-		if(event.getMessage().startsWith("!decide")) {
+		if(event.getMessage().startsWith("!decide ")) {
 			new Thread(new FortuneHandler(event)).start();
 			return true;
 		}
 		// ..or !votekick
-		if(event.getMessage().startsWith("!votekick")) {
+		if(event.getMessage().startsWith("!votekick ")) {
 			new Thread(new VotekickHandler(event)).start();
 			return true;
 		}
 		// ..or !seen
-		if(event.getMessage().startsWith("!seen")) {
+		if(event.getMessage().startsWith("!seen ")) {
 			new Thread(new SeenHandler(event)).start();
 			return true;
 		}
 		// ..or !lottery
-		if(event.getMessage().startsWith("!lottery")) {
+		if(event.getMessage().startsWith("!lottery ")) {
 			new Thread(new OpLotteryHandler(event)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!kick ") || event.getMessage().substring(0, 3).equals(".k ")) {
+			new Thread(new KickBanHandler(event, false)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!ban ") || event.getMessage().substring(0, 4).equals(".kb ")) {
+			new Thread(new KickBanHandler(event, true)).start();
 			return true;
 		}
 		return false;
