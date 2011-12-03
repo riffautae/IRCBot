@@ -29,6 +29,7 @@
 package us.rddt.IRCBot;
 
 import org.pircbotx.hooks.events.MessageEvent;
+import org.pircbotx.hooks.events.NickChangeEvent;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -138,6 +139,18 @@ public class VotekickHandler implements Runnable {
 	// Class constructor
 	public VotekickHandler(MessageEvent event) {
 		this.event = event;
+	}
+	
+	public VotekickHandler(NickChangeEvent event) {
+		if(votekickUser.equals(event.getOldNick())) {
+			votekickUser = event.getNewNick().replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+		}
+		else if(votedUsers.contains(event.getOldNick())) {
+			synchronized(votedUsers) {
+				votedUsers.set(votedUsers.indexOf(event.getOldNick()), event.getNewNick());
+			}
+		}
+		return;
 	}
 	
 	// Method to reset the votekick system when a vote has finished

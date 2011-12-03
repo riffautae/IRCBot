@@ -91,6 +91,10 @@ public class IRCBotHandlers extends ListenerAdapter {
 		new Thread(new SeenHandler(event)).start();
 	}
 	
+	public void onNickChange(NickChangeEvent event) {
+		new Thread(new VotekickHandler(event)).start();
+	}
+	
 	// Method to check if a string is uppercase
 	private boolean isUpperCase(String s) {
 		// Boolean value to ensure that an all numeric string does not trigger the shouting functions
