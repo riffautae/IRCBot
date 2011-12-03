@@ -53,8 +53,10 @@ public class VotekickHandler implements Runnable {
 		// There is no votekick in progress
 		if(votekickUser.equals("")) {
 			// Set the current votekick user
-			synchronized(votekickUser) {
-				votekickUser = event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+			if(event.getMessage() != null) {
+				synchronized(votekickUser) {
+					votekickUser = event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+				}
 			}
 			// Determine the number of required votes to pass
 			requiredVotes.set((int)(event.getChannel().getUsers().size() * 0.25));
@@ -77,7 +79,7 @@ public class VotekickHandler implements Runnable {
 				return;
 			}
 			// Add the vote starter as a voted user
-			votedUsers.add(event.getUser().getNick());
+			votedUsers.add(event.getUser().getHostmask());
 			// Reset the votekick timer (just in case it has not been reset)
 			timeRemaining.set(60);
 			// Set the AtomicBoolean to reflect a vote in progress
@@ -107,9 +109,9 @@ public class VotekickHandler implements Runnable {
 			}
 		}
 		// There is a vote in progress and the user has voted to kick
-		else if(votekickUser.equals(event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", ""))) {
+		else if(event.getMessage() != null && votekickUser.equals(event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", ""))) {
 			// Ensure the user isn't trying to vote more than once
-			if(hasVoted(event.getUser().getNick())) {
+			if(hasVoted(event.getUser().getHostmask())) {
 				event.respond("You cannot vote more than once!");
 				return;
 			}
@@ -120,7 +122,7 @@ public class VotekickHandler implements Runnable {
 			// Announce the vote to kick
 			event.getBot().sendMessage(event.getChannel(), event.getUser().getNick() + " has voted to kick " + votekickUser + "! (" + requiredVotes + " needed)");
 			// Add the user to the voted list
-			votedUsers.add(event.getUser().getNick());
+			votedUsers.add(event.getUser().getHostmask());
 			// If we don't need any more votes to pass, kick the user and reset the system
 			if(requiredVotes.get() <= 0) {
 				event.getBot().sendMessage(event.getChannel(), "Vote succeeded - kicking " + votekickUser + "!");
