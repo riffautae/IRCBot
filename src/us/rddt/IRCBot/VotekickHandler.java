@@ -132,7 +132,7 @@ public class VotekickHandler implements Runnable {
 			}
 		}
 		// A votekick is in progress and someone is trying to start a new one
-		else {
+		else if(event.getMessage() != null){
 			event.respond("You cannot vote to kick another user while a votekick is currently in progress.");
 			return;
 		}
