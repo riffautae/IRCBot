@@ -37,8 +37,6 @@ import org.pircbotx.hooks.events.*;
 public class IRCBotHandlers extends ListenerAdapter {
 	// This handler is called upon receiving any message in a channel
 	public void onMessage(MessageEvent event) throws Exception {
-		// Print the message to the console (for debugging purposes)
-		System.out.println("<" + event.getUser().getNick() + "> " + event.getMessage());
 		// If the message is in upper case and not from ourselves, spawn a new thread to handle the shout
 		if(isUpperCase(event.getMessage()) && event.getMessage().length() > 5 && event.getUser() != event.getBot().getUserBot()) {
 			new Thread(new ShoutHandler(event, true)).start();
