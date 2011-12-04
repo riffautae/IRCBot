@@ -50,7 +50,7 @@ public class VotekickHandler implements Runnable {
 	// Method that executes upon start of thread
 	public void run() {
 		// There is no votekick in progress
-		if(!voteInProgress.get()) {
+		if(event != null && votekickUser != null && !voteInProgress.get()) {
 			// Set the current votekick user
 			synchronized(votekickUser) {
 				votekickUser = event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
@@ -112,7 +112,7 @@ public class VotekickHandler implements Runnable {
 			}
 		}
 		// There is a vote in progress and the user has voted to kick
-		else if(votekickUser.equals(event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", ""))) {
+		else if(event != null && votekickUser != null && votekickUser.equals(event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", ""))) {
 			// Ensure the user isn't trying to vote more than once
 			if(hasVoted(event.getUser().getHostmask())) {
 				event.respond("You cannot vote more than once!");
@@ -135,7 +135,7 @@ public class VotekickHandler implements Runnable {
 			}
 		}
 		// A votekick is in progress and someone is trying to start a new one
-		else {
+		else if(event != null && votekickUser != null) {
 			event.respond("You cannot vote to kick another user while a votekick is currently in progress.");
 			return;
 		}
@@ -143,13 +143,11 @@ public class VotekickHandler implements Runnable {
 
 	// Class constructor
 	public VotekickHandler(MessageEvent event) {
-		if(event == null) return;
 		this.event = event;
 	}
 
 	// Class constructor for nick changes
 	public VotekickHandler(NickChangeEvent event) {
-		if(event == null) return;
 		if(votekickUser.equals(event.getOldNick())) {
 			votekickUser = event.getNewNick().replaceAll("^\\s+", "").replaceAll("\\s+$", "");
 		}
