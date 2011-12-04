@@ -76,7 +76,7 @@ public class OpLotteryHandler implements Runnable {
 	}
 	
 	private String toReadableTime(Date date) {
-		// Calculate the difference in seconds between the quote's submission and now
+		// Calculate the difference in seconds between the last time the user played and now
 		long diffInSeconds = (date.getTime() - new Date().getTime()) / 1000;
 
 		// Calculate the appropriate minute/seconds ago values and insert them into a long array

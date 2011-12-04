@@ -34,10 +34,7 @@ import org.pircbotx.hooks.events.QuitEvent;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class SeenHandler implements Runnable {
 	// Variables
@@ -177,7 +174,7 @@ public class SeenHandler implements Runnable {
 	}
 	
 	private String toReadableTime(Date date) {
-		// Calculate the difference in seconds between the quote's submission and now
+		// Calculate the difference in seconds between the time the user left and now
 		long diffInSeconds = (new Date().getTime() - date.getTime()) / 1000;
 
 		// Calculate the appropriate day/hour/minute/seconds ago values and insert them into a long array
