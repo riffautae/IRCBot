@@ -32,6 +32,8 @@ import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -45,9 +47,7 @@ public class SeenHandler implements Runnable {
 	private boolean hasParted;
 	private String seenUser;
 	
-	// We need this to be accessible from other threads, so we make it static and volatile
-	// This will hold our list of previous users.
-	private static volatile Map<String, Date> userList = Collections.synchronizedMap(new HashMap<String, Date>());
+	private Database database;
 	
 	// Method that executes upon start of thread
 	public void run() {
@@ -90,7 +90,7 @@ public class SeenHandler implements Runnable {
 			return;
 		// The user is performing the command on the bot?
 		} else if (seenUser.equals(event.getBot().getNick())) {
-			event.respond("I don't think you understand how this command works.");
+			event.respond("I don't think that command means what you think it means.");
 			return;
 		// Make sure the user isn't in the channel, if they are then just return that they are
 		} else if (event.getBot().getUsers(event.getChannel()).contains(event.getBot().getUser(seenUser))) {
@@ -102,21 +102,77 @@ public class SeenHandler implements Runnable {
 			return;
 		// If all else fails, we have a valid request
 		} else {
-			// Get the date that the user was last seen and send it back. If there's no date, we never saw the user.
-			Date seenDate = userList.get(seenUser);
-			if(seenDate != null) {
-				event.respond(seenUser + " was last seen " + toReadableTime(seenDate) + ".");
-			} else {
-				event.respond("I haven't seen " + seenUser + ".");
+			// Create a new instance of the database
+			database = new Database();
+			try {
+				// Connect to the database and execute our select query
+				database.connect();
+				PreparedStatement statement = database.getPreparedStatement();
+				statement = database.getConnection().prepareStatement("SELECT Date FROM Seen WHERE Nick = ? AND Channel = ?");
+				statement.setString(1, seenUser);
+				statement.setString(2, event.getChannel().getName());
+				ResultSet resultSet = statement.executeQuery();
+				// Respond appropriately should our user exist/not exist in the database
+				if(resultSet.next()) {
+					event.respond(seenUser + " was last seen " + toReadableTime(resultSet.getTimestamp("Date")) + ".");
+				} else {
+					event.respond("I haven't seen " + seenUser + ".");
+				}
+				// Disconnect from the database
+				database.disconnect();
+			} catch (Exception ex) {
+				EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
+				ex.printStackTrace();
 			}
 		}
 	}
 	
 	// Method called when a user parts/quits. Update their key/value with the timestamp of when they left.
 	private void updateSeen() {
-		synchronized(userList) {
-			if(pEvent != null) userList.put(pEvent.getUser().getNick(), new Date());
-			else userList.put(qEvent.getUser().getNick(), new Date());
+		// Temporary variables
+		String userToUpdate;
+		String channelToUpdate;
+		// Make sure we have our user and channel to update, regardless of the event passed
+		if(pEvent != null) {
+			userToUpdate = pEvent.getUser().getNick();
+			channelToUpdate = pEvent.getChannel().getName();
+		}
+		else {
+			userToUpdate = qEvent.getUser().getNick();
+			channelToUpdate = pEvent.getChannel().getName();
+		}
+		
+		// Create a new instance of the database
+		database = new Database();
+		try {
+			// Connect to the database and execute our select query to see whether to insert or update
+			database.connect();
+			PreparedStatement statement = database.getPreparedStatement();
+			statement = database.getConnection().prepareStatement("SELECT Date FROM Seen WHERE Nick = ? AND Channel = ?");
+			statement.setString(1, userToUpdate);
+			statement.setString(2, channelToUpdate);
+			ResultSet resultSet = statement.executeQuery();
+			// If a record exists, then run another query to update the date appropriately
+			if(resultSet.next()) {
+				statement = database.getConnection().prepareStatement("UPDATE Seen SET Date = ? WHERE Nick = ? AND Channel = ?");
+				statement.setTimestamp(1, new java.sql.Timestamp(new Date().getTime()));
+				statement.setString(2, userToUpdate);
+				statement.setString(3, channelToUpdate);
+				statement.executeUpdate();
+			}
+			// Otherwise, create a new record in the database for the user
+			else {
+				statement = database.getConnection().prepareStatement("INSERT INTO Seen(Nick, Date, Channel) VALUES (?, ?, ?)");
+				statement.setString(1, userToUpdate);
+				statement.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
+				statement.setString(3, channelToUpdate);
+				statement.executeUpdate();
+			}
+			// Disconnect from the database
+			database.disconnect();
+		} catch (Exception ex) {
+			EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
 		}
 	}
 	
