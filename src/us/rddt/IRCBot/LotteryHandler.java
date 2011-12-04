@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class OpLotteryHandler implements Runnable {
+public class LotteryHandler implements Runnable {
 	// Variables
 	private MessageEvent event;
 	
@@ -53,13 +53,13 @@ public class OpLotteryHandler implements Runnable {
 				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (1800 * 1000)));
 				// Generate the winning number
 				Random generator = new Random();
-				int lotteryNumber = generator.nextInt(26);
+				int lotteryNumber = generator.nextInt(100) + 1;
 				// Did they win?
 				if(Integer.parseInt(event.getMessage().substring(9).replaceAll("^\\s+", "").replaceAll("\\s+$", "")) == lotteryNumber) {
-					// They did! Op them and let everyone know!
-					event.getBot().op(event.getChannel(), event.getUser());
-					event.respond("YOU WON! Enjoy your op status!");
-					EventLogger.Log(EventLogger.LOG_INFORMATION, "User " + event.getUser().getNick() + " won the lottery.");
+					// They did! Crown them and let everyone know!
+					new Thread(new KingHandler(event)).start();
+					event.respond("YOU WON! ALL HAIL KING " + event.getUser().getNick() + "!");
+					EventLogger.Log(EventLogger.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
 				} else {
 					// Not this time.
 					event.respond("Sorry, you lost! You can try again in 30 minutes. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
@@ -71,7 +71,7 @@ public class OpLotteryHandler implements Runnable {
 	}
 	
 	// Class constructor
-	public OpLotteryHandler(MessageEvent event) {
+	public LotteryHandler(MessageEvent event) {
 		this.event = event;
 	}
 	
