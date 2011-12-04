@@ -50,7 +50,7 @@ public class LotteryHandler implements Runnable {
 			// If the user hasn't guessed previously or their 30-minute window is up
 			if(lotteryPlayers.get(event.getUser().getHostmask()) == null || (((lotteryPlayers.get(event.getUser().getHostmask()).getTime() / 1000) - new Date().getTime() / 1000) < 0)) {
 				// Store that they guessed
-				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (1800 * 1000)));
+				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (900 * 1000)));
 				// Generate the winning number
 				Random generator = new Random();
 				int lotteryNumber = generator.nextInt(100) + 1;
@@ -62,7 +62,7 @@ public class LotteryHandler implements Runnable {
 					EventLogger.Log(EventLogger.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
 				} else {
 					// Not this time.
-					event.respond("Sorry, you lost! You can try again in 30 minutes. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
+					event.respond("Sorry, you lost! You can try again in 15 minutes. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
 				}
 			} else {
 				event.respond("You still need to wait " + toReadableTime(lotteryPlayers.get(event.getUser().getHostmask())) + " until you can play again.");

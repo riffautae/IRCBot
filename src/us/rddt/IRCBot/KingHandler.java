@@ -80,11 +80,9 @@ public class KingHandler implements Runnable {
 			// Connect to the database
 			database.connect();
 			// Execute the query to add the user to the database
-			PreparedStatement statement = database.getConnection().prepareStatement("INSERT INTO Lottery(PlayerHost, DateCrowned) VALUES (?, ?) ON DUPLICATE KEY UPDATE PlayerHost = ?, DateCrowned = ?");
+			PreparedStatement statement = database.getConnection().prepareStatement("UPDATE Lottery SET PlayerHost = ?, DateCrowned = ?");
 			statement.setString(1, newKing.getHostmask());
 			statement.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
-			statement.setString(3, newKing.getHostmask());
-			statement.setTimestamp(4, new java.sql.Timestamp(new Date().getTime()));
 			statement.executeUpdate();
 		} catch (Exception ex) {
 			EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
