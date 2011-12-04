@@ -43,7 +43,7 @@ public class IRCBot extends ListenerAdapter {
 		// Attempt to connect to the server and join the required channel(s)
 		EventLogger.Log(EventLogger.LOG_INFORMATION, "Connecting to the network and joining channel");
 		try {
-			bot.connect("rddt.us", 6667, "herpderp");
+			bot.connect("localhost", 6667, "herpderp");
 			bot.joinChannel("#rddt");
 		} catch (Exception ex) {
 			EventLogger.Log(EventLogger.LOG_FATAL, ex.getMessage());
