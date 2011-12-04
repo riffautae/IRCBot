@@ -54,18 +54,27 @@ public class LotteryHandler implements Runnable {
 				// Generate the winning number
 				Random generator = new Random();
 				int lotteryNumber = generator.nextInt(100) + 1;
+				// Ensure the guess is a valid one
+				int guessedNumber = 0;
+				try {
+					guessedNumber = Integer.parseInt(event.getMessage().substring(9).replaceAll("^\\s+", "").replaceAll("\\s+$", ""));
+				} catch (NumberFormatException ex) {
+					event.getBot().sendMessage(event.getUser(), "Your guess was not a number! As punishment, you will need to wait 1 hour before trying again.");
+					lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (3600 * 1000)));
+					return;
+				}
 				// Did they win?
-				if(Integer.parseInt(event.getMessage().substring(9).replaceAll("^\\s+", "").replaceAll("\\s+$", "")) == lotteryNumber) {
+				if(guessedNumber == lotteryNumber) {
 					// They did! Crown them and let everyone know!
 					new Thread(new KingHandler(event)).start();
 					event.respond("YOU WON! ALL HAIL KING " + event.getUser().getNick() + "!");
 					IRCUtils.Log(IRCUtils.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
 				} else {
-					// Not this time.
-					event.respond("Sorry, you lost! You can try again in 15 minutes. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
+					// Not this time. (PM the user as to avoid channel flooding)
+					event.getBot().sendMessage(event.getUser(), "Sorry, you lost! You can try again in 15 minutes. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
 				}
 			} else {
-				event.respond("You still need to wait " + IRCUtils.toReadableTime(lotteryPlayers.get(event.getUser().getHostmask()), true) + " until you can play again.");
+				event.getBot().sendMessage(event.getUser(), "You still need to wait " + IRCUtils.toReadableTime(lotteryPlayers.get(event.getUser().getHostmask()), true) + " until you can play again.");
 			}
 		} 
 	}
