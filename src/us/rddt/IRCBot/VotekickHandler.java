@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class VotekickHandler implements Runnable {
 	// Variables
 	private MessageEvent event;
+	private NickChangeEvent nickEvent;
 
 	// We need these variables to be accessible from other threads, so we make it static and volatile
 	private static volatile String votekickUser = "";
@@ -49,8 +50,19 @@ public class VotekickHandler implements Runnable {
 
 	// Method that executes upon start of thread
 	public void run() {
+		if(nickEvent != null) {
+			if(votekickUser.equals(nickEvent.getOldNick())) {
+				votekickUser = nickEvent.getNewNick().replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+			}
+			else if(votedUsers.contains(nickEvent.getOldNick())) {
+				synchronized(votedUsers) {
+					votedUsers.set(votedUsers.indexOf(nickEvent.getOldNick()), nickEvent.getNewNick());
+				}
+			}
+			return;
+		}
 		// There is no votekick in progress
-		if(event != null && votekickUser != null && !voteInProgress.get()) {
+		if(!voteInProgress.get()) {
 			// Set the current votekick user
 			synchronized(votekickUser) {
 				votekickUser = event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
@@ -113,7 +125,7 @@ public class VotekickHandler implements Runnable {
 			}
 		}
 		// There is a vote in progress and the user has voted to kick
-		else if(event != null && votekickUser != null && votekickUser.equals(event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", ""))) {
+		else if(votekickUser.equals(event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", ""))) {
 			// Ensure the user isn't trying to vote more than once
 			if(hasVoted(event.getUser().getHostmask())) {
 				event.respond("You cannot vote more than once!");
@@ -136,7 +148,7 @@ public class VotekickHandler implements Runnable {
 			}
 		}
 		// A votekick is in progress and someone is trying to start a new one
-		else if(event != null && votekickUser != null) {
+		else {
 			event.respond("You cannot vote to kick another user while a votekick is currently in progress.");
 			return;
 		}
@@ -149,15 +161,7 @@ public class VotekickHandler implements Runnable {
 
 	// Class constructor for nick changes
 	public VotekickHandler(NickChangeEvent event) {
-		if(votekickUser.equals(event.getOldNick())) {
-			votekickUser = event.getNewNick().replaceAll("^\\s+", "").replaceAll("\\s+$", "");
-		}
-		else if(votedUsers.contains(event.getOldNick())) {
-			synchronized(votedUsers) {
-				votedUsers.set(votedUsers.indexOf(event.getOldNick()), event.getNewNick());
-			}
-		}
-		return;
+		this.nickEvent = event;
 	}
 
 	// Method to reset the votekick system when a vote has finished
@@ -178,7 +182,7 @@ public class VotekickHandler implements Runnable {
 		if(votedUsers.contains(nick)) return true;
 		else return false;
 	}
-	
+
 	// Method called when a vote passes to kick the offending user
 	private void kickUser() {
 		event.getBot().sendMessage(event.getChannel(), "Vote succeeded - kicking " + votekickUser + "!");
