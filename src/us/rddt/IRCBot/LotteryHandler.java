@@ -59,13 +59,13 @@ public class LotteryHandler implements Runnable {
 					// They did! Crown them and let everyone know!
 					new Thread(new KingHandler(event)).start();
 					event.respond("YOU WON! ALL HAIL KING " + event.getUser().getNick() + "!");
-					EventLogger.Log(EventLogger.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
+					IRCUtils.Log(IRCUtils.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
 				} else {
 					// Not this time.
 					event.respond("Sorry, you lost! You can try again in 15 minutes. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
 				}
 			} else {
-				event.respond("You still need to wait " + toReadableTime(lotteryPlayers.get(event.getUser().getHostmask())) + " until you can play again.");
+				event.respond("You still need to wait " + IRCUtils.toReadableTime(lotteryPlayers.get(event.getUser().getHostmask()), true) + " until you can play again.");
 			}
 		} 
 	}
@@ -73,20 +73,5 @@ public class LotteryHandler implements Runnable {
 	// Class constructor
 	public LotteryHandler(MessageEvent event) {
 		this.event = event;
-	}
-	
-	private String toReadableTime(Date date) {
-		// Calculate the difference in seconds between the last time the user played and now
-		long diffInSeconds = (date.getTime() - new Date().getTime()) / 1000;
-
-		// Calculate the appropriate minute/seconds ago values and insert them into a long array
-	    long diff[] = new long[] { 0, 0 };
-	    diff[1] = (diffInSeconds >= 60 ? diffInSeconds % 60 : diffInSeconds);
-	    diff[0] = (diffInSeconds = (diffInSeconds / 60)) >= 60 ? diffInSeconds % 60 : diffInSeconds;
-	    
-	    // Build the readable format string
-	    if(diff[0] != 0) return String.format("%d minute%s", diff[0], diff[0] > 1 ? "s" : "");
-	    if(diff[1] != 0) return String.format("%d second%s", diff[1], diff[1] > 1 ? "s" : "");
-	    else return "unknown";
 	}
 }

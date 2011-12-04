@@ -68,7 +68,7 @@ public class ShoutHandler implements Runnable {
 			// Disconnect from the database
 			database.disconnect();
 		} catch (Exception ex) {
-			EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
 		}
@@ -102,7 +102,7 @@ public class ShoutHandler implements Runnable {
 				lastSubmitter = resultSet.getString("Nick");
 			}
 			synchronized(lastReadableDate) {
-				lastReadableDate = toReadableTime((Date)resultSet.getTimestamp("Date"));
+				lastReadableDate = IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false);
 			}
 			// Return the random quote
 			return resultSet.getString("Quote");
@@ -135,7 +135,7 @@ public class ShoutHandler implements Runnable {
 			if(lastQuote == null || lastQuote == "") return "No previous quote.";
 			// Provide context if the !who last command was used, but trim it if the quote is longer than 10 characters (use 60% of the quote instead)
 			if(quote.length() < 11) {
-				return lastSubmitter + " shouted \"" + lastQuote + "\" " + lastReadableDate + ".";
+				return lastSubmitter + " shouted \"" + lastQuote + "\" about " + lastReadableDate + " ago.";
 			} else {
 				return lastSubmitter + " shouted \"" + lastQuote.substring(0, (int)(lastQuote.length() * 0.6)) + "...\" " + lastReadableDate + ".";
 			}
@@ -164,7 +164,7 @@ public class ShoutHandler implements Runnable {
 		if(resultSet.next()) {
 			// Tease the user if it's their own quote
 			if(resultSet.getString("Nick").equals(event.getUser().getNick())) return "don't you remember? YOU submitted this! Put down the bong!";
-			return resultSet.getString("Nick") + " shouted this " + toReadableTime((Date)resultSet.getTimestamp("Date")) + ".";
+			return resultSet.getString("Nick") + " shouted this about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
 		} else {
 			return "Quote not found.";
 		}
@@ -181,25 +181,5 @@ public class ShoutHandler implements Runnable {
 		statement.setString(3, event.getChannel().getName());
 		statement.setString(4, event.getMessage());
 		statement.executeUpdate();
-	}
-
-	// Method to convert a date into a more readable time format.
-	private String toReadableTime(Date date) {
-		// Calculate the difference in seconds between the quote's submission and now
-		long diffInSeconds = (new Date().getTime() - date.getTime()) / 1000;
-
-		// Calculate the appropriate day/hour/minute/seconds ago values and insert them into a long array
-		long diff[] = new long[] { 0, 0, 0, 0 };
-		diff[3] = (diffInSeconds >= 60 ? diffInSeconds % 60 : diffInSeconds);
-		diff[2] = (diffInSeconds = (diffInSeconds / 60)) >= 60 ? diffInSeconds % 60 : diffInSeconds;
-		diff[1] = (diffInSeconds = (diffInSeconds / 60)) >= 24 ? diffInSeconds % 24 : diffInSeconds;
-		diff[0] = (diffInSeconds = (diffInSeconds / 24));
-
-		// Build the readable format string
-		if(diff[0] != 0) return String.format("about %d day%s ago", diff[0], diff[0] > 1 ? "s" : "");
-		if(diff[1] != 0) return String.format("about %s%s hour%s ago", diff[1] > 1 ? "" : "an", diff[1] > 1 ? String.valueOf(diff[1]) : "", diff[1] > 1 ? "s" : "");
-		if(diff[2] != 0) return String.format("about %d minute%s ago", diff[2], diff[2] > 1 ? "s" : "");
-		if(diff[3] != 0) return "just a moment ago";
-		else return "an unknown time ago";
 	}
 }

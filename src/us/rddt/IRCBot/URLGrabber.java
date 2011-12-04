@@ -62,7 +62,7 @@ public class URLGrabber implements Runnable {
 			try {
 				event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
 			} catch (Exception ex) {
-				EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
+				IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 				ex.printStackTrace();
 				event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + ex.getMessage() + ")"));
 				return;

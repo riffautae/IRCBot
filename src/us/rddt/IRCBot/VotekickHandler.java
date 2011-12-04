@@ -113,7 +113,7 @@ public class VotekickHandler implements Runnable {
 				try {
 					Thread.sleep(1000);
 				} catch (InterruptedException ex) {
-					EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
+					IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 					ex.printStackTrace();
 				}
 			}
@@ -187,7 +187,7 @@ public class VotekickHandler implements Runnable {
 	private void kickUser() {
 		event.getBot().sendMessage(event.getChannel(), "Vote succeeded - kicking " + votekickUser + "!");
 		event.getBot().kick(event.getChannel(), event.getBot().getUser(votekickUser), "You have been voted out of the channel!");
-		EventLogger.Log(EventLogger.LOG_INFORMATION, votekickUser + " has been kicked from the channel by a votekick.");
+		IRCUtils.Log(IRCUtils.LOG_INFORMATION, votekickUser + " has been kicked from the channel by a votekick.");
 		resetKick();
 	}
 

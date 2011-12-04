@@ -45,10 +45,10 @@ public class KickBanHandler implements Runnable {
 			} else {
 				event.getBot().kick(event.getChannel(), event.getBot().getUser(kickUser), "Requested (" + event.getUser().getNick() + ")");
 			}
-			EventLogger.Log(EventLogger.LOG_INFORMATION, kickUser + " has been kicked from the channel by " + event.getUser().getNick() + ".");
+			IRCUtils.Log(IRCUtils.LOG_INFORMATION, kickUser + " has been kicked from the channel by " + event.getUser().getNick() + ".");
 			if(isBan) {
 				event.getBot().ban(event.getChannel(), event.getBot().getUser(kickUser).getHostmask());
-				EventLogger.Log(EventLogger.LOG_INFORMATION, kickUser + " (hostmask " + event.getBot().getUser(kickUser).getHostmask() + ") has been banned from the channel by " + event.getUser().getNick() + ".");
+				IRCUtils.Log(IRCUtils.LOG_INFORMATION, kickUser + " (hostmask " + event.getBot().getUser(kickUser).getHostmask() + ") has been banned from the channel by " + event.getUser().getNick() + ".");
 			}
 		}
 	}

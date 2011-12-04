@@ -111,14 +111,14 @@ public class SeenHandler implements Runnable {
 				ResultSet resultSet = statement.executeQuery();
 				// Respond appropriately should our user exist/not exist in the database
 				if(resultSet.next()) {
-					event.respond(seenUser + " was last seen " + toReadableTime(resultSet.getTimestamp("Date")) + ".");
+					event.respond(seenUser + " was last seen about " + IRCUtils.toReadableTime(resultSet.getTimestamp("Date"), false) + " ago.");
 				} else {
 					event.respond("I haven't seen " + seenUser + ".");
 				}
 				// Disconnect from the database
 				database.disconnect();
 			} catch (Exception ex) {
-				EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
+				IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 				ex.printStackTrace();
 			}
 		}
@@ -136,7 +136,7 @@ public class SeenHandler implements Runnable {
 		}
 		else {
 			userToUpdate = qEvent.getUser().getNick();
-			channelToUpdate = pEvent.getChannel().getName();
+			channelToUpdate = qEvent.getBot().getChannel(qEvent.getUser().getNick()).getName();
 		}
 		
 		// Create a new instance of the database
@@ -168,27 +168,8 @@ public class SeenHandler implements Runnable {
 			// Disconnect from the database
 			database.disconnect();
 		} catch (Exception ex) {
-			EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 		}
-	}
-	
-	private String toReadableTime(Date date) {
-		// Calculate the difference in seconds between the time the user left and now
-		long diffInSeconds = (new Date().getTime() - date.getTime()) / 1000;
-
-		// Calculate the appropriate day/hour/minute/seconds ago values and insert them into a long array
-	    long diff[] = new long[] { 0, 0, 0, 0 };
-	    diff[3] = (diffInSeconds >= 60 ? diffInSeconds % 60 : diffInSeconds);
-	    diff[2] = (diffInSeconds = (diffInSeconds / 60)) >= 60 ? diffInSeconds % 60 : diffInSeconds;
-	    diff[1] = (diffInSeconds = (diffInSeconds / 60)) >= 24 ? diffInSeconds % 24 : diffInSeconds;
-	    diff[0] = (diffInSeconds = (diffInSeconds / 24));
-	    
-	    // Build the readable format string
-	    if(diff[0] != 0) return String.format("about %d day%s ago", diff[0], diff[0] > 1 ? "s" : "");
-	    if(diff[1] != 0) return String.format("about %s%s hour%s ago", diff[1] > 1 ? "" : "an", diff[1] > 1 ? String.valueOf(diff[1]) : "", diff[1] > 1 ? "s" : "");
-	    if(diff[2] != 0) return String.format("about %d minute%s ago", diff[2], diff[2] > 1 ? "s" : "");
-	    if(diff[3] != 0) return "just a moment ago";
-	    else return "an unknown time ago";
 	}
 }

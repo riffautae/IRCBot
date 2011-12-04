@@ -39,7 +39,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 
 public class KingHandler implements Runnable {
 	// Variables
-	private Database database;
+	private static Database database;
 	private MessageEvent mEvent;
 	private JoinEvent jEvent;
 	
@@ -80,12 +80,13 @@ public class KingHandler implements Runnable {
 			// Connect to the database
 			database.connect();
 			// Execute the query to add the user to the database
-			PreparedStatement statement = database.getConnection().prepareStatement("UPDATE Lottery SET PlayerHost = ?, DateCrowned = ?");
-			statement.setString(1, newKing.getHostmask());
-			statement.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
+			PreparedStatement statement = database.getConnection().prepareStatement("UPDATE Lottery SET Nick = ?, Host = ?, DateCrowned = ?");
+			statement.setString(1, newKing.getNick());
+			statement.setString(2, newKing.getHostmask());
+			statement.setTimestamp(3, new java.sql.Timestamp(new Date().getTime()));
 			statement.executeUpdate();
 		} catch (Exception ex) {
-			EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 		}
 	}
@@ -97,15 +98,33 @@ public class KingHandler implements Runnable {
 			// Connect to the database
 			database.connect();
 			// Execute the query to get the current king and check if they are the king
-			PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Lottery WHERE PlayerHost = ?");
+			PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Lottery WHERE Host = ?");
 			statement.setString(1, candidate.getHostmask());
 			ResultSet resultSet = statement.executeQuery();
 			if(resultSet.next()) return true;
 			else return false;
 		} catch (Exception ex) {
-			EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return false;
+		}
+	}
+	
+	public static String getKingsNick() {
+		// Create a new instance of the database
+		database = new Database();
+		try {
+			// Connect to the database
+			database.connect();
+			// Execute the query to get the current king and check if they are the king
+			PreparedStatement statement = database.getConnection().prepareStatement("SELECT Nick FROM Lottery");
+			ResultSet resultSet = statement.executeQuery();
+			if(resultSet.next()) return resultSet.getString("Nick");
+			else return null;
+		} catch (Exception ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
+			return null;
 		}
 	}
 }

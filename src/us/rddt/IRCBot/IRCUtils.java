@@ -30,13 +30,13 @@ package us.rddt.IRCBot;
 
 import java.util.Date;
 
-public class EventLogger {
+public class IRCUtils {
 	// Integers to represent logging levels
 	public static final int LOG_INFORMATION = 0;
 	public static final int LOG_WARNING = 1;
 	public static final int LOG_ERROR = 2;
 	public static final int LOG_FATAL = 3;
-	
+
 	public static void Log(int logType, String toLog) {
 		// Temporary string to construct the log output
 		String output;
@@ -61,5 +61,26 @@ public class EventLogger {
 		output += (new Date().toString() + ": " + toLog);
 		// Log to the console
 		System.out.println(output);
+	}
+
+	public static String toReadableTime(Date date, boolean countingDown) {
+		// Calculate the difference in seconds between the time the user left and now
+		long diffInSeconds;
+		if(countingDown) diffInSeconds = (date.getTime() - new Date().getTime()) / 1000;
+		else diffInSeconds = (new Date().getTime() - date.getTime()) / 1000;
+
+		// Calculate the appropriate day/hour/minute/seconds ago values and insert them into a long array
+		long diff[] = new long[] { 0, 0, 0, 0 };
+		diff[3] = (diffInSeconds >= 60 ? diffInSeconds % 60 : diffInSeconds);
+		diff[2] = (diffInSeconds = (diffInSeconds / 60)) >= 60 ? diffInSeconds % 60 : diffInSeconds;
+		diff[1] = (diffInSeconds = (diffInSeconds / 60)) >= 24 ? diffInSeconds % 24 : diffInSeconds;
+		diff[0] = (diffInSeconds = (diffInSeconds / 24));
+
+		// Build the readable format string
+		if(diff[0] != 0) return String.format("%d day%s", diff[0], diff[0] > 1 ? "s" : "");
+		if(diff[1] != 0) return String.format("%s%s hour%s", diff[1] > 1 ? "" : "an", diff[1] > 1 ? String.valueOf(diff[1]) : "", diff[1] > 1 ? "s" : "");
+		if(diff[2] != 0) return String.format("%d minute%s", diff[2], diff[2] > 1 ? "s" : "");
+		if(diff[3] != 0) return "a moment";
+		else return "unknown";
 	}
 }
