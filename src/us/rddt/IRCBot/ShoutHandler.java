@@ -67,8 +67,9 @@ public class ShoutHandler implements Runnable {
 			// Disconnect from the database
 			disconnect();
 		} catch (Exception ex) {
-			// TODO: Better exception handling
+			EventLogger.Log(EventLogger.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
+			return;
 		}
 	}
 	
