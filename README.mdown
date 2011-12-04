@@ -21,9 +21,15 @@ IRCBot is capable of detecting URLs in messages sent to IRC channels. Upon detec
 >
 > 22:42 <&actnotok> [URL by 'burr'] Type: image/png, length: 337.9 kB
 
+IRCBot is also capable of deciphering Twitter statuses.
+
+> 20:33 <~got_milk> https://twitter.com/#!/teamhacksung/status/141885395611815936
+
+> 20:33 <&BOT> [Tweet by 'got_milk'] @teamhacksung: [samsung-kernel-aries] http://t.co/nt1Q3KCz Pawit Pornkitprasan - Backport (read: copied) net/wireless and drivers/net/wireless from 3.0....
+
 ### Custom votekick system
 
-IRCBot is capable of allowing users to call votekicks against other users without operator intervention. Vote sessions last up to 60 seconds and require 40% of the channel to vote to pass.
+IRCBot is capable of allowing users to call votekicks against other users without operator intervention. Vote sessions last up to 60 seconds (unless the vote is extended by a user voting) and require 25% of the channel to vote to pass.
 
 > 23:09 <&actnotok> got_milk has voted to kick PhreeWilly! Type !votekick PhreeWilly to cast a vote. (5 needed)
 >
@@ -58,3 +64,29 @@ If a user shouts in a channel (uppercase text greater than 5 characters) IRCBot 
 > 23:17 <~got_milk> !who last
 >
 > 23:17 <&actnotok> got_milk: Sunoiki shouted "OHISHOULDHAVEYEL..." about 4 hours ago.
+
+### The lottery!
+
+Users can suggest a number between 0 and 25 inclusive to the bot. If it matches a randomly selected number, the user wins the lottery and are given op status by the bot. Users can vote once every 30 minutes and are tracked by host to prevent cheating.
+
+> 19:49 <+burr> !lottery 13
+
+> 19:49 -!- mode/#rddt [+o burr] by BOT
+
+> 19:49 <&BOT> burr: YOU WON! Enjoy your op status!
+
+### Seen command
+
+Users can use the !seen command to find out when the last time a user was in the channel.
+
+> 20:44 <~got_milk> !seen BOT
+
+> 20:44 <&BOT> got_milk: I don't think that command means what you think it means.
+
+### Anope-style shorthand op fantasy commands
+
+IRCBot accurately mimics the shorthand kick and ban functions that Anope's BotServ provides. Ops can choose to kick/ban users with or without reasoning.
+
+> 20:44 <~got_milk> .k CrazyAl90 need this for documentation, thanks :)
+
+> 20:44 -!- CrazyAl90 was kicked from #rddt by BOT [need this for documentation, thanks :) (got_milk)]
