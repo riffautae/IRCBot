@@ -43,9 +43,9 @@ public class ShoutHandler implements Runnable {
 	private Database database;
 
 	// We need this variable to be accessible from other threads, so we make it static and volatile
-	private String lastQuote = "";
-	private String lastSubmitter = "";
-	private String lastReadableDate = "";
+	private static volatile String lastQuote = "";
+	private static volatile String lastSubmitter = "";
+	private static volatile String lastReadableDate = "";
 
 	// Method that executes upon start of thread
 	public void run() {
@@ -95,9 +95,15 @@ public class ShoutHandler implements Runnable {
 		ResultSet resultSet = statement.executeQuery();
 		if(resultSet.next()) {
 			// Save the last quote to prevent an extra DB hit on !who last
-			lastQuote = resultSet.getString("Quote");
-			lastSubmitter = resultSet.getString("Nick");
-			lastReadableDate = toReadableTime((Date)resultSet.getTimestamp("Date"));
+			synchronized(lastQuote) {
+				lastQuote = resultSet.getString("Quote");
+			}
+			synchronized(lastSubmitter) {
+				lastSubmitter = resultSet.getString("Nick");
+			}
+			synchronized(lastReadableDate) {
+				lastReadableDate = toReadableTime((Date)resultSet.getTimestamp("Date"));
+			}
 			// Return the random quote
 			return resultSet.getString("Quote");
 		} else {
