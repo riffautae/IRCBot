@@ -274,7 +274,7 @@ public class URLGrabber implements Runnable {
     	} else {
     		JSONObject redditUser = new JSONObject(jsonToParse).getJSONObject("data");
     		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-    		event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + redditUser.getString("name") + ": " + redditUser.getInt("link_karma") + " link karma, " + redditUser.getInt("comment_karma") + " comment karma, user since " + dateFormat.format(new Date(redditUser.getLong("created"))));
+    		event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + redditUser.getString("name") + ": " + redditUser.getInt("link_karma") + " link karma, " + redditUser.getInt("comment_karma") + " comment karma, user since " + dateFormat.format(new Date(redditUser.getLong("created") * 1000)));
     	}
     }
 }
