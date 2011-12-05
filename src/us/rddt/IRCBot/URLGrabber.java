@@ -330,7 +330,7 @@ public class URLGrabber implements Runnable {
 			JSONObject parsedArray = new JSONObject(jsonToParse);
 			if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
 				JSONObject redditLink = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
-				event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + ", " + redditLink.getInt("score") + " points)");
+				event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + ", " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ")");
 				return true;
 			} else {
 				return false;
