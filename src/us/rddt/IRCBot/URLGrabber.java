@@ -30,14 +30,18 @@ package us.rddt.IRCBot;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import twitter4j.*;
+
+import org.json.*;
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.RoundingMode;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,21 +56,51 @@ public class URLGrabber implements Runnable {
 	private static final Pattern TITLE_TAG = Pattern.compile("\\<title>(.*)\\</title>", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
 	// Regex pattern to match Twitter tweets
 	private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
+	// Regex pattern to match Reddit links
+	private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments\\/");
+	// Regex patter to match Reddit users
+	private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
 	
 	// Method that executes upon start of thread
 	public void run() {
-		Matcher tweetMatcher = TWITTER_TWEET.matcher(url.toString());
-		if(tweetMatcher.find()) {
+		Matcher urlMatcher = TWITTER_TWEET.matcher(url.toString());
+		if(urlMatcher.find()) {
 			returnTweet(Long.parseLong(url.toString().substring(url.toString().lastIndexOf("/")).replaceAll("/", "")));
-		} else {
+			return;
+		}
+		urlMatcher = REDDIT_LINK.matcher(url.toString());
+		if(urlMatcher.find()) {
 			try {
-				event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
-			} catch (Exception ex) {
-				IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+				returnReddit(new URL(url.toString() + "/.json"), false);
+				return;
+			} catch (JSONException ex) {
 				ex.printStackTrace();
-				event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + ex.getMessage() + ")"));
+				return;
+			} catch (IOException ex) {
+				ex.printStackTrace();
 				return;
 			}
+		}
+		urlMatcher = REDDIT_USER.matcher(url.toString());
+		if(urlMatcher.find()) {
+			try {
+				returnReddit(new URL(url.toString() + "/about.json"), true);
+				return;
+			} catch (JSONException ex) {
+				ex.printStackTrace();
+				return;
+			} catch (IOException ex) {
+				ex.printStackTrace();
+				return;
+			}
+		}
+		try {
+			event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
+		} catch (Exception ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
+			event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + ex.getMessage() + ")"));
+			return;
 		}
 	}
 	
@@ -219,6 +253,28 @@ public class URLGrabber implements Runnable {
     		event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] @" + status.getUser().getScreenName() + ": " + status.getText());
     	} catch (TwitterException te) {
     		te.printStackTrace();
+    	}
+    }
+
+    private void returnReddit(URL redditURL, boolean isUser) throws IOException, JSONException {
+    	String jsonToParse = "";
+    	String buffer;
+
+    	URLConnection conn = redditURL.openConnection();
+    	BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+    	while((buffer = buf.readLine()) != null) {
+    		jsonToParse += buffer;
+    	}
+
+    	if(!isUser) {
+    		JSONArray parsedArray = new JSONArray(jsonToParse);
+    		JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
+    		event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + ", " + redditLink.getInt("score") + " points)"));
+    	} else {
+    		JSONObject redditUser = new JSONObject(jsonToParse).getJSONObject("data");
+    		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+    		event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + redditUser.getString("name") + ": " + redditUser.getInt("link_karma") + " link karma, " + redditUser.getInt("comment_karma") + " comment karma, user since " + dateFormat.format(new Date(redditUser.getLong("created"))));
     	}
     }
 }
