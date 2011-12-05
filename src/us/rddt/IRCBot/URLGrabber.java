@@ -37,6 +37,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -58,11 +59,14 @@ public class URLGrabber implements Runnable {
 	private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
 	// Regex pattern to match Reddit links
 	private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments\\/");
-	// Regex patter to match Reddit users
+	// Regex pattern to match Reddit users
 	private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
+	// Regex pattern to match imgur links
+	private static final Pattern IMGUR_LINK = Pattern.compile("http:\\/\\/(www.)?(i.)?imgur\\.com\\/.+");
 	
 	// Method that executes upon start of thread
 	public void run() {
+		// Run the URL through each regex pattern and parse accordingly
 		Matcher urlMatcher = TWITTER_TWEET.matcher(url.toString());
 		if(urlMatcher.find()) {
 			returnTweet(Long.parseLong(url.toString().substring(url.toString().lastIndexOf("/")).replaceAll("/", "")));
@@ -70,30 +74,19 @@ public class URLGrabber implements Runnable {
 		}
 		urlMatcher = REDDIT_LINK.matcher(url.toString());
 		if(urlMatcher.find()) {
-			try {
-				returnReddit(new URL(url.toString() + "/.json"), false);
-				return;
-			} catch (JSONException ex) {
-				ex.printStackTrace();
-				return;
-			} catch (IOException ex) {
-				ex.printStackTrace();
-				return;
-			}
+			returnReddit(url, false);
+			return;
 		}
 		urlMatcher = REDDIT_USER.matcher(url.toString());
 		if(urlMatcher.find()) {
-			try {
-				returnReddit(new URL(url.toString() + "/about.json"), true);
-				return;
-			} catch (JSONException ex) {
-				ex.printStackTrace();
-				return;
-			} catch (IOException ex) {
-				ex.printStackTrace();
-				return;
-			}
+			returnReddit(url, true);
+			return;
 		}
+		urlMatcher = IMGUR_LINK.matcher(url.toString());
+		if(urlMatcher.find()) {
+			if(checkImgurReddit(url)) return;
+		}
+		// If none of the regex patterns matched, then get the page title/length
 		try {
 			event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
 		} catch (Exception ex) {
@@ -246,8 +239,10 @@ public class URLGrabber implements Runnable {
         return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
     }
     
+    // Method to retrieve the content of a Tweet given its ID
     private void returnTweet(long tweetID) {
     	try {
+    		// Get the Tweet and send it back to the channel
     		Twitter twitter = new TwitterFactory().getInstance();
     		Status status = twitter.showStatus(tweetID);
     		event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] @" + status.getUser().getScreenName() + ": " + status.getText());
@@ -255,26 +250,95 @@ public class URLGrabber implements Runnable {
     		te.printStackTrace();
     	}
     }
-
-    private void returnReddit(URL redditURL, boolean isUser) throws IOException, JSONException {
+    
+    // Method to retrieve the details about a Reddit submission or user
+    private void returnReddit(URL redditURL, boolean isUser) {
+    	// Variables
     	String jsonToParse = "";
     	String buffer;
-
-    	URLConnection conn = redditURL.openConnection();
-    	BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
-    	while((buffer = buf.readLine()) != null) {
-    		jsonToParse += buffer;
+    	URL appendURL = null;
+    	
+    	// Construct the appropriate URL to get the JSON via the Reddit API
+    	try {
+    		if(isUser) appendURL = new URL(redditURL.toString() + "/about.json");
+    		else appendURL = new URL(redditURL.toString() + "/.json");
+    	} catch (MalformedURLException ex) {
+    		IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
     	}
 
-    	if(!isUser) {
-    		JSONArray parsedArray = new JSONArray(jsonToParse);
-    		JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
-    		event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + ", " + redditLink.getInt("score") + " points)"));
-    	} else {
-    		JSONObject redditUser = new JSONObject(jsonToParse).getJSONObject("data");
-    		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-    		event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + redditUser.getString("name") + ": " + redditUser.getInt("link_karma") + " link karma, " + redditUser.getInt("comment_karma") + " comment karma, user since " + dateFormat.format(new Date(redditUser.getLong("created") * 1000)));
+    	// Download the JSON from Reddit
+    	try {
+			URLConnection conn = appendURL.openConnection();
+			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+			while((buffer = buf.readLine()) != null) {
+				jsonToParse += buffer;
+			}
+		} catch (IOException ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
+		}
+    	
+    	// Parse the JSON accordingly and send the result to the channel
+    	try {
+			if(!isUser) {
+				JSONArray parsedArray = new JSONArray(jsonToParse);
+				JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
+				event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " ," + redditLink.getInt("score") + " points)"));
+			} else {
+				JSONObject redditUser = new JSONObject(jsonToParse).getJSONObject("data");
+				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+				event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + redditUser.getString("name") + ": " + redditUser.getInt("link_karma") + " link karma, " + redditUser.getInt("comment_karma") + " comment karma, user since " + dateFormat.format(new Date(redditUser.getLong("created") * 1000)));
+			}
+		} catch (JSONException ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
+		}
+    }
+    
+    // Method to check if an imgur link is from a Reddit submission
+    private boolean checkImgurReddit(URL imgurURL) {
+    	// Variables
+    	String jsonToParse = "";
+    	String buffer;
+    	URL appendURL = null;
+    	
+    	// Construct the appropriate URL to get the JSON via the Reddit API
+    	try {
+    		appendURL = new URL("http://www.reddit.com/api/info.json?url=" + imgurURL.toString());
+    	} catch (MalformedURLException ex) {
+    		IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
     	}
+    	
+    	// Download the JSON from Reddit
+    	try {
+			URLConnection conn = appendURL.openConnection();
+			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+			while((buffer = buf.readLine()) != null) {
+				jsonToParse += buffer;
+			}
+		} catch (IOException ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
+		}
+    	
+    	// Parse the JSON accordingly and send the results to the channel
+    	try {
+			JSONObject parsedArray = new JSONObject(jsonToParse);
+			if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
+				JSONObject redditLink = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
+				event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + ", " + redditLink.getInt("score") + " points)");
+				return true;
+			} else {
+				return false;
+			}
+		} catch (JSONException ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
+			return false;
+		}
     }
 }
