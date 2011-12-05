@@ -53,14 +53,14 @@ public class LotteryHandler implements Runnable {
 				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (900 * 1000)));
 				// Generate the winning number
 				Random generator = new Random();
-				int lotteryNumber = generator.nextInt(100) + 1;
+				int lotteryNumber = generator.nextInt(50) + 1;
 				// Ensure the guess is a valid one
 				int guessedNumber = 0;
 				try {
 					guessedNumber = Integer.parseInt(event.getMessage().substring(9).replaceAll("^\\s+", "").replaceAll("\\s+$", ""));
 				} catch (NumberFormatException ex) {
-					event.getBot().sendMessage(event.getUser(), "Your guess was not a number! As punishment, you will need to wait 1 hour before trying again.");
-					lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (3600 * 1000)));
+					event.getBot().sendMessage(event.getUser(), "Your guess was not a number! As punishment, you will need to wait 30 minutes before trying again.");
+					lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (1800 * 1000)));
 					return;
 				} catch (IndexOutOfBoundsException ex) {
 					return;
