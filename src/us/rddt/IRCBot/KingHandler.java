@@ -40,12 +40,13 @@ import org.pircbotx.hooks.events.MessageEvent;
 public class KingHandler implements Runnable {
 	// Variables
 	private static Database database;
+	private boolean retrieveNick = false;
 	private MessageEvent mEvent;
 	private JoinEvent jEvent;
 	
 	public void run() {
 		// We have a new king to set, deop everyone else and set them
-		if(mEvent != null) {
+		if(mEvent != null && !retrieveNick) {
 			Iterator<User> itr = mEvent.getChannel().getOps().iterator();
 			while(itr.hasNext()) {
 				User next = (User)itr.next();
@@ -53,6 +54,11 @@ public class KingHandler implements Runnable {
 			}
 			mEvent.getChannel().op(mEvent.getUser());
 			setNewKing(mEvent.getUser());
+		}
+		// Someone has requested the nick of the current king
+		else if(mEvent != null && retrieveNick) {
+			String[] currentKing = getCurrentKing();
+			mEvent.respond(currentKing[0] + " is the current king. (They were crowned about " + currentKing[1] + " ago.)");
 		}
 		// We're just checking if the new channel joiner is king, if so op them
 		else if(jEvent != null) {
@@ -66,6 +72,11 @@ public class KingHandler implements Runnable {
 	// Class constructor for setting a new king
 	public KingHandler(MessageEvent event) {
 		this.mEvent = event;
+	}
+	
+	public KingHandler(MessageEvent event, boolean retrieveNick) {
+		this.mEvent = event;
+		this.retrieveNick = retrieveNick;
 	}
 	
 	// Class constructor for checking if a user is king
@@ -110,16 +121,16 @@ public class KingHandler implements Runnable {
 		}
 	}
 	
-	public static String getKingsNick() {
+	public static String[] getCurrentKing() {
 		// Create a new instance of the database
 		database = new Database();
 		try {
 			// Connect to the database
 			database.connect();
 			// Execute the query to get the current king and check if they are the king
-			PreparedStatement statement = database.getConnection().prepareStatement("SELECT Nick FROM Lottery");
+			PreparedStatement statement = database.getConnection().prepareStatement("SELECT Nick, DateCrowned FROM Lottery");
 			ResultSet resultSet = statement.executeQuery();
-			if(resultSet.next()) return resultSet.getString("Nick");
+			if(resultSet.next()) return new String[] { resultSet.getString("Nick"), IRCUtils.toReadableTime(resultSet.getTimestamp("DateCrowned"), false) };
 			else return null;
 		} catch (Exception ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());

@@ -134,6 +134,10 @@ public class IRCBotHandlers extends ListenerAdapter {
 			new Thread(new LotteryHandler(event)).start();
 			return true;
 		}
+		if(event.getMessage().startsWith("!king")) {
+			new Thread(new KingHandler(event, true)).start();
+			return true;
+		}
 		if(event.getMessage().startsWith("!kick ") || event.getMessage().substring(0, 3).equals(".k ")) {
 			new Thread(new KickBanHandler(event, false)).start();
 			return true;
