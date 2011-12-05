@@ -37,7 +37,11 @@ public class FortuneHandler implements Runnable {
 	
 	// Method that executes upon start of thread
 	public void run() {
+		try {
 		event.respond(parseFortune(event.getMessage().substring(8)));
+		} catch (IndexOutOfBoundsException ex) {
+			return;
+		}
 	}
 	
 	// Class constructor

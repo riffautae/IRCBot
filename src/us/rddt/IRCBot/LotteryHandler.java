@@ -62,6 +62,8 @@ public class LotteryHandler implements Runnable {
 					event.getBot().sendMessage(event.getUser(), "Your guess was not a number! As punishment, you will need to wait 1 hour before trying again.");
 					lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (3600 * 1000)));
 					return;
+				} catch (IndexOutOfBoundsException ex) {
+					return;
 				}
 				// Did they win?
 				if(guessedNumber == lotteryNumber) {

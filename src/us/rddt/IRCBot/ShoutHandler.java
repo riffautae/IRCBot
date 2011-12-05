@@ -63,7 +63,11 @@ public class ShoutHandler implements Runnable {
 				if(!doesQuoteExist()) addNewQuote();
 			} else {
 				// We're dealing with a !who command - respond to the user with the information about the quote.
-				event.respond(getQuoteInfo(event.getMessage().substring(5).replaceAll("^\\s+", "").replaceAll("\\s+$", "")));
+				try {
+					event.respond(getQuoteInfo(event.getMessage().substring(5).replaceAll("^\\s+", "").replaceAll("\\s+$", "")));
+				} catch (IndexOutOfBoundsException ex) {
+					return;
+				}
 			}
 			// Disconnect from the database
 			database.disconnect();

@@ -64,8 +64,12 @@ public class VotekickHandler implements Runnable {
 		// There is no votekick in progress
 		if(!voteInProgress.get()) {
 			// Set the current votekick user
-			synchronized(votekickUser) {
-				votekickUser = event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+			try {
+				synchronized(votekickUser) {
+					votekickUser = event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+				}
+			} catch (IndexOutOfBoundsException ex) {
+				return;
 			}
 			// Determine the number of required votes to pass
 			requiredVotes.set((int)(event.getChannel().getUsers().size() * 0.25));

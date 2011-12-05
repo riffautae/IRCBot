@@ -43,9 +43,9 @@ public class SeenHandler implements Runnable {
 	private QuitEvent qEvent;
 	private boolean hasParted;
 	private String seenUser;
-	
+
 	private Database database;
-	
+
 	// Method that executes upon start of thread
 	public void run() {
 		// We've received a direct !seen command
@@ -59,28 +59,32 @@ public class SeenHandler implements Runnable {
 			return;
 		}
 	}
-	
+
 	// Class constructor
 	public SeenHandler(MessageEvent event) {
 		this.event = event;
 	}
-	
+
 	// Overloaded class constructor used for parting events
 	public SeenHandler(PartEvent pEvent) {
 		this.pEvent = pEvent;
 		this.hasParted = true;
 	}
-	
+
 	// Overloaded class constructor used for parting events
 	public SeenHandler(QuitEvent event) {
 		this.qEvent = event;
 		this.hasParted = true;
 	}
-	
+
 	// Method to search the key/value store for a user
 	private void searchUser() {
 		// Extract the user name from the command and remove any unnecessary whitespace
-		seenUser = event.getMessage().substring(6).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+		try {
+			seenUser = event.getMessage().substring(6).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+		} catch (IndexOutOfBoundsException ex) {
+			return;
+		}
 		// The user is performing the command on themselves?
 		if(seenUser.equals(event.getUser().getNick())) {
 			event.respond("What are you doing?");
@@ -99,7 +103,7 @@ public class SeenHandler implements Runnable {
 			return;
 		// If all else fails, we have a valid request
 		} else {
-			// Create a new instance of the database
+		// Create a new instance of the database
 			database = new Database();
 			try {
 				// Connect to the database and execute our select query
@@ -123,7 +127,7 @@ public class SeenHandler implements Runnable {
 			}
 		}
 	}
-	
+
 	// Method called when a user parts/quits. Update their key/value with the timestamp of when they left.
 	private void updateSeen() {
 		// Temporary variable
@@ -135,7 +139,7 @@ public class SeenHandler implements Runnable {
 		else {
 			userToUpdate = qEvent.getUser().getNick();
 		}
-		
+
 		// Create a new instance of the database
 		database = new Database();
 		try {
