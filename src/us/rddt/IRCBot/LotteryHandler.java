@@ -30,7 +30,6 @@ package us.rddt.IRCBot;
 
 import org.pircbotx.hooks.events.MessageEvent;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
