@@ -58,7 +58,7 @@ public class LotteryHandler implements Runnable {
 				try {
 					guessedNumber = Integer.parseInt(event.getMessage().substring(9).replaceAll("^\\s+", "").replaceAll("\\s+$", ""));
 				} catch (NumberFormatException ex) {
-					event.getBot().sendMessage(event.getUser(), "Your guess was not a number! You can try again in 24 hours.");
+					event.getBot().sendMessage(event.getUser(), "Your guess was not a number! You can try again in 12 hours.");
 					return;
 				} catch (IndexOutOfBoundsException ex) {
 					return;
@@ -71,10 +71,10 @@ public class LotteryHandler implements Runnable {
 					IRCUtils.Log(IRCUtils.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
 				} else {
 					// Not this time. (PM the user as to avoid channel flooding)
-					event.getBot().sendMessage(event.getUser(), "Sorry, you lost! You can try again in 24 hours. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
+					event.respond("Sorry, you lost! You can try again in 12 hours. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
 				}
 			} else {
-				event.getBot().sendMessage(event.getUser(), "You still need to wait " + IRCUtils.toReadableTime(lotteryPlayers.get(event.getUser().getHostmask()), true) + " until you can play again.");
+				event.respond("You still need to wait " + IRCUtils.toReadableTime(lotteryPlayers.get(event.getUser().getHostmask()), true) + " until you can play again.");
 			}
 		} 
 	}
