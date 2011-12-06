@@ -86,6 +86,9 @@ public class IRCBotHandlers extends ListenerAdapter {
 	public void onNickChange(NickChangeEvent event) {
 		new Thread(new VotekickHandler(event)).start();
 	}
+	public void onJoin(JoinEvent event) {
+		new Thread(new KingHandler(event)).start();
+	}
 	
 	// Method to check if a string is uppercase
 	private boolean isUpperCase(String s) {
@@ -124,6 +127,14 @@ public class IRCBotHandlers extends ListenerAdapter {
 		if(event.getMessage().startsWith("!seen ")) {
 			new Thread(new SeenHandler(event)).start();
 			return true;
+		}
+		// ..or !lottery
+		if(event.getMessage().startsWith("!lottery ")) {
+			new Thread(new LotteryHandler(event)).start();
+		}
+		// ..or !king
+		if(event.getMessage().startsWith("!king")) {
+			new Thread(new KingHandler(event, true)).start();
 		}
 		// ..or !kick/.k
 		if(event.getMessage().startsWith("!kick ") || event.getMessage().substring(0, 3).equals(".k ")) {
