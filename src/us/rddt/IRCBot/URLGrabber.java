@@ -52,7 +52,7 @@ public class URLGrabber implements Runnable {
 	// Variables
 	private MessageEvent event = null;
 	private URL url = null;
-	
+
 	// Regex pattern to match the HTML title tag to extract from the URL
 	private static final Pattern TITLE_TAG = Pattern.compile("\\<title>(.*)\\</title>", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
 	// Regex pattern to match Twitter tweets
@@ -63,7 +63,7 @@ public class URLGrabber implements Runnable {
 	private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
 	// Regex pattern to match imgur links
 	private static final Pattern IMGUR_LINK = Pattern.compile("http:\\/\\/(www.)?(i.)?imgur\\.com\\/.+");
-	
+
 	// Method that executes upon start of thread
 	public void run() {
 		// Run the URL through each regex pattern and parse accordingly
@@ -96,13 +96,13 @@ public class URLGrabber implements Runnable {
 			return;
 		}
 	}
-	
+
 	// Class constructor
 	public URLGrabber(MessageEvent event, URL url) {
 		this.event = event;
 		this.url = url;
 	}
-	
+
 	// Main worker function to download and extract the title from a URL
 	// TODO: Better exception handling
 	public String getPageTitle(URL url) throws Exception {
@@ -149,126 +149,126 @@ public class URLGrabber implements Runnable {
 				return "Title not found or not within first 8192 bytes of page, aborting.";
 		}
 	}
-	
+
 	// Method to extract the Content-Type property from the HTTP response
 	private static ContentType getContentTypeHeader(URLConnection conn) {
 		// Variables
-        int i = 0;
-        boolean moreHeaders = true;
-        // Loop through the headers until we find the Content-Type property
-        // If we find it, break out, otherwise continue reading
-        do {
-            String headerName = conn.getHeaderFieldKey(i);
-            String headerValue = conn.getHeaderField(i);
-            if (headerName != null && headerName.equals("Content-Type"))
-                return new ContentType(headerValue);
-            i++;
-            moreHeaders = headerName != null || headerValue != null;
-        }
-        while (moreHeaders);
-        // If we reach this point we couldn't find the headers we need, so return null
-        return null;
-    }
-	
+		int i = 0;
+		boolean moreHeaders = true;
+		// Loop through the headers until we find the Content-Type property
+		// If we find it, break out, otherwise continue reading
+		do {
+			String headerName = conn.getHeaderFieldKey(i);
+			String headerValue = conn.getHeaderField(i);
+			if (headerName != null && headerName.equals("Content-Type"))
+				return new ContentType(headerValue);
+			i++;
+			moreHeaders = headerName != null || headerValue != null;
+		}
+		while (moreHeaders);
+		// If we reach this point we couldn't find the headers we need, so return null
+		return null;
+	}
+
 	// Method to extract the Content-Length property from the HTTP response
 	private static int getContentLengthHeader(URLConnection conn) {
 		// Variables
-        int i = 0;
-        boolean moreHeaders = true;
-     // Loop through the headers until we find the Content-Length property
-        // If we find it, break out, otherwise continue reading
-        do {
-            String headerName = conn.getHeaderFieldKey(i);
-            String headerValue = conn.getHeaderField(i);
-            if (headerName != null && headerName.equals("Content-Length"))
-                return Integer.parseInt(headerValue);
-            i++;
-            moreHeaders = headerName != null || headerValue != null;
-        }
-        while (moreHeaders);
-        // If we reach this point we couldn't find the headers we need, so return 0
-        return 0;
-    }
-	
+		int i = 0;
+		boolean moreHeaders = true;
+		// Loop through the headers until we find the Content-Length property
+		// If we find it, break out, otherwise continue reading
+		do {
+			String headerName = conn.getHeaderFieldKey(i);
+			String headerValue = conn.getHeaderField(i);
+			if (headerName != null && headerName.equals("Content-Length"))
+				return Integer.parseInt(headerValue);
+			i++;
+			moreHeaders = headerName != null || headerValue != null;
+		}
+		while (moreHeaders);
+		// If we reach this point we couldn't find the headers we need, so return 0
+		return 0;
+	}
+
 	// Method to extract the character set from the Content-Type property
 	private static Charset getCharset(ContentType contentType) {
 		// Extract the character set from the character set or return null upon failure
-        if (contentType != null && contentType.charsetName != null && Charset.isSupported(contentType.charsetName))
-            return Charset.forName(contentType.charsetName);
-        else
-            return null;
-    }
-	
-	// Class for handling the Content-Type property
-    private static final class ContentType {
-    	// Regex pattern to match the character set from the Content-Type
-        private static final Pattern CHARSET_HEADER = Pattern.compile("charset=([-_a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
- 
-        // Variables
-        private String contentType;
-        private String charsetName;
-        
-        // Constructor for the ContentType class
-        private ContentType(String headerValue) {
-        	// Throw an exception should the passed parameter be null
-            if (headerValue == null)
-                throw new IllegalArgumentException("ContentType must be constructed with a not-null headerValue");
-            // Locate the index of the semicolon in the header and use the regex above to match and extract the character set
-            // If a semicolon doesn't exist then the character set was never provided, so set the Content-Type appropriately
-            int n = headerValue.indexOf(";");
-            if (n != -1) {
-                contentType = headerValue.substring(0, n);
-                Matcher matcher = CHARSET_HEADER.matcher(headerValue);
-                if (matcher.find())
-                    charsetName = matcher.group(1);
-            }
-            else
-                contentType = headerValue;
-        }
-    }
-    
-    // Convert a data measurement value to a more human-readable format
-    private static String humanReadableByteCount(long bytes, boolean si) {
-    	// Variable for the unit of measurement used
-        int unit = si ? 1000 : 1024;
-        // If our value is less than a kilobyte than just return the value untouched in bytes
-        if (bytes < unit) return bytes + " B";
-        // Otherwise, properly convert to the appropriate human-readable value and return it
-        int exp = (int) (Math.log(bytes) / Math.log(unit));
-        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
-        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
-    }
-    
-    // Method to retrieve the content of a Tweet given its ID
-    private void returnTweet(long tweetID) {
-    	try {
-    		// Get the Tweet and send it back to the channel
-    		Twitter twitter = new TwitterFactory().getInstance();
-    		Status status = twitter.showStatus(tweetID);
-    		event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] @" + status.getUser().getScreenName() + ": " + status.getText());
-    	} catch (TwitterException te) {
-    		te.printStackTrace();
-    	}
-    }
-    
-    // Method to retrieve the details about a Reddit submission or user
-    private void returnReddit(URL redditURL, boolean isUser) {
-    	// Variables
-    	String jsonToParse = "";
-    	String buffer;
-    	URL appendURL = null;
-    	
-    	// Construct the appropriate URL to get the JSON via the Reddit API
-    	try {
-    		if(isUser) appendURL = new URL(redditURL.toString() + "/about.json");
-    		else appendURL = new URL(redditURL.toString() + "/.json");
-    	} catch (MalformedURLException ex) {
-    		IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
-			ex.printStackTrace();
-    	}
+		if (contentType != null && contentType.charsetName != null && Charset.isSupported(contentType.charsetName))
+			return Charset.forName(contentType.charsetName);
+		else
+			return null;
+	}
 
-    	// Download the JSON from Reddit
-    	try {
+	// Class for handling the Content-Type property
+	private static final class ContentType {
+		// Regex pattern to match the character set from the Content-Type
+		private static final Pattern CHARSET_HEADER = Pattern.compile("charset=([-_a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+
+		// Variables
+		private String contentType;
+		private String charsetName;
+
+		// Constructor for the ContentType class
+		private ContentType(String headerValue) {
+			// Throw an exception should the passed parameter be null
+			if (headerValue == null)
+				throw new IllegalArgumentException("ContentType must be constructed with a not-null headerValue");
+			// Locate the index of the semicolon in the header and use the regex above to match and extract the character set
+			// If a semicolon doesn't exist then the character set was never provided, so set the Content-Type appropriately
+			int n = headerValue.indexOf(";");
+			if (n != -1) {
+				contentType = headerValue.substring(0, n);
+				Matcher matcher = CHARSET_HEADER.matcher(headerValue);
+				if (matcher.find())
+					charsetName = matcher.group(1);
+			}
+			else
+				contentType = headerValue;
+		}
+	}
+
+	// Convert a data measurement value to a more human-readable format
+	private static String humanReadableByteCount(long bytes, boolean si) {
+		// Variable for the unit of measurement used
+		int unit = si ? 1000 : 1024;
+		// If our value is less than a kilobyte than just return the value untouched in bytes
+		if (bytes < unit) return bytes + " B";
+		// Otherwise, properly convert to the appropriate human-readable value and return it
+		int exp = (int) (Math.log(bytes) / Math.log(unit));
+		String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
+		return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+	}
+
+	// Method to retrieve the content of a Tweet given its ID
+	private void returnTweet(long tweetID) {
+		try {
+			// Get the Tweet and send it back to the channel
+			Twitter twitter = new TwitterFactory().getInstance();
+			Status status = twitter.showStatus(tweetID);
+			event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] @" + status.getUser().getScreenName() + ": " + status.getText());
+		} catch (TwitterException te) {
+			te.printStackTrace();
+		}
+	}
+
+	// Method to retrieve the details about a Reddit submission or user
+	private void returnReddit(URL redditURL, boolean isUser) {
+		// Variables
+		String jsonToParse = "";
+		String buffer;
+		URL appendURL = null;
+
+		// Construct the appropriate URL to get the JSON via the Reddit API
+		try {
+			if(isUser) appendURL = new URL(redditURL.toString() + "/about.json");
+			else appendURL = new URL(redditURL.toString() + "/.json");
+		} catch (MalformedURLException ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
+		}
+
+		// Download the JSON from Reddit
+		try {
 			URLConnection conn = appendURL.openConnection();
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
@@ -279,13 +279,17 @@ public class URLGrabber implements Runnable {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 		}
-    	
-    	// Parse the JSON accordingly and send the result to the channel
-    	try {
+
+		// Parse the JSON accordingly and send the result to the channel
+		try {
 			if(!isUser) {
 				JSONArray parsedArray = new JSONArray(jsonToParse);
 				JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
-				event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points)"));
+				if(redditLink.getBoolean("over_18")) {
+					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points) [NSFW]"));
+				} else {
+					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points)"));
+				}
 			} else {
 				JSONObject redditUser = new JSONObject(jsonToParse).getJSONObject("data");
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
@@ -295,25 +299,25 @@ public class URLGrabber implements Runnable {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 		}
-    }
-    
-    // Method to check if an imgur link is from a Reddit submission
-    private boolean checkImgurReddit(URL imgurURL) {
-    	// Variables
-    	String jsonToParse = "";
-    	String buffer;
-    	URL appendURL = null;
-    	
-    	// Construct the appropriate URL to get the JSON via the Reddit API
-    	try {
-    		appendURL = new URL("http://www.reddit.com/api/info.json?url=" + imgurURL.toString());
-    	} catch (MalformedURLException ex) {
-    		IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+	}
+
+	// Method to check if an imgur link is from a Reddit submission
+	private boolean checkImgurReddit(URL imgurURL) {
+		// Variables
+		String jsonToParse = "";
+		String buffer;
+		URL appendURL = null;
+
+		// Construct the appropriate URL to get the JSON via the Reddit API
+		try {
+			appendURL = new URL("http://www.reddit.com/api/info.json?url=" + imgurURL.toString());
+		} catch (MalformedURLException ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
-    	}
-    	
-    	// Download the JSON from Reddit
-    	try {
+		}
+
+		// Download the JSON from Reddit
+		try {
 			URLConnection conn = appendURL.openConnection();
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
@@ -324,11 +328,11 @@ public class URLGrabber implements Runnable {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 		}
-    	
-    	// Parse the JSON accordingly and send the results to the channel
-    	try {
-    		int bestSubmission = 0;
-    		double bestWeightValue = 0;
+
+		// Parse the JSON accordingly and send the results to the channel
+		try {
+			int bestSubmission = 0;
+			double bestWeightValue = 0;
 			JSONObject parsedArray = new JSONObject(jsonToParse);
 			if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
 				for(int i = 0; i < parsedArray.getJSONObject("data").getJSONArray("children").length(); i++) {
@@ -341,7 +345,12 @@ public class URLGrabber implements Runnable {
 					}
 				}
 				JSONObject redditLink = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(bestSubmission).getJSONObject("data");
-				event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " + IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) +  " ago, " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ")");
+				if(redditLink.getBoolean("over_18")) {
+					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " + IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) +  " ago, " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ") [NSFW]");
+				}
+				else {
+					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " + IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) +  " ago, " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ")");
+				}
 				return true;
 			} else {
 				return false;
@@ -351,5 +360,5 @@ public class URLGrabber implements Runnable {
 			ex.printStackTrace();
 			return false;
 		}
-    }
+	}
 }
