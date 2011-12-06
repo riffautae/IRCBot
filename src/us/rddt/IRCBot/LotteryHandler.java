@@ -39,6 +39,7 @@ import java.util.Random;
 public class LotteryHandler implements Runnable {
 	// Variables
 	private MessageEvent event;
+	private final int lotteryRange = 10;
 
 	// We need this to be accessible from other threads, so we make it static and volatile
 	private static volatile Map<String, Date> lotteryPlayers = Collections.synchronizedMap(new HashMap<String, Date>());
@@ -48,21 +49,25 @@ public class LotteryHandler implements Runnable {
 		if(event.getMessage() != "") {
 			// If the user hasn't guessed previously or their 30-minute window is up
 			if(lotteryPlayers.get(event.getUser().getHostmask()) == null || (((lotteryPlayers.get(event.getUser().getHostmask()).getTime() / 1000) - new Date().getTime() / 1000) < 0)) {
-				// Store that they guessed
-				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (43200 * 1000)));
 				// Generate the winning number
 				Random generator = new Random();
-				int lotteryNumber = generator.nextInt(10) + 1;
+				int lotteryNumber = generator.nextInt(lotteryRange) + 1;
 				// Ensure the guess is a valid one
 				int guessedNumber = 0;
 				try {
 					guessedNumber = Integer.parseInt(event.getMessage().substring(9).replaceAll("^\\s+", "").replaceAll("\\s+$", ""));
 				} catch (NumberFormatException ex) {
-					event.getBot().sendMessage(event.getUser(), "Your guess was not a number! You can try again in 12 hours.");
+					event.getBot().sendMessage(event.getUser(), "Your guess was not a number!");
 					return;
 				} catch (IndexOutOfBoundsException ex) {
 					return;
 				}
+				if(guessedNumber < 1 || guessedNumber > lotteryRange) {
+					event.getBot().sendMessage(event.getUser(), "Your guess was out of range! Valid guesses are between 1 and " + lotteryRange + ".");
+					return;
+				}
+				// Store that they guessed
+				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (43200 * 1000)));
 				// Did they win?
 				if(guessedNumber == lotteryNumber) {
 					// They did! Crown them and let everyone know!
@@ -76,7 +81,7 @@ public class LotteryHandler implements Runnable {
 			} else {
 				event.respond("You still need to wait " + IRCUtils.toReadableTime(lotteryPlayers.get(event.getUser().getHostmask()), true) + " until you can play again.");
 			}
-		} 
+		}
 	}
 
 	// Class constructor
