@@ -87,10 +87,6 @@ public class IRCBotHandlers extends ListenerAdapter {
 		new Thread(new VotekickHandler(event)).start();
 	}
 	
-	public void onJoin(JoinEvent event) {
-		new Thread(new KingHandler(event)).start();
-	}
-	
 	// Method to check if a string is uppercase
 	private boolean isUpperCase(String s) {
 		// Boolean value to ensure that an all numeric string does not trigger the shouting functions
@@ -129,20 +125,13 @@ public class IRCBotHandlers extends ListenerAdapter {
 			new Thread(new SeenHandler(event)).start();
 			return true;
 		}
-		// ..or !lottery
-		if(event.getMessage().startsWith("!lottery ")) {
-			new Thread(new LotteryHandler(event)).start();
-			return true;
-		}
-		if(event.getMessage().startsWith("!king")) {
-			new Thread(new KingHandler(event, true)).start();
-			return true;
-		}
+		// ..or !kick/.k
 		if(event.getMessage().startsWith("!kick ") || event.getMessage().substring(0, 3).equals(".k ")) {
 			new Thread(new KickBanHandler(event, false)).start();
 			return true;
 		}
-		if(event.getMessage().startsWith("!ban ") || event.getMessage().substring(0, 4).equals(".kb ")) {
+		// ..or !kickban/.kb
+		if(event.getMessage().startsWith("!kickban ") || event.getMessage().substring(0, 4).equals(".kb ")) {
 			new Thread(new KickBanHandler(event, true)).start();
 			return true;
 		}
