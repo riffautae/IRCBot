@@ -46,6 +46,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.pircbotx.Colors;
 import org.pircbotx.hooks.events.MessageEvent;
 
 public class URLGrabber implements Runnable {
@@ -286,7 +287,7 @@ public class URLGrabber implements Runnable {
 				JSONArray parsedArray = new JSONArray(jsonToParse);
 				JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
 				if(redditLink.getBoolean("over_18")) {
-					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points) [NSFW]"));
+					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points) " + Colors.BOLD + Colors.RED + "[NSFW]"));
 				} else {
 					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points)"));
 				}
@@ -333,6 +334,7 @@ public class URLGrabber implements Runnable {
 		try {
 			int bestSubmission = 0;
 			double bestWeightValue = 0;
+			boolean isNSFW = false;
 			JSONObject parsedArray = new JSONObject(jsonToParse);
 			if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
 				for(int i = 0; i < parsedArray.getJSONObject("data").getJSONArray("children").length(); i++) {
@@ -343,10 +345,13 @@ public class URLGrabber implements Runnable {
 						bestSubmission = i;
 						bestWeightValue = weightScore;
 					}
+					if(parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getBoolean("over_18")) {
+						isNSFW = true;
+					}
 				}
 				JSONObject redditLink = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(bestSubmission).getJSONObject("data");
-				if(redditLink.getBoolean("over_18")) {
-					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " + IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) +  " ago, " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ") [NSFW]");
+				if(isNSFW) {
+					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " + IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) +  " ago, " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ") " + Colors.BOLD + Colors.RED + "[NSFW]");
 				}
 				else {
 					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " + IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) +  " ago, " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ")");
