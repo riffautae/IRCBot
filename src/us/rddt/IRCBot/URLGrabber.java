@@ -285,7 +285,7 @@ public class URLGrabber implements Runnable {
 			if(!isUser) {
 				JSONArray parsedArray = new JSONArray(jsonToParse);
 				JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
-				event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " ," + redditLink.getInt("score") + " points)"));
+				event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points)"));
 			} else {
 				JSONObject redditUser = new JSONObject(jsonToParse).getJSONObject("data");
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
@@ -327,10 +327,19 @@ public class URLGrabber implements Runnable {
     	
     	// Parse the JSON accordingly and send the results to the channel
     	try {
+    		int highestPost = 0;
+    		int highestKarma = 0;
 			JSONObject parsedArray = new JSONObject(jsonToParse);
 			if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
-				JSONObject redditLink = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
-				event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + ", " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ")");
+				for(int i = 0; i < parsedArray.getJSONObject("data").getJSONArray("children").length(); i++) {
+					int submissionKarma = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getInt("score");
+					if(submissionKarma > highestKarma) {
+						highestPost = i;
+						highestKarma = submissionKarma;
+					}
+				}
+				JSONObject redditLink = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(highestPost).getJSONObject("data");
+				event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " + IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) +  " ago, " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ")");
 				return true;
 			} else {
 				return false;
