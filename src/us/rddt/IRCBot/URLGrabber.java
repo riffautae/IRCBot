@@ -327,18 +327,20 @@ public class URLGrabber implements Runnable {
     	
     	// Parse the JSON accordingly and send the results to the channel
     	try {
-    		int highestPost = 0;
-    		int highestKarma = 0;
+    		int bestSubmission = 0;
+    		double bestWeightValue = 0;
 			JSONObject parsedArray = new JSONObject(jsonToParse);
 			if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
 				for(int i = 0; i < parsedArray.getJSONObject("data").getJSONArray("children").length(); i++) {
-					int submissionKarma = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getInt("score");
-					if(submissionKarma > highestKarma) {
-						highestPost = i;
-						highestKarma = submissionKarma;
+					int submissionScore = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getInt("score");
+					long submissionDate = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getLong("created_utc");
+					double weightScore = (submissionScore / (((new Date().getTime() / 1000) - submissionDate) / 3600));
+					if(weightScore > bestWeightValue) {
+						bestSubmission = i;
+						bestWeightValue = weightScore;
 					}
 				}
-				JSONObject redditLink = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(highestPost).getJSONObject("data");
+				JSONObject redditLink = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(bestSubmission).getJSONObject("data");
 				event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " + IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) +  " ago, " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ")");
 				return true;
 			} else {
