@@ -50,7 +50,7 @@ public class LotteryHandler implements Runnable {
 			// If the user hasn't guessed previously or their 30-minute window is up
 			if(lotteryPlayers.get(event.getUser().getHostmask()) == null || (((lotteryPlayers.get(event.getUser().getHostmask()).getTime() / 1000) - new Date().getTime() / 1000) < 0)) {
 				// Store that they guessed
-				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (86400 * 1000)));
+				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (43200 * 1000)));
 				// Generate the winning number
 				Random generator = new Random();
 				int lotteryNumber = generator.nextInt(10) + 1;
