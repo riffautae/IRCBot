@@ -57,13 +57,13 @@ public class LotteryHandler implements Runnable {
 				try {
 					guessedNumber = Integer.parseInt(event.getMessage().substring(9).replaceAll("^\\s+", "").replaceAll("\\s+$", ""));
 				} catch (NumberFormatException ex) {
-					event.getBot().sendMessage(event.getUser(), "Your guess was not a number!");
+					event.respond("Your guess was not a number!");
 					return;
 				} catch (IndexOutOfBoundsException ex) {
 					return;
 				}
 				if(guessedNumber < 1 || guessedNumber > lotteryRange) {
-					event.getBot().sendMessage(event.getUser(), "Your guess was out of range! Valid guesses are between 1 and " + lotteryRange + ".");
+					event.respond("Your guess was out of range! Valid guesses are between 1 and " + lotteryRange + ".");
 					return;
 				}
 				// Store that they guessed
