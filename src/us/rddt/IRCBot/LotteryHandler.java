@@ -63,7 +63,7 @@ public class LotteryHandler implements Runnable {
 					return;
 				}
 				if(guessedNumber < 1 || guessedNumber > lotteryRange) {
-					event.respond("Your guess was out of range! Valid guesses are between 1 and " + lotteryRange + ".");
+					event.respond("Your guess was out of range! Valid guesses are between 1 and " + lotteryRange + " inclusive.");
 					return;
 				}
 				// Store that they guessed
