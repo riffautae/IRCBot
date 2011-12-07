@@ -50,7 +50,10 @@ public class KingHandler implements Runnable {
 			Iterator<User> itr = mEvent.getChannel().getOps().iterator();
 			while(itr.hasNext()) {
 				User next = (User)itr.next();
-				if(!next.equals(mEvent.getBot().getUserBot())) mEvent.getChannel().deOp(next);
+				if(!next.equals(mEvent.getBot().getUserBot())) {
+					mEvent.getChannel().deOp(next);
+					mEvent.getChannel().deHalfOp(next);
+				}
 			}
 			mEvent.getChannel().op(mEvent.getUser());
 			setNewKing(mEvent.getUser());
