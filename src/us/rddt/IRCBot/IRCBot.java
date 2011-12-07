@@ -28,26 +28,40 @@
 
 package us.rddt.IRCBot;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 
 public class IRCBot extends ListenerAdapter {
 	public static void main(String[] args) throws Exception {
+		Properties property = new Properties();
+		try {
+			property.load(new FileInputStream("IRCBot.properties"));
+		} catch (IOException ex) {
+			IRCUtils.Log(IRCUtils.LOG_FATAL, "Could not load properties file");
+			System.exit(-1);
+		}
 		IRCUtils.Log(IRCUtils.LOG_INFORMATION, "Initialzing bot");
 		// Create a new instance of the IRC bot
 		PircBotX bot = new PircBotX();
 		// Add new listeners for the actions we want the bot to handle
 		bot.getListenerManager().addListener(new IRCBotHandlers());
 		// Set the bot's nick
-		bot.setName("BOT");
+		bot.setName(property.getProperty("nick", "BOT"));
+		// Set the bot's user
+		bot.setLogin(property.getProperty("user", "BOT"));
 		// Attempt to connect to the server and join the required channel(s)
 		IRCUtils.Log(IRCUtils.LOG_INFORMATION, "Connecting to the network and joining channel");
 		try {
-			bot.connect("localhost", 6667, "herpderp");
-			bot.joinChannel("#rddt");
+			bot.connect(property.getProperty("server", "rddt.us"), Integer.parseInt(property.getProperty("port", "6667")), property.getProperty("password", ""));
+			bot.joinChannel(property.getProperty("channel", "#rddt"));
 		} catch (Exception ex) {
 			IRCUtils.Log(IRCUtils.LOG_FATAL, ex.getMessage());
 			ex.printStackTrace();
+			System.exit(-1);
 		}
 	}
 }
