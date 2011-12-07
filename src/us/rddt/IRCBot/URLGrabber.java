@@ -59,7 +59,7 @@ public class URLGrabber implements Runnable {
 	// Regex pattern to match Twitter tweets
 	private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
 	// Regex pattern to match Reddit links
-	private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments\\/");
+	private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments");
 	// Regex pattern to match Reddit users
 	private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
 	// Regex pattern to match imgur links
