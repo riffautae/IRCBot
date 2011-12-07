@@ -72,7 +72,7 @@ public class LotteryHandler implements Runnable {
 				if(guessedNumber == lotteryNumber) {
 					// They did! Crown them and let everyone know!
 					new Thread(new KingHandler(event)).start();
-					event.respond("YOU WON! ALL HAIL KING " + event.getUser().getNick() + "!");
+					event.respond("YOU WON! ALL HAIL KING " + event.getUser().getNick().toUpperCase() + "!");
 					IRCUtils.Log(IRCUtils.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
 				} else {
 					// Not this time. (PM the user as to avoid channel flooding)
