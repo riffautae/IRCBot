@@ -54,7 +54,7 @@ public class IRCBot extends ListenerAdapter {
 		// Set the bot's user
 		bot.setLogin(property.getProperty("user", "BOT"));
 		// Attempt to connect to the server and join the required channel(s)
-		IRCUtils.Log(IRCUtils.LOG_INFORMATION, "Connecting to the network and joining channel");
+		IRCUtils.Log(IRCUtils.LOG_INFORMATION, "Connecting to " + property.getProperty("server") + " and joining channel " + property.getProperty("channel"));
 		try {
 			bot.connect(property.getProperty("server", "rddt.us"), Integer.parseInt(property.getProperty("port", "6667")), property.getProperty("password", ""));
 			bot.joinChannel(property.getProperty("channel", "#rddt"));
