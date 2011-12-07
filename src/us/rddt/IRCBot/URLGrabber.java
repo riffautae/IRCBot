@@ -334,13 +334,19 @@ public class URLGrabber implements Runnable {
 		try {
 			int bestSubmission = 0;
 			double bestWeightValue = 0;
+			double weightScore = 0;
 			boolean isNSFW = false;
 			JSONObject parsedArray = new JSONObject(jsonToParse);
 			if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
 				for(int i = 0; i < parsedArray.getJSONObject("data").getJSONArray("children").length(); i++) {
 					int submissionScore = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getInt("score");
 					long submissionDate = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getLong("created_utc");
-					double weightScore = (submissionScore / (((new Date().getTime() / 1000) - submissionDate) / 3600));
+					try {
+						weightScore = (submissionScore / ((double)((new Date().getTime() / 1000) - submissionDate) / 3600));
+					} catch (ArithmeticException ex) {
+						IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+						ex.printStackTrace();
+					}
 					if(weightScore > bestWeightValue) {
 						bestSubmission = i;
 						bestWeightValue = weightScore;
