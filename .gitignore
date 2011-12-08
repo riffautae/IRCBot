@@ -2,6 +2,7 @@ bin
 build
 dist
 lib
+build.num
 .classpath
 .project
 .DS_Store
