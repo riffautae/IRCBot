@@ -83,4 +83,12 @@ public class IRCUtils {
 		if(diff[3] != 0) return "a moment";
 		else return "unknown";
 	}
+	
+	public static String toReadableMinutes(long time) {
+		if(time > 3600) {
+			return String.format("%d:%02d:%02d", time/3600, (time % 3600)/60, (time % 60));
+		} else {
+			return String.format("%02d:%02d", (time % 3600)/60, (time % 60));
+		}
+	}
 }

@@ -64,6 +64,8 @@ public class URLGrabber implements Runnable {
 	private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
 	// Regex pattern to match imgur links
 	private static final Pattern IMGUR_LINK = Pattern.compile("http:\\/\\/(www.)?(i.)?imgur\\.com\\/.+");
+	// Regex pattern to match YouTube videos
+	private static final Pattern YOUTUBE_VIDEO = Pattern.compile("http:\\/\\/(www.)?youtube\\.com\\/watch\\?v=.+");
 
 	// Method that executes upon start of thread
 	public void run() {
@@ -86,6 +88,11 @@ public class URLGrabber implements Runnable {
 		urlMatcher = IMGUR_LINK.matcher(url.toString());
 		if(urlMatcher.find()) {
 			if(checkImgurReddit(url)) return;
+		}
+		urlMatcher = YOUTUBE_VIDEO.matcher(url.toString());
+		if(urlMatcher.find()) {
+			returnYouTubeVideo(url);
+			return;
 		}
 		// If none of the regex patterns matched, then get the page title/length
 		try {
@@ -370,6 +377,40 @@ public class URLGrabber implements Runnable {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return false;
+		}
+	}
+	
+	private void returnYouTubeVideo(URL youtubeURL) {
+		String jsonToParse = "";
+		String buffer;
+		URL appendURL = null;
+		
+		try {
+			appendURL = new URL("http://gdata.youtube.com/feeds/api/videos?q=" + url.toString().split("=")[1] + "&v=2&alt=jsonc");
+		} catch (MalformedURLException ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
+		}
+		
+		try {
+			URLConnection conn = appendURL.openConnection();
+			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+			while((buffer = buf.readLine()) != null) {
+				jsonToParse += buffer;
+			}
+		} catch (IOException ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
+		}
+		
+		try {
+			JSONObject parsedArray = new JSONObject(jsonToParse);
+			JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
+			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + youtubeLink .getString("title") + " (" + IRCUtils.toReadableMinutes(youtubeLink.getLong("duration")) + ")");
+		} catch (JSONException ex) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			ex.printStackTrace();
 		}
 	}
 }
