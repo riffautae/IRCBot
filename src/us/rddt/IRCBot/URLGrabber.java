@@ -406,8 +406,12 @@ public class URLGrabber implements Runnable {
 		
 		try {
 			JSONObject parsedArray = new JSONObject(jsonToParse);
-			JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
-			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + youtubeLink .getString("title") + " (" + IRCUtils.toReadableMinutes(youtubeLink.getLong("duration")) + ")");
+			if(parsedArray.getJSONObject("data").getInt("totalItems") > 0) {
+				JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
+				event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + youtubeLink .getString("title") + " (" + IRCUtils.toReadableMinutes(youtubeLink.getLong("duration")) + ")");
+			} else {
+				event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] YouTube video ID invalid or video is private.");
+			}
 		} catch (JSONException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
