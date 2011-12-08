@@ -28,12 +28,15 @@
 
 package us.rddt.IRCBot;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 
 public class Database {
 	// Variables
@@ -47,9 +50,15 @@ public class Database {
 	}
 	
 	// Method to connect to the database
-	public void connect() throws SQLException, ClassNotFoundException {
+	public void connect() throws SQLException, ClassNotFoundException, IOException {
+		Properties property = new Properties();
+		try {
+			property.load(new FileInputStream("IRCBot.properties"));
+		} catch (IOException ex) {
+			throw new IOException("Could not load properties file");
+		}
 		Class.forName("com.mysql.jdbc.Driver");
-		connection = DriverManager.getConnection("jdbc:mysql://localhost/ircd?user=ircbot&password=milkircbot");
+		connection = DriverManager.getConnection("jdbc:mysql://" + property.getProperty("mysql_server") + "/" + property.getProperty("mysql_database") + "?user=" + property.getProperty("mysql_user") + "&password=" + property.getProperty("mysql_password"));
 		statement = connection.createStatement();
 	}
 
