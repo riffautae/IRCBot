@@ -44,7 +44,7 @@ public class IRCBot extends ListenerAdapter {
 			IRCUtils.Log(IRCUtils.LOG_FATAL, "Could not load properties file");
 			System.exit(-1);
 		}
-		IRCUtils.Log(IRCUtils.LOG_INFORMATION, "Initialzing bot");
+		IRCUtils.Log(IRCUtils.LOG_INFORMATION, "Initialzing bot (IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ")");
 		// Create a new instance of the IRC bot
 		PircBotX bot = new PircBotX();
 		// Add new listeners for the actions we want the bot to handle

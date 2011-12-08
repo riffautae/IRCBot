@@ -1,0 +1,55 @@
+<project name="IRCBot" basedir="." default="main">
+	<property name="src.dir" value="src"/>
+	<property name="build.dir" value="build"/>
+	<property name="classes.dir" value="${build.dir}/classes"/>
+	<property name="jar.dir" value="${build.dir}/output"/>
+	<property name="lib.dir" value="lib"/>
+	
+	<property name="version" value="1.0.0"/>
+
+	<path id="classpath">
+		<fileset dir="${lib.dir}" includes="**/*.jar"/>
+	</path>
+
+	<property name="main-class"  value="us.rddt.IRCBot.IRCBot"/>
+
+	<target name="clean">
+    	<delete dir="${build.dir}"/>
+	</target>
+
+	<target name="compile">
+    	<mkdir dir="${classes.dir}"/>
+    	<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false"/>
+	</target>
+
+	<target name="jar" depends="compile">
+    	<mkdir dir="${jar.dir}"/>
+		<buildnumber file="build.num"/>
+		<tstamp>
+			<format property="current.time" pattern="yyyy-MM-dd HH:mm:ss" />
+		</tstamp>
+    	<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+    		<zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
+        	<manifest>
+            	<attribute name="Main-Class" value="${main-class}"/>
+        		<attribute name="Built-By" value="${user.name}"/>
+        		<attribute name="Implementation-Version" value="${version}-b${build.number}"/>
+        		<attribute name="Built-Date" value="${TODAY}"/>
+        	</manifest>
+    	</jar>
+	</target>
+
+	<target name="run" depends="jar">
+    	<java jar="${jar.dir}/${ant.project.name}.jar" fork="true">
+    		<classpath>
+				<path refid="classpath"/>
+				<path location="${jar.dir}/${ant.project.name}.jar"/>
+			</classpath>
+		</java>
+	</target>
+
+	<target name="clean-build" depends="clean,jar"/>
+
+	<target name="main" depends="clean,jar"/>
+
+</project>

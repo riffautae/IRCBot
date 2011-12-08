@@ -64,7 +64,7 @@ public class IRCBotHandlers extends ListenerAdapter {
 	// This handler is called when a private message has been sent to the bot
 	public void onPrivateMessage(PrivateMessageEvent event) throws Exception {
 		// There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
-		event.respond("Hi! If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my creator, got_milk, instead!");
+		event.respond("Hi! I am IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ". If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my creator, got_milk, instead!");
 	}
 	
 	// This handler is called when a user has been kicked from the channel
