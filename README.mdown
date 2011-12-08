@@ -6,6 +6,30 @@ Description
 
 IRCBot is a custom IRC bot written in Java to support the RDDT IRC Network.
 
+Prerequisites
+-------------
+
+In order to build and use IRCBot successfully, you will need the following:
+
+* Java Development Kit (JDK) version 1.5 or better (1.4 or lower may work, but has not been tested)
+* PircBotX IRC framework libraries (http://code.google.com/p/pircbotx/)
+* MySQL Connector/J and a MySQL database (http://dev.mysql.com/downloads/connector/j/)
+* Apache Commons Lang library (http://commons.apache.org/lang/)
+* Twitter4j library (http://twitter4j.org/en/index.html)
+* JSON.org Java libraries (http://json.org/java/)
+
+Building
+--------
+
+To build IRCBot, import the Java source files and libraries into an IDE of your choice, or use the provided Ant build script to automatically build and package IRCBot.
+
+Usage
+-----
+
+1. Edit 'IRCBot.properties' to match your configuration.
+2. Use the provided SQL file to prepare the tables required by IRCBot.
+3. Execute the JAR package from a command line.
+
 Features
 --------
 
@@ -15,13 +39,13 @@ IRCBot is capable of detecting URLs in messages sent to IRC channels. Upon detec
 
 > 23:00 <~got_milk> http://www.reddit.com
 >
-> 23:00 <&actnotok> [URL by 'got_milk'] reddit: the front page of the internet
+> 23:00 <&BOT> [URL by 'got_milk'] reddit: the front page of the internet
 >
 > 22:42 <+burr> http://i.imgur.com/nMVYX.png
 >
-> 22:42 <&actnotok> [URL by 'burr'] Type: image/png, length: 337.9 kB
+> 22:42 <&BOT> [URL by 'burr'] Type: image/png, length: 337.9 kB
 
-IRCBot is also capable of deciphering Twitter statuses.
+IRCBot is also capable of deciphering Twitter statuses, reddit links and user pages, and YouTube videos.
 
 > 20:33 <~got_milk> https://twitter.com/#!/teamhacksung/status/141885395611815936
 
@@ -31,49 +55,51 @@ IRCBot is also capable of deciphering Twitter statuses.
 
 IRCBot is capable of allowing users to call votekicks against other users without operator intervention. Vote sessions last up to 60 seconds (unless the vote is extended by a user voting) and require 25% of the channel to vote to pass.
 
-> 23:09 <&actnotok> got_milk has voted to kick PhreeWilly! Type !votekick PhreeWilly to cast a vote. (5 needed)
->
+> 23:09 <&BOT> got_milk has voted to kick PhreeWilly! Type !votekick PhreeWilly to cast a vote. (5 needed)
+
 > 23:09 <&edgesmash> !votekick PhreeWilly
->
-> 23:09 <&actnotok> edgesmash has voted to kick PhreeWilly! (4 needed)
->
-> 23:09 <&edgesmash> !votekick PhreeWilly 
->
-> 23:09 <&actnotok> edgesmash: You cannot vote more than once!
+
+> 23:09 <&BOT> edgesmash has voted to kick PhreeWilly! (4 needed)
+
+> 23:09 <&edgesmash> !votekick PhreeWilly
+
+> 23:09 <&BOT> edgesmash: You cannot vote more than once!
 
 ### Fortune commands
 
 Users are able to 'ask' IRCBot to make decisions for them (chosen purely randomly by the bot). The bot will respond in accordance to the decision given.
 
 > 23:10 <~got_milk> !decide herp or derp
->
-> 23:10 <&actnotok> got_milk: herp
->
+
+> 23:10 <&BOT> got_milk: herp
+
 > 23:15 <~got_milk> !decide should I herp?
->
-> 23:15 <&actnotok> got_milk: No
+
+> 23:15 <&BOT> got_milk: No
 
 ### Shout mechanism
 
 If a user shouts in a channel (uppercase text greater than 5 characters) IRCBot will take notice and store the "quote" in a database, while selecting a quote at random to shout back at the user. Users are able to query the bot which can provide the quote submitter and when the quote was added to the database.
 
 > 23:15 <+PhreeWilly> THE ONE AND ONLY!
->
+
 > 23:15 <&actnotok> OHISHOULDHAVEYELLEDMORESORRY
->
+
 > 23:17 <~got_milk> !who last
->
+
 > 23:17 <&actnotok> got_milk: Sunoiki shouted "OHISHOULDHAVEYEL..." about 4 hours ago.
 
-### The lottery!
+### The lottery! (King Game)
 
-Users can suggest a number between 0 and 25 inclusive to the bot. If it matches a randomly selected number, the user wins the lottery and are given op status by the bot. Users can vote once every 30 minutes and are tracked by host to prevent cheating.
+Users can participate in a game where they choose a number between 1 and 10 inclusive, and try to match a randomly generated number by the bot. If the numbers match, the user is crowned king and is made the lone operator of the channel, until someone else plays, wins and dethrones them.
 
-> 19:49 <+burr> !lottery 13
+> 00:00 <+Smoky> !lottery 1
 
-> 19:49 -!- mode/#rddt [+o burr] by BOT
+> 00:00 <&BOT> Smoky: YOU WON! ALL HAIL KING SMOKY!
 
-> 19:49 <&BOT> burr: YOU WON! Enjoy your op status!
+> 00:00 -!- mode/#rddt [-o Blake] by BOT
+
+> 00:00 -!- mode/#rddt [+o Smoky] by BOT
 
 ### Seen command
 
