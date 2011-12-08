@@ -37,7 +37,7 @@ public class KickBanHandler implements Runnable {
 	public void run() {
 		String kickUser = event.getMessage().split(" ")[1];
 		String kickReason = getReason();
-		if((event.getUser().getChannelsOpIn().contains(event.getChannel()) && !event.getBot().getUser(kickUser).getChannelsSuperOpIn().contains(event.getChannel()) && !event.getBot().getUser(kickUser).getChannelsOwnerIn().contains(event.getChannel()))
+		if(((event.getUser().getChannelsOpIn().contains(event.getChannel()) || event.getUser().getChannelsHalfOpIn().contains(event.getChannel())) && !event.getBot().getUser(kickUser).getChannelsSuperOpIn().contains(event.getChannel()) && !event.getBot().getUser(kickUser).getChannelsOwnerIn().contains(event.getChannel()))
 				|| (event.getUser().getChannelsSuperOpIn().contains(event.getChannel()) && !event.getBot().getUser(kickUser).getChannelsOwnerIn().contains(event.getChannel()))
 				|| (event.getUser().getChannelsOwnerIn().contains(event.getChannel()))) {
 			if(kickReason != "") {
