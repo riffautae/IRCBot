@@ -148,7 +148,7 @@ public class IRCBotHandlers extends ListenerAdapter {
 		}
 		// ..or !sandwich
 		if(event.getMessage().startsWith("!sandwich")) {
-			// TODO: Implement !sandwich support
+			new Thread(new SandwichHandler(event)).start();
 			return true;
 		}
 		return false;

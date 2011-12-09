@@ -26,6 +26,24 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-public class SandwichHandler {
+package us.rddt.IRCBot;
 
+import org.pircbotx.hooks.events.MessageEvent;
+
+public class SandwichHandler implements Runnable {
+	private MessageEvent event;
+	
+	public void run() {
+		if(event.getMessage().length() < 10) {
+			event.getBot().sendAction(event.getChannel(), "gives " + event.getUser().getNick() + " some bread on a plate. Enjoy your \"sandwich\".");
+		} else if(event.getMessage().substring(10).equals("")) {
+			event.getBot().sendAction(event.getChannel(), "gives " + event.getUser().getNick() + " some bread on a plate. Enjoy your \"sandwich\".");
+		} else {
+			event.getBot().sendAction(event.getChannel(), "gives " + event.getUser().getNick() + " a sandwich with " + event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "") + ". Mmm! Sounds good!");
+		}
+	}
+	
+	public SandwichHandler(MessageEvent event) {
+		this.event = event;
+	}
 }
