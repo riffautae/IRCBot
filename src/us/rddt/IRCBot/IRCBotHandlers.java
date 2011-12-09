@@ -146,6 +146,11 @@ public class IRCBotHandlers extends ListenerAdapter {
 			new Thread(new KickBanHandler(event, true)).start();
 			return true;
 		}
+		// ..or !sandwich
+		if(event.getMessage().startsWith("!sandwich")) {
+			// TODO: Implement !sandwich support
+			return true;
+		}
 		return false;
 	}
 }
