@@ -66,7 +66,7 @@ public class KingHandler implements Runnable {
 		// We're just checking if the new channel joiner is king, if so op them
 		else if(jEvent != null) {
 			if(isUserKing(jEvent.getUser())) {
-				jEvent.getBot().sendMessage(jEvent.getChannel(), "ALL RISE! KING " + jEvent.getUser().getNick() + " HAS ENTERED THE ROOM!");
+				jEvent.getBot().sendMessage(jEvent.getChannel(), "ALL RISE! KING " + jEvent.getUser().getNick().toUpperCase() + " HAS ENTERED THE ROOM!");
 				jEvent.getBot().op(jEvent.getChannel(), jEvent.getUser());
 			}
 		}
