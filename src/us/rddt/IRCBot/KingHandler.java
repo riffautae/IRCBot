@@ -47,11 +47,17 @@ public class KingHandler implements Runnable {
 	public void run() {
 		// We have a new king to set, deop everyone else and set them
 		if(mEvent != null && !retrieveNick) {
-			Iterator<User> itr = mEvent.getChannel().getOps().iterator();
-			while(itr.hasNext()) {
-				User next = (User)itr.next();
+			Iterator<User> ops = mEvent.getChannel().getOps().iterator();
+			while(ops.hasNext()) {
+				User next = (User)ops.next();
 				if(!next.equals(mEvent.getBot().getUserBot())) {
 					mEvent.getChannel().deOp(next);
+				}
+			}
+			Iterator<User> halfops = mEvent.getChannel().getHalfOps().iterator();
+			while(halfops.hasNext()) {
+				User next = (User)halfops.next();
+				if(!next.equals(mEvent.getBot().getUserBot())) {
 					mEvent.getChannel().deHalfOp(next);
 				}
 			}
