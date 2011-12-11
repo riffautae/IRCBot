@@ -76,7 +76,7 @@ public class LotteryHandler implements Runnable {
 					IRCUtils.Log(IRCUtils.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
 				} else {
 					// Not this time. (PM the user as to avoid channel flooding)
-					event.respond("Sorry, you lost! You can try again in 12 hours. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
+					event.respond("Sorry, you lost! You can try again in 6 hours. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
 				}
 			} else {
 				event.respond("You still need to wait " + IRCUtils.toReadableTime(lotteryPlayers.get(event.getUser().getHostmask()), true) + " until you can play again.");
