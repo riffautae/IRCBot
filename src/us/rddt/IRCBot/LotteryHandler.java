@@ -67,7 +67,7 @@ public class LotteryHandler implements Runnable {
 					return;
 				}
 				// Store that they guessed
-				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (43200 * 1000)));
+				lotteryPlayers.put(event.getUser().getHostmask(), new Date(new Date().getTime() + (21600 * 1000)));
 				// Did they win?
 				if(guessedNumber == lotteryNumber) {
 					// They did! Crown them and let everyone know!
