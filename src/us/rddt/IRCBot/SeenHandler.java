@@ -157,7 +157,7 @@ public class SeenHandler implements Runnable {
 			}
 			// Otherwise, create a new record in the database for the user
 			else {
-				statement = database.getConnection().prepareStatement("INSERT INTO Seen(Nick, Date, Channel) VALUES (?, ?)");
+				statement = database.getConnection().prepareStatement("INSERT INTO Seen(Nick, Date) VALUES (?, ?)");
 				statement.setString(1, userToUpdate);
 				statement.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
 				statement.executeUpdate();
