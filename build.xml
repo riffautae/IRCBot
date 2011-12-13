@@ -28,7 +28,7 @@
 		<tstamp>
 			<format property="current.time" pattern="yyyy-MM-dd HH:mm:ss" />
 		</tstamp>
-    	<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
+    	<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}" debug="true" debuglevel="lines,vars,source">
     		<zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
         	<manifest>
             	<attribute name="Main-Class" value="${main-class}"/>
