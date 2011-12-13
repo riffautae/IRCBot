@@ -255,6 +255,7 @@ public class URLGrabber implements Runnable {
 			Status status = twitter.showStatus(tweetID);
 			event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] @" + status.getUser().getScreenName() + ": " + status.getText());
 		} catch (TwitterException te) {
+			IRCUtils.Log(IRCUtils.LOG_ERROR, te.getMessage());
 			te.printStackTrace();
 		}
 	}
@@ -273,6 +274,7 @@ public class URLGrabber implements Runnable {
 		} catch (MalformedURLException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
+			return;
 		}
 
 		// Download the JSON from Reddit
@@ -286,6 +288,7 @@ public class URLGrabber implements Runnable {
 		} catch (IOException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
+			return;
 		}
 
 		// Parse the JSON accordingly and send the result to the channel
@@ -306,6 +309,7 @@ public class URLGrabber implements Runnable {
 		} catch (JSONException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
+			return;
 		}
 	}
 
@@ -335,6 +339,7 @@ public class URLGrabber implements Runnable {
 		} catch (IOException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
+			return false;
 		}
 
 		// Parse the JSON accordingly and send the results to the channel
@@ -390,6 +395,7 @@ public class URLGrabber implements Runnable {
 		} catch (MalformedURLException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
+			return;
 		}
 		
 		try {
@@ -415,6 +421,7 @@ public class URLGrabber implements Runnable {
 		} catch (JSONException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
+			return;
 		}
 	}
 }
