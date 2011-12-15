@@ -53,6 +53,8 @@ public class URLGrabber implements Runnable {
 	// Variables
 	private MessageEvent event = null;
 	private URL url = null;
+	
+	private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
 
 	// Regex pattern to match the HTML title tag to extract from the URL
 	private static final Pattern TITLE_TAG = Pattern.compile("\\<title>(.*)\\</title>", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
@@ -117,7 +119,7 @@ public class URLGrabber implements Runnable {
 		// No need to check validity of the URL - it's already been proven valid at this point
 		URLConnection conn = url.openConnection();
 		// Set a proper user agent, some sites return HTTP 409 without it
-		conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0");
+		conn.setRequestProperty("User-Agent", USER_AGENT);
 		// Get the Content-Type property from the HTTP headers so we can parse accordingly
 		ContentType contentType = getContentTypeHeader(conn);
 		// If the document isn't HTML, return the Content-Type and Content-Length instead
@@ -280,6 +282,7 @@ public class URLGrabber implements Runnable {
 		// Download the JSON from Reddit
 		try {
 			URLConnection conn = appendURL.openConnection();
+			conn.setRequestProperty("User-Agent", USER_AGENT);
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
 			while((buffer = buf.readLine()) != null) {
@@ -333,6 +336,7 @@ public class URLGrabber implements Runnable {
 		// Download the JSON from Reddit
 		try {
 			URLConnection conn = appendURL.openConnection();
+			conn.setRequestProperty("User-Agent", USER_AGENT);
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
 			while((buffer = buf.readLine()) != null) {
@@ -403,6 +407,7 @@ public class URLGrabber implements Runnable {
 		
 		try {
 			URLConnection conn = appendURL.openConnection();
+			conn.setRequestProperty("User-Agent", USER_AGENT);
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
 			while((buffer = buf.readLine()) != null) {
