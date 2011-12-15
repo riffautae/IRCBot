@@ -286,6 +286,7 @@ public class URLGrabber implements Runnable {
 				jsonToParse += buffer;
 			}
 		} catch (IOException ex) {
+			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + ex.getMessage() + ")");
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
@@ -307,6 +308,7 @@ public class URLGrabber implements Runnable {
 				event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + redditUser.getString("name") + ": " + redditUser.getInt("link_karma") + " link karma, " + redditUser.getInt("comment_karma") + " comment karma, user since " + dateFormat.format(new Date(redditUser.getLong("created") * 1000)));
 			}
 		} catch (JSONException ex) {
+			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + ex.getMessage() + ")");
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
@@ -393,6 +395,7 @@ public class URLGrabber implements Runnable {
 		try {
 			appendURL = new URL("http://gdata.youtube.com/feeds/api/videos?q=" + url.toString().split("=")[1] + "&v=2&alt=jsonc");
 		} catch (MalformedURLException ex) {
+			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from YouTube. (" + ex.getMessage() + ")");
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
@@ -419,6 +422,7 @@ public class URLGrabber implements Runnable {
 				event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] YouTube video ID invalid or video is private.");
 			}
 		} catch (JSONException ex) {
+			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from YouTube. (" + ex.getMessage() + ")");
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
