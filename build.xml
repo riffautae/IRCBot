@@ -19,7 +19,7 @@
 
 	<target name="compile">
     	<mkdir dir="${classes.dir}"/>
-    	<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false"/>
+    	<javac srcdir="${src.dir}" destdir="${classes.dir}" classpathref="classpath" includeantruntime="false" debug="true" debuglevel="lines,vars,source"/>
 	</target>
 
 	<target name="jar" depends="compile">
@@ -28,7 +28,7 @@
 		<tstamp>
 			<format property="current.time" pattern="yyyy-MM-dd HH:mm:ss" />
 		</tstamp>
-    	<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}" debug="true" debuglevel="lines,vars,source">
+    	<jar destfile="${jar.dir}/${ant.project.name}.jar" basedir="${classes.dir}">
     		<zipgroupfileset dir="${lib.dir}" includes="**/*.jar" />
         	<manifest>
             	<attribute name="Main-Class" value="${main-class}"/>
