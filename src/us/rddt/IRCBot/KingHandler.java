@@ -111,7 +111,7 @@ public class KingHandler implements Runnable {
 		}
 	}
 
-	private boolean isUserKing(User candidate) {
+	public static boolean isUserKing(User candidate) {
 		// Create a new instance of the database
 		database = new Database();
 		try {

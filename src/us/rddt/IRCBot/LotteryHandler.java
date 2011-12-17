@@ -47,6 +47,16 @@ public class LotteryHandler implements Runnable {
 	public void run() {
 		// If the user submitted an actual guess
 		if(event.getMessage() != "") {
+			// The king has no need to play the lottery!
+			if(KingHandler.isUserKing(event.getUser())) {
+				event.respond("You are already king! There is no need to play!");
+				return;
+			}
+			// Channel owners also have no need to play
+			if(event.getChannel().getOwners().contains(event.getUser())) {
+				event.respond("You are a channel owner! There is no need to play!");
+				return;
+			}
 			// If the user hasn't guessed previously or their 30-minute window is up
 			if(lotteryPlayers.get(event.getUser().getHostmask()) == null || (((lotteryPlayers.get(event.getUser().getHostmask()).getTime() / 1000) - new Date().getTime() / 1000) < 0)) {
 				// Generate the winning number
