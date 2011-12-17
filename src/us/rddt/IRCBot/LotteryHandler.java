@@ -85,7 +85,7 @@ public class LotteryHandler implements Runnable {
 					event.respond("YOU WON! ALL HAIL KING " + event.getUser().getNick().toUpperCase() + "!");
 					IRCUtils.Log(IRCUtils.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
 				} else {
-					// Not this time. (PM the user as to avoid channel flooding)
+					// Not this time.
 					event.respond("Sorry, you lost! You can try again in 6 hours. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
 				}
 			} else {
