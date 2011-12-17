@@ -62,6 +62,14 @@ public class IRCUtils {
 		// Log to the console
 		System.out.println(output);
 	}
+	
+	public static String trimString(String toTrim, int maxLength) {
+		if(toTrim.length() > maxLength) {
+			return toTrim.substring(maxLength) + "...";
+		} else {
+			return toTrim;
+		}
+	}
 
 	public static String toReadableTime(Date date, boolean countingDown) {
 		// Calculate the difference in seconds between the time the user left and now
