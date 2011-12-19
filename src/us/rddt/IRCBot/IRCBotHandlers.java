@@ -124,6 +124,11 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 			new Thread(new VotekickHandler(event)).start();
 			return true;
 		}
+		// ..or !veto
+		if(event.getMessage().startsWith("!veto")) {
+			new Thread(new VotekickHandler(event, true)).start();
+			return true;
+		}
 		// ..or !seen
 		if(event.getMessage().startsWith("!seen ")) {
 			new Thread(new SeenHandler(event)).start();

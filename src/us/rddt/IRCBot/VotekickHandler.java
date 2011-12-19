@@ -41,6 +41,7 @@ public class VotekickHandler implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event;
 	private NickChangeEvent<PircBotX> nickEvent;
+	private boolean vetoAttempt = false;
 
 	// We need these variables to be accessible from other threads, so we make it static and volatile
 	private static volatile String votekickUser = "";
@@ -129,6 +130,17 @@ public class VotekickHandler implements Runnable {
 				return;
 			}
 		}
+		// A votekick is in progress and someone has attempted to veto
+		else if(vetoAttempt) {
+			// Only kings should be able to veto votekicks
+			if(KingHandler.isUserKing(event.getUser())) {
+				event.getBot().sendMessage(event.getChannel(), "The vote to kick " + votekickUser + " has failed! (" + event.getUser().getNick() + " has vetoed the votekick.)");
+				resetKick();
+				return;
+			} else {
+				return;
+			}
+		}
 		// There is a vote in progress and the user has voted to kick
 		else if(votekickUser.equals(event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", ""))) {
 			// Ensure the user isn't trying to vote more than once
@@ -162,6 +174,12 @@ public class VotekickHandler implements Runnable {
 	// Class constructor
 	public VotekickHandler(MessageEvent<PircBotX> event) {
 		this.event = event;
+	}
+
+	// Class constructor for veto attempts
+	public VotekickHandler(MessageEvent<PircBotX> event, boolean vetoAttempt) {
+		this.event = event;
+		this.vetoAttempt = vetoAttempt;
 	}
 
 	// Class constructor for nick changes
