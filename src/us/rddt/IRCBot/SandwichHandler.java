@@ -28,10 +28,11 @@
 
 package us.rddt.IRCBot;
 
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
 public class SandwichHandler implements Runnable {
-	private MessageEvent event;
+	private MessageEvent<PircBotX> event;
 	
 	public void run() {
 		if(event.getMessage().length() < 10) {
@@ -43,7 +44,7 @@ public class SandwichHandler implements Runnable {
 		}
 	}
 	
-	public SandwichHandler(MessageEvent event) {
+	public SandwichHandler(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 }

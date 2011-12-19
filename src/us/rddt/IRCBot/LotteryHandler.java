@@ -28,6 +28,7 @@
 
 package us.rddt.IRCBot;
 
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
 import java.util.Collections;
@@ -38,7 +39,7 @@ import java.util.Random;
 
 public class LotteryHandler implements Runnable {
 	// Variables
-	private MessageEvent event;
+	private MessageEvent<PircBotX> event;
 	private final int lotteryRange = 10;
 
 	// We need this to be accessible from other threads, so we make it static and volatile
@@ -95,7 +96,7 @@ public class LotteryHandler implements Runnable {
 	}
 
 	// Class constructor
-	public LotteryHandler(MessageEvent event) {
+	public LotteryHandler(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 }

@@ -28,6 +28,7 @@
 
 package us.rddt.IRCBot;
 
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,7 +37,7 @@ import java.util.Date;
 
 public class ShoutHandler implements Runnable {
 	// Variables
-	private MessageEvent event = null;
+	private MessageEvent<PircBotX> event = null;
 	private String randomQuote = null;
 	private boolean isRandomShout = false;
 
@@ -79,12 +80,12 @@ public class ShoutHandler implements Runnable {
 	}
 
 	// Constructor for the class
-	public ShoutHandler(MessageEvent event) {
+	public ShoutHandler(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
 	// Overloadable constructor, used when a shout needs to be processed
-	public ShoutHandler(MessageEvent event, boolean isRandomShout) {
+	public ShoutHandler(MessageEvent<PircBotX> event, boolean isRandomShout) {
 		this.event = event;
 		this.isRandomShout = isRandomShout;
 	}

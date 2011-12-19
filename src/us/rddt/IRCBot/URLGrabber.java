@@ -47,11 +47,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.pircbotx.Colors;
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
 public class URLGrabber implements Runnable {
 	// Variables
-	private MessageEvent event = null;
+	private MessageEvent<PircBotX> event = null;
 	private URL url = null;
 	
 	private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
@@ -108,7 +109,7 @@ public class URLGrabber implements Runnable {
 	}
 
 	// Class constructor
-	public URLGrabber(MessageEvent event, URL url) {
+	public URLGrabber(MessageEvent<PircBotX> event, URL url) {
 		this.event = event;
 		this.url = url;
 	}

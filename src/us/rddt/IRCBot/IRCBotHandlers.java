@@ -31,12 +31,13 @@ package us.rddt.IRCBot;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.*;
 
-public class IRCBotHandlers extends ListenerAdapter {
+public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 	// This handler is called upon receiving any message in a channel
-	public void onMessage(MessageEvent event) throws Exception {
+	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
 		// If the message is in upper case and not from ourselves, spawn a new thread to handle the shout
 		if(isUpperCase(event.getMessage()) && event.getMessage().replaceAll("^\\s+", "").replaceAll("\\s+$", "").length() > 5 && event.getUser() != event.getBot().getUserBot()) {
 			new Thread(new ShoutHandler(event, true)).start();
@@ -62,31 +63,31 @@ public class IRCBotHandlers extends ListenerAdapter {
 	}
 	
 	// This handler is called when a private message has been sent to the bot
-	public void onPrivateMessage(PrivateMessageEvent event) throws Exception {
+	public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) throws Exception {
 		// There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
 		event.respond("Hi! I am IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ". If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my creator, got_milk, instead!");
 	}
 	
 	// This handler is called when a user has been kicked from the channel
-	public void onKick(KickEvent event) throws Exception {
+	public void onKick(KickEvent<PircBotX> event) throws Exception {
 		// In the case an op goes mad and kicks the bot, rejoin immediately unless got_milk kicks the bot
 		if(event.getRecipient() == event.getBot().getUserBot() && !event.getSource().getNick().equals("got_milk")) {
 			event.getBot().joinChannel(event.getChannel().getName());
 		}
 	}
 	
-	public void onPart(PartEvent event) {
+	public void onPart(PartEvent<PircBotX> event) {
 		new Thread(new SeenHandler(event)).start();
 	}
 	
-	public void onQuit(QuitEvent event) {
+	public void onQuit(QuitEvent<PircBotX> event) {
 		new Thread(new SeenHandler(event)).start();
 	}
 	
-	public void onNickChange(NickChangeEvent event) {
+	public void onNickChange(NickChangeEvent<PircBotX> event) {
 		new Thread(new VotekickHandler(event)).start();
 	}
-	public void onJoin(JoinEvent event) {
+	public void onJoin(JoinEvent<PircBotX> event) {
 		new Thread(new KingHandler(event)).start();
 	}
 	
@@ -107,7 +108,7 @@ public class IRCBotHandlers extends ListenerAdapter {
 	}
 	
 	// Method to check for any commands that may be received from a user
-	private boolean checkForCommands(MessageEvent event) {
+	private boolean checkForCommands(MessageEvent<PircBotX> event) {
 		// If the message contains !who at the start, spawn a new thread to handle the request
 		if(event.getMessage().startsWith("!who ")) {
 			new Thread(new ShoutHandler(event)).start();

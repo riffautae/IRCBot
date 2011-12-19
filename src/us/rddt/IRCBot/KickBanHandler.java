@@ -28,10 +28,11 @@
 
 package us.rddt.IRCBot;
 
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
 public class KickBanHandler implements Runnable {
-	private MessageEvent event;
+	private MessageEvent<PircBotX> event;
 	private boolean isBan;
 
 	public void run() {
@@ -57,7 +58,7 @@ public class KickBanHandler implements Runnable {
 		}
 	}
 
-	public KickBanHandler(MessageEvent event, boolean isBan) {
+	public KickBanHandler(MessageEvent<PircBotX> event, boolean isBan) {
 		this.event = event;
 		this.isBan = isBan;
 	}

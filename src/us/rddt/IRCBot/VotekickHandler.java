@@ -28,6 +28,7 @@
 
 package us.rddt.IRCBot;
 
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.NickChangeEvent;
 
@@ -38,8 +39,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class VotekickHandler implements Runnable {
 	// Variables
-	private MessageEvent event;
-	private NickChangeEvent nickEvent;
+	private MessageEvent<PircBotX> event;
+	private NickChangeEvent<PircBotX> nickEvent;
 
 	// We need these variables to be accessible from other threads, so we make it static and volatile
 	private static volatile String votekickUser = "";
@@ -159,12 +160,12 @@ public class VotekickHandler implements Runnable {
 	}
 
 	// Class constructor
-	public VotekickHandler(MessageEvent event) {
+	public VotekickHandler(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
 	// Class constructor for nick changes
-	public VotekickHandler(NickChangeEvent event) {
+	public VotekickHandler(NickChangeEvent<PircBotX> event) {
 		this.nickEvent = event;
 	}
 

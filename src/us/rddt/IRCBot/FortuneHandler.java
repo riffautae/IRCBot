@@ -28,12 +28,13 @@
 
 package us.rddt.IRCBot;
 
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 import java.util.Random;
 
 public class FortuneHandler implements Runnable {
 	// Variables
-	private MessageEvent event;
+	private MessageEvent<PircBotX> event;
 	
 	// Method that executes upon start of thread
 	public void run() {
@@ -45,7 +46,7 @@ public class FortuneHandler implements Runnable {
 	}
 	
 	// Class constructor
-	public FortuneHandler(MessageEvent event) {
+	public FortuneHandler(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 	

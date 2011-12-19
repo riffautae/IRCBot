@@ -35,7 +35,7 @@ import java.util.Properties;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 
-public class IRCBot extends ListenerAdapter {
+public class IRCBot extends ListenerAdapter<PircBotX> {
 	public static void main(String[] args) throws Exception {
 		Properties property = new Properties();
 		try {

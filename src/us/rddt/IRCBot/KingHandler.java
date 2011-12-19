@@ -33,6 +33,7 @@ import java.sql.ResultSet;
 import java.util.Date;
 import java.util.Iterator;
 
+import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.MessageEvent;
@@ -41,8 +42,8 @@ public class KingHandler implements Runnable {
 	// Variables
 	private static Database database;
 	private boolean retrieveNick = false;
-	private MessageEvent mEvent;
-	private JoinEvent jEvent;
+	private MessageEvent<PircBotX> mEvent;
+	private JoinEvent<PircBotX> jEvent;
 
 	public void run() {
 		// We have a new king to set, deop everyone else and set them
@@ -79,17 +80,17 @@ public class KingHandler implements Runnable {
 	}
 
 	// Class constructor for setting a new king
-	public KingHandler(MessageEvent event) {
+	public KingHandler(MessageEvent<PircBotX> event) {
 		this.mEvent = event;
 	}
 
-	public KingHandler(MessageEvent event, boolean retrieveNick) {
+	public KingHandler(MessageEvent<PircBotX> event, boolean retrieveNick) {
 		this.mEvent = event;
 		this.retrieveNick = retrieveNick;
 	}
 
 	// Class constructor for checking if a user is king
-	public KingHandler(JoinEvent event) {
+	public KingHandler(JoinEvent<PircBotX> event) {
 		this.jEvent = event;
 	}
 

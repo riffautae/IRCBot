@@ -28,6 +28,7 @@
 
 package us.rddt.IRCBot;
 
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.QuitEvent;
@@ -38,9 +39,9 @@ import java.util.Date;
 
 public class SeenHandler implements Runnable {
 	// Variables
-	private MessageEvent event;
-	private PartEvent pEvent;
-	private QuitEvent qEvent;
+	private MessageEvent<PircBotX> event;
+	private PartEvent<PircBotX> pEvent;
+	private QuitEvent<PircBotX> qEvent;
 	private boolean hasParted;
 	private String seenUser;
 
@@ -61,18 +62,18 @@ public class SeenHandler implements Runnable {
 	}
 
 	// Class constructor
-	public SeenHandler(MessageEvent event) {
+	public SeenHandler(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
 	// Overloaded class constructor used for parting events
-	public SeenHandler(PartEvent pEvent) {
+	public SeenHandler(PartEvent<PircBotX> pEvent) {
 		this.pEvent = pEvent;
 		this.hasParted = true;
 	}
 
 	// Overloaded class constructor used for parting events
-	public SeenHandler(QuitEvent event) {
+	public SeenHandler(QuitEvent<PircBotX> event) {
 		this.qEvent = event;
 		this.hasParted = true;
 	}
