@@ -50,12 +50,12 @@ public class LotteryHandler implements Runnable {
 		if(event.getMessage() != "") {
 			// The king has no need to play the lottery!
 			if(KingHandler.isUserKing(event.getUser())) {
-				event.respond("You are already king! There is no need to play!");
+				event.getBot().sendMessage(event.getUser(), "You are already king! There is no need to play!");
 				return;
 			}
 			// Channel owners also have no need to play
 			if(event.getChannel().getOwners().contains(event.getUser())) {
-				event.respond("You are a channel owner! There is no need to play!");
+				event.getBot().sendMessage(event.getUser(), "You are a channel owner! There is no need to play!");
 				return;
 			}
 			// If the user hasn't guessed previously or their 30-minute window is up
@@ -74,7 +74,7 @@ public class LotteryHandler implements Runnable {
 					return;
 				}
 				if(guessedNumber < 1 || guessedNumber > lotteryRange) {
-					event.respond("Your guess was out of range! Valid guesses are between 1 and " + lotteryRange + " inclusive.");
+					event.getBot().sendMessage(event.getUser(), "Your guess was out of range! Valid guesses are between 1 and " + lotteryRange + " inclusive.");
 					return;
 				}
 				// Store that they guessed
@@ -83,11 +83,11 @@ public class LotteryHandler implements Runnable {
 				if(guessedNumber == lotteryNumber) {
 					// They did! Crown them and let everyone know!
 					new Thread(new KingHandler(event)).start();
-					event.respond("YOU WON! ALL HAIL KING " + event.getUser().getNick().toUpperCase() + "!");
+					event.respond("YOU WON! ALL HAIL KING " + event.getUser().getNick().toUpperCase() + "! (Correct guess: " + guessedNumber + ")");
 					IRCUtils.Log(IRCUtils.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
 				} else {
 					// Not this time.
-					event.respond("Sorry, you lost! You can try again in 6 hours. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
+					event.getBot().sendMessage(event.getUser(), "Sorry, you lost! You can try again in 6 hours. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
 				}
 			} else {
 				event.respond("You still need to wait " + IRCUtils.toReadableTime(lotteryPlayers.get(event.getUser().getHostmask()), true) + " until you can play again.");
