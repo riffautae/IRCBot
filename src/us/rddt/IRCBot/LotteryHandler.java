@@ -68,7 +68,7 @@ public class LotteryHandler implements Runnable {
 				try {
 					guessedNumber = Integer.parseInt(event.getMessage().substring(9).replaceAll("^\\s+", "").replaceAll("\\s+$", ""));
 				} catch (NumberFormatException ex) {
-					event.respond("Your guess was not a number!");
+					event.getBot().sendMessage(event.getUser(), "Your guess was not a number!");
 					return;
 				} catch (IndexOutOfBoundsException ex) {
 					return;
