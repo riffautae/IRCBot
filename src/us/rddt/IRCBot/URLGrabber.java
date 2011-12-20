@@ -266,7 +266,7 @@ public class URLGrabber implements Runnable {
 	// Method to retrieve the details about a Reddit submission or user
 	private void returnReddit(URL redditURL, boolean isUser) {
 		// Variables
-		String jsonToParse = "";
+		StringBuilder jsonToParse = new StringBuilder();
 		String buffer;
 		URL appendURL = null;
 
@@ -287,7 +287,7 @@ public class URLGrabber implements Runnable {
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
 			while((buffer = buf.readLine()) != null) {
-				jsonToParse += buffer;
+				jsonToParse.append(buffer);
 			}
 		} catch (IOException ex) {
 			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
@@ -299,7 +299,7 @@ public class URLGrabber implements Runnable {
 		// Parse the JSON accordingly and send the result to the channel
 		try {
 			if(!isUser) {
-				JSONArray parsedArray = new JSONArray(jsonToParse);
+				JSONArray parsedArray = new JSONArray(jsonToParse.toString());
 				JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
 				if(redditLink.getBoolean("over_18")) {
 					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points) " + Colors.BOLD + Colors.RED + "[NSFW]"));
@@ -307,7 +307,7 @@ public class URLGrabber implements Runnable {
 					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points)"));
 				}
 			} else {
-				JSONObject redditUser = new JSONObject(jsonToParse).getJSONObject("data");
+				JSONObject redditUser = new JSONObject(jsonToParse.toString()).getJSONObject("data");
 				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
 				event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + redditUser.getString("name") + ": " + redditUser.getInt("link_karma") + " link karma, " + redditUser.getInt("comment_karma") + " comment karma, user since " + dateFormat.format(new Date(redditUser.getLong("created") * 1000)));
 			}
@@ -322,7 +322,7 @@ public class URLGrabber implements Runnable {
 	// Method to check if an imgur link is from a Reddit submission
 	private boolean checkImgurReddit(URL imgurURL) {
 		// Variables
-		String jsonToParse = "";
+		StringBuilder jsonToParse = new StringBuilder();
 		String buffer;
 		URL appendURL = null;
 
@@ -341,7 +341,7 @@ public class URLGrabber implements Runnable {
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
 			while((buffer = buf.readLine()) != null) {
-				jsonToParse += buffer;
+				jsonToParse.append(buffer);
 			}
 		} catch (IOException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
@@ -355,7 +355,7 @@ public class URLGrabber implements Runnable {
 			double bestWeightValue = 0;
 			double weightScore = 0;
 			boolean isNSFW = false;
-			JSONObject parsedArray = new JSONObject(jsonToParse);
+			JSONObject parsedArray = new JSONObject(jsonToParse.toString());
 			if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
 				for(int i = 0; i < parsedArray.getJSONObject("data").getJSONArray("children").length(); i++) {
 					int submissionScore = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getInt("score");
@@ -393,7 +393,7 @@ public class URLGrabber implements Runnable {
 	}
 	
 	private void returnYouTubeVideo(URL youtubeURL) {
-		String jsonToParse = "";
+		StringBuilder jsonToParse = new StringBuilder();
 		String buffer;
 		URL appendURL = null;
 		
@@ -412,7 +412,7 @@ public class URLGrabber implements Runnable {
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
 			while((buffer = buf.readLine()) != null) {
-				jsonToParse += buffer;
+				jsonToParse.append(buffer);
 			}
 		} catch (IOException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
@@ -420,7 +420,7 @@ public class URLGrabber implements Runnable {
 		}
 		
 		try {
-			JSONObject parsedArray = new JSONObject(jsonToParse);
+			JSONObject parsedArray = new JSONObject(jsonToParse.toString());
 			if(parsedArray.getJSONObject("data").getInt("totalItems") > 0) {
 				JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
 				event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + youtubeLink .getString("title") + " (" + IRCUtils.toReadableMinutes(youtubeLink.getLong("duration")) + ")");
