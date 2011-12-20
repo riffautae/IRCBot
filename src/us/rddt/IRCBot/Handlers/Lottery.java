@@ -26,10 +26,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-package us.rddt.IRCBot;
+package us.rddt.IRCBot.Handlers;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
+
+import us.rddt.IRCBot.IRCUtils;
 
 import java.util.Collections;
 import java.util.Date;
@@ -37,7 +39,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class LotteryHandler implements Runnable {
+public class Lottery implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event;
 	private final int lotteryRange = 10;
@@ -49,7 +51,7 @@ public class LotteryHandler implements Runnable {
 		// If the user submitted an actual guess
 		if(event.getMessage() != "") {
 			// The king has no need to play the lottery!
-			if(KingHandler.isUserKing(event.getUser())) {
+			if(King.isUserKing(event.getUser())) {
 				event.getBot().sendMessage(event.getUser(), "You are already king! There is no need to play!");
 				return;
 			}
@@ -82,7 +84,7 @@ public class LotteryHandler implements Runnable {
 				// Did they win?
 				if(guessedNumber == lotteryNumber) {
 					// They did! Crown them and let everyone know!
-					new Thread(new KingHandler(event)).start();
+					new Thread(new King(event)).start();
 					event.respond("YOU WON! ALL HAIL KING " + event.getUser().getNick().toUpperCase() + "! (Correct guess: " + guessedNumber + ")");
 					IRCUtils.Log(IRCUtils.LOG_INFORMATION, "User " + event.getUser().getNick() + " has been crowned king.");
 				} else {
@@ -96,7 +98,7 @@ public class LotteryHandler implements Runnable {
 	}
 
 	// Class constructor
-	public LotteryHandler(MessageEvent<PircBotX> event) {
+	public Lottery(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 }

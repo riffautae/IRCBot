@@ -26,12 +26,12 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-package us.rddt.IRCBot;
+package us.rddt.IRCBot.Handlers;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
-public class SandwichHandler implements Runnable {
+public class Sandwich implements Runnable {
 	private MessageEvent<PircBotX> event;
 	
 	public void run() {
@@ -44,7 +44,7 @@ public class SandwichHandler implements Runnable {
 		}
 	}
 	
-	public SandwichHandler(MessageEvent<PircBotX> event) {
+	public Sandwich(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 }

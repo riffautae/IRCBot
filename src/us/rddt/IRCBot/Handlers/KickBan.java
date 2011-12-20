@@ -26,12 +26,14 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-package us.rddt.IRCBot;
+package us.rddt.IRCBot.Handlers;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
-public class KickBanHandler implements Runnable {
+import us.rddt.IRCBot.IRCUtils;
+
+public class KickBan implements Runnable {
 	private MessageEvent<PircBotX> event;
 	private boolean isBan;
 
@@ -58,7 +60,7 @@ public class KickBanHandler implements Runnable {
 		}
 	}
 
-	public KickBanHandler(MessageEvent<PircBotX> event, boolean isBan) {
+	public KickBan(MessageEvent<PircBotX> event, boolean isBan) {
 		this.event = event;
 		this.isBan = isBan;
 	}

@@ -26,13 +26,13 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-package us.rddt.IRCBot;
+package us.rddt.IRCBot.Handlers;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 import java.util.Random;
 
-public class FortuneHandler implements Runnable {
+public class Fortune implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event;
 	
@@ -46,7 +46,7 @@ public class FortuneHandler implements Runnable {
 	}
 	
 	// Class constructor
-	public FortuneHandler(MessageEvent<PircBotX> event) {
+	public Fortune(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 	

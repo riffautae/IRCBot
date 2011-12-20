@@ -26,18 +26,21 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-package us.rddt.IRCBot;
+package us.rddt.IRCBot.Handlers;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
+import us.rddt.IRCBot.Database;
+import us.rddt.IRCBot.IRCUtils;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Date;
 
-public class SeenHandler implements Runnable {
+public class Seen implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event;
 	private PartEvent<PircBotX> pEvent;
@@ -62,18 +65,18 @@ public class SeenHandler implements Runnable {
 	}
 
 	// Class constructor
-	public SeenHandler(MessageEvent<PircBotX> event) {
+	public Seen(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
 	// Overloaded class constructor used for parting events
-	public SeenHandler(PartEvent<PircBotX> pEvent) {
+	public Seen(PartEvent<PircBotX> pEvent) {
 		this.pEvent = pEvent;
 		this.hasParted = true;
 	}
 
 	// Overloaded class constructor used for parting events
-	public SeenHandler(QuitEvent<PircBotX> event) {
+	public Seen(QuitEvent<PircBotX> event) {
 		this.qEvent = event;
 		this.hasParted = true;
 	}

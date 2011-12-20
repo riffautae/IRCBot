@@ -26,18 +26,20 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-package us.rddt.IRCBot;
+package us.rddt.IRCBot.Handlers;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.NickChangeEvent;
+
+import us.rddt.IRCBot.IRCUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class VotekickHandler implements Runnable {
+public class Votekick implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event;
 	private NickChangeEvent<PircBotX> nickEvent;
@@ -133,7 +135,7 @@ public class VotekickHandler implements Runnable {
 		// A votekick is in progress and someone has attempted to veto
 		else if(vetoAttempt) {
 			// Only kings should be able to veto votekicks
-			if(KingHandler.isUserKing(event.getUser())) {
+			if(King.isUserKing(event.getUser())) {
 				event.getBot().sendMessage(event.getChannel(), "The vote to kick " + votekickUser + " has failed! (" + event.getUser().getNick() + " has vetoed the votekick.)");
 				resetKick();
 				return;
@@ -172,18 +174,18 @@ public class VotekickHandler implements Runnable {
 	}
 
 	// Class constructor
-	public VotekickHandler(MessageEvent<PircBotX> event) {
+	public Votekick(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
 	// Class constructor for veto attempts
-	public VotekickHandler(MessageEvent<PircBotX> event, boolean vetoAttempt) {
+	public Votekick(MessageEvent<PircBotX> event, boolean vetoAttempt) {
 		this.event = event;
 		this.vetoAttempt = vetoAttempt;
 	}
 
 	// Class constructor for nick changes
-	public VotekickHandler(NickChangeEvent<PircBotX> event) {
+	public Votekick(NickChangeEvent<PircBotX> event) {
 		this.nickEvent = event;
 	}
 

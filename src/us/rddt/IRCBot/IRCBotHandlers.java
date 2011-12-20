@@ -35,12 +35,21 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.*;
 
+import us.rddt.IRCBot.Handlers.Fortune;
+import us.rddt.IRCBot.Handlers.KickBan;
+import us.rddt.IRCBot.Handlers.King;
+import us.rddt.IRCBot.Handlers.Lottery;
+import us.rddt.IRCBot.Handlers.Sandwich;
+import us.rddt.IRCBot.Handlers.Seen;
+import us.rddt.IRCBot.Handlers.Shout;
+import us.rddt.IRCBot.Handlers.Votekick;
+
 public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 	// This handler is called upon receiving any message in a channel
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
 		// If the message is in upper case and not from ourselves, spawn a new thread to handle the shout
 		if(isUpperCase(event.getMessage()) && event.getMessage().replaceAll("^\\s+", "").replaceAll("\\s+$", "").length() > 5 && event.getUser() != event.getBot().getUserBot()) {
-			new Thread(new ShoutHandler(event, true)).start();
+			new Thread(new Shout(event, true)).start();
 			return;
 		}
 		if(checkForCommands(event)) return;
@@ -77,18 +86,18 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 	}
 	
 	public void onPart(PartEvent<PircBotX> event) {
-		new Thread(new SeenHandler(event)).start();
+		new Thread(new Seen(event)).start();
 	}
 	
 	public void onQuit(QuitEvent<PircBotX> event) {
-		new Thread(new SeenHandler(event)).start();
+		new Thread(new Seen(event)).start();
 	}
 	
 	public void onNickChange(NickChangeEvent<PircBotX> event) {
-		new Thread(new VotekickHandler(event)).start();
+		new Thread(new Votekick(event)).start();
 	}
 	public void onJoin(JoinEvent<PircBotX> event) {
-		new Thread(new KingHandler(event)).start();
+		new Thread(new King(event)).start();
 	}
 	
 	// Method to check if a string is uppercase
@@ -111,50 +120,50 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 	private boolean checkForCommands(MessageEvent<PircBotX> event) {
 		// If the message contains !who at the start, spawn a new thread to handle the request
 		if(event.getMessage().startsWith("!who ")) {
-			new Thread(new ShoutHandler(event)).start();
+			new Thread(new Shout(event)).start();
 			return true;
 		}
 		// ..or !decide
 		if(event.getMessage().startsWith("!decide ")) {
-			new Thread(new FortuneHandler(event)).start();
+			new Thread(new Fortune(event)).start();
 			return true;
 		}
 		// ..or !votekick
 		if(event.getMessage().startsWith("!votekick ")) {
-			new Thread(new VotekickHandler(event)).start();
+			new Thread(new Votekick(event)).start();
 			return true;
 		}
 		// ..or !veto
 		if(event.getMessage().startsWith("!veto")) {
-			new Thread(new VotekickHandler(event, true)).start();
+			new Thread(new Votekick(event, true)).start();
 			return true;
 		}
 		// ..or !seen
 		if(event.getMessage().startsWith("!seen ")) {
-			new Thread(new SeenHandler(event)).start();
+			new Thread(new Seen(event)).start();
 			return true;
 		}
 		// ..or !lottery
 		if(event.getMessage().startsWith("!lottery ")) {
-			new Thread(new LotteryHandler(event)).start();
+			new Thread(new Lottery(event)).start();
 		}
 		// ..or !king
 		if(event.getMessage().startsWith("!king")) {
-			new Thread(new KingHandler(event, true)).start();
+			new Thread(new King(event, true)).start();
 		}
 		// ..or !kick/.k
 		if(event.getMessage().startsWith("!kick ") || event.getMessage().substring(0, 3).equals(".k ")) {
-			new Thread(new KickBanHandler(event, false)).start();
+			new Thread(new KickBan(event, false)).start();
 			return true;
 		}
 		// ..or !kickban/.kb
 		if(event.getMessage().startsWith("!kickban ") || event.getMessage().substring(0, 4).equals(".kb ")) {
-			new Thread(new KickBanHandler(event, true)).start();
+			new Thread(new KickBan(event, true)).start();
 			return true;
 		}
 		// ..or !sandwich
 		if(event.getMessage().startsWith("!sandwich")) {
-			new Thread(new SandwichHandler(event)).start();
+			new Thread(new Sandwich(event)).start();
 			return true;
 		}
 		return false;

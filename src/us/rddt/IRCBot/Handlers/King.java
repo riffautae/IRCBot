@@ -26,7 +26,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-package us.rddt.IRCBot;
+package us.rddt.IRCBot.Handlers;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,7 +38,10 @@ import org.pircbotx.User;
 import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 
-public class KingHandler implements Runnable {
+import us.rddt.IRCBot.Database;
+import us.rddt.IRCBot.IRCUtils;
+
+public class King implements Runnable {
 	// Variables
 	private static Database database;
 	private boolean retrieveNick = false;
@@ -80,17 +83,17 @@ public class KingHandler implements Runnable {
 	}
 
 	// Class constructor for setting a new king
-	public KingHandler(MessageEvent<PircBotX> event) {
+	public King(MessageEvent<PircBotX> event) {
 		this.mEvent = event;
 	}
 
-	public KingHandler(MessageEvent<PircBotX> event, boolean retrieveNick) {
+	public King(MessageEvent<PircBotX> event, boolean retrieveNick) {
 		this.mEvent = event;
 		this.retrieveNick = retrieveNick;
 	}
 
 	// Class constructor for checking if a user is king
-	public KingHandler(JoinEvent<PircBotX> event) {
+	public King(JoinEvent<PircBotX> event) {
 		this.jEvent = event;
 	}
 

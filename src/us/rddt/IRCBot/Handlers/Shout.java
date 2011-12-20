@@ -26,16 +26,20 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-package us.rddt.IRCBot;
+package us.rddt.IRCBot.Handlers;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
+
+import us.rddt.IRCBot.Database;
+import us.rddt.IRCBot.IRCUtils;
+
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
 
-public class ShoutHandler implements Runnable {
+public class Shout implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event = null;
 	private String randomQuote = null;
@@ -80,12 +84,12 @@ public class ShoutHandler implements Runnable {
 	}
 
 	// Constructor for the class
-	public ShoutHandler(MessageEvent<PircBotX> event) {
+	public Shout(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
 	// Overloadable constructor, used when a shout needs to be processed
-	public ShoutHandler(MessageEvent<PircBotX> event, boolean isRandomShout) {
+	public Shout(MessageEvent<PircBotX> event, boolean isRandomShout) {
 		this.event = event;
 		this.isRandomShout = isRandomShout;
 	}
