@@ -37,9 +37,12 @@ import us.rddt.IRCBot.IRCUtils;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Shout implements Runnable {
+public class Shouts implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event = null;
 	private String randomQuote = null;
@@ -47,11 +50,8 @@ public class Shout implements Runnable {
 	private int quoteNumber;
 
 	private Database database;
-
-	// We need this variable to be accessible from other threads, so we make it static and volatile
-	private static volatile String lastQuote = "";
-	private static volatile String lastSubmitter = "";
-	private static volatile String lastReadableDate = "";
+	
+	private static volatile Map<String,Shout> shoutMap = Collections.synchronizedMap(new HashMap<String,Shout>());
 
 	// Method that executes upon start of thread
 	public void run() {
@@ -90,12 +90,12 @@ public class Shout implements Runnable {
 	}
 
 	// Constructor for the class
-	public Shout(MessageEvent<PircBotX> event) {
+	public Shouts(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
 	// Overloadable constructor, used when a shout needs to be processed
-	public Shout(MessageEvent<PircBotX> event, boolean isRandomShout) {
+	public Shouts(MessageEvent<PircBotX> event, boolean isRandomShout) {
 		this.event = event;
 		this.isRandomShout = isRandomShout;
 	}
@@ -110,15 +110,7 @@ public class Shout implements Runnable {
 		ResultSet resultSet = statement.executeQuery();
 		if(resultSet.next()) {
 			// Save the last quote to prevent an extra DB hit on !who last
-			synchronized(lastQuote) {
-				lastQuote = resultSet.getString("Quote");
-			}
-			synchronized(lastSubmitter) {
-				lastSubmitter = resultSet.getString("Nick");
-			}
-			synchronized(lastReadableDate) {
-				lastReadableDate = IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false);
-			}
+			shoutMap.put(event.getChannel().getName(), new Shout(resultSet.getString("Quote"), resultSet.getString("Nick"), IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false)));
 			// Return the random quote
 			return resultSet.getString("Quote");
 		} else {
@@ -147,14 +139,14 @@ public class Shout implements Runnable {
 		// If the user wants the last quote, prevent hitting the database twice and simply retrieve details from memory
 		if(quote.equals("last")) {
 			// On startup there is no previous quote, so return as such if a user attempts a !who last
-			if(lastQuote == null || lastQuote == "") return "No previous quote.";
+			if(getLastShout() == null) return "No previous quote.";
 			// Tease the user if it's their own quote
-			if(lastSubmitter.equals(event.getUser().getNick())) return "don't you remember? YOU submitted this! Put down the bong!";
+			if(getLastShout().getSubmitter().equals(event.getUser().getNick())) return "don't you remember? YOU submitted this! Put down the bong!";
 			// Provide context if the !who last command was used, but trim it if the quote is longer than 10 characters (use 60% of the quote instead)
 			if(quote.length() < 11) {
-				return lastSubmitter + " shouted \"" + lastQuote + "\" about " + lastReadableDate + " ago.";
+				return getLastShout().getSubmitter() + " shouted \"" + getLastShout().getQuote() + "\" about " + getLastShout().getReadableDate() + " ago.";
 			} else {
-				return lastSubmitter + " shouted \"" + lastQuote.substring(0, (int)(lastQuote.length() * 0.6)) + "...\" " + lastReadableDate + ".";
+				return getLastShout().getSubmitter() + " shouted \"" + getLastShout().getQuote().substring(0, (int)(getLastShout().getQuote().length() * 0.6)) + "...\" " + getLastShout().getReadableDate() + ".";
 			}
 		}
 		// We need 2 queries to pull details about the database (for now), sadly.
@@ -222,5 +214,33 @@ public class Shout implements Runnable {
 		statement.setString(3, event.getChannel().getName());
 		statement.setString(4, event.getMessage());
 		statement.executeUpdate();
+	}
+	
+	private Shout getLastShout() {
+		return shoutMap.get(event.getChannel().getName());
+	}
+}
+
+class Shout {
+	private String quote;
+	private String submitter;
+	private String readableDate;
+	
+	public Shout(String quote, String submitter, String readableDate) {
+		this.quote = quote;
+		this.submitter = submitter;
+		this.readableDate = readableDate;
+	}
+
+	public String getQuote() {
+		return quote;
+	}
+
+	public String getSubmitter() {
+		return submitter;
+	}
+
+	public String getReadableDate() {
+		return readableDate;
 	}
 }

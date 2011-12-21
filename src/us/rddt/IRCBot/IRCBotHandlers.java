@@ -42,14 +42,14 @@ import us.rddt.IRCBot.Handlers.Fortune;
 import us.rddt.IRCBot.Handlers.KickBan;
 import us.rddt.IRCBot.Handlers.Sandwich;
 import us.rddt.IRCBot.Handlers.Seen;
-import us.rddt.IRCBot.Handlers.Shout;
+import us.rddt.IRCBot.Handlers.Shouts;
 
 public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 	// This handler is called upon receiving any message in a channel
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
 		// If the message is in upper case and not from ourselves, spawn a new thread to handle the shout
 		if(isUpperCase(event.getMessage()) && event.getMessage().replaceAll("^\\s+", "").replaceAll("\\s+$", "").length() > 5 && event.getUser() != event.getBot().getUserBot()) {
-			new Thread(new Shout(event, true)).start();
+			new Thread(new Shouts(event, true)).start();
 			return;
 		}
 		if(checkForCommands(event)) return;
@@ -122,7 +122,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 	private boolean checkForCommands(MessageEvent<PircBotX> event) {
 		// If the message contains !who at the start, spawn a new thread to handle the request
 		if(event.getMessage().startsWith("!who ")) {
-			new Thread(new Shout(event)).start();
+			new Thread(new Shouts(event)).start();
 			return true;
 		}
 		// ..or !decide
