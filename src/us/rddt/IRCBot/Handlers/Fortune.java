@@ -58,7 +58,7 @@ public class Fortune implements Runnable {
 		if(splitMessage.length == 1) {
 			// Generate a random number and use it to return the fortune
 			Random generator = new Random();
-			if(generator.nextInt(2) == 1) return "Yes";
+			if(generator.nextInt(1) == 1) return "Yes";
 			else return "No";
 		} else {
 			// Generate a random number and use it to return a decision
