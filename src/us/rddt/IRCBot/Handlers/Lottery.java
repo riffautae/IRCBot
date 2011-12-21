@@ -92,7 +92,7 @@ public class Lottery implements Runnable {
 					event.getBot().sendMessage(event.getUser(), "Sorry, you lost! You can try again in 6 hours. (Guessed " + event.getMessage().substring(9) + ", correct " + lotteryNumber + ")");
 				}
 			} else {
-				event.respond("You still need to wait " + IRCUtils.toReadableTime(lotteryPlayers.get(event.getUser().getHostmask()), true) + " until you can play again.");
+				event.getBot().sendMessage(event.getUser(), "You still need to wait " + IRCUtils.toReadableTime(lotteryPlayers.get(event.getUser().getHostmask()), true) + " until you can play again.");
 			}
 		}
 	}
