@@ -35,21 +35,21 @@ import java.util.Random;
 public class Fortune implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event;
-	
+
 	// Method that executes upon start of thread
 	public void run() {
 		try {
-		event.respond(parseFortune(event.getMessage().substring(8)));
+			event.respond(parseFortune(event.getMessage().substring(8)));
 		} catch (IndexOutOfBoundsException ex) {
 			return;
 		}
 	}
-	
+
 	// Class constructor
 	public Fortune(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
-	
+
 	// Method to parse and return a fortune
 	private String parseFortune(String message) {
 		// Split the message with the delimiter 'or'
