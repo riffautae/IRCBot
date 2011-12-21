@@ -38,8 +38,9 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.*;
 
+import us.rddt.IRCBot.IRCUtils.UserModes;
 import us.rddt.IRCBot.Handlers.Fortune;
-import us.rddt.IRCBot.Handlers.KickBan;
+import us.rddt.IRCBot.Handlers.UserMode;
 import us.rddt.IRCBot.Handlers.Sandwich;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
@@ -137,12 +138,12 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		}
 		// ..or !kick/.k
 		if(event.getMessage().startsWith("!kick ") || event.getMessage().substring(0, 3).equals(".k ")) {
-			new Thread(new KickBan(event, false)).start();
+			new Thread(new UserMode(event, UserModes.KICK)).start();
 			return true;
 		}
 		// ..or !kickban/.kb
 		if(event.getMessage().startsWith("!kickban ") || event.getMessage().substring(0, 4).equals(".kb ")) {
-			new Thread(new KickBan(event, true)).start();
+			new Thread(new UserMode(event, UserModes.BAN)).start();
 			return true;
 		}
 		// ..or !sandwich

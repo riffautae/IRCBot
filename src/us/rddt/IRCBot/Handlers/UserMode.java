@@ -34,22 +34,41 @@ import org.pircbotx.User;
 import org.pircbotx.hooks.events.MessageEvent;
 
 import us.rddt.IRCBot.IRCUtils;
+import us.rddt.IRCBot.IRCUtils.UserModes;
 
-public class KickBan implements Runnable {
+public class UserMode implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event;
-	private boolean isBan;
+	private UserModes mode;
 
 	// Method that executes upon start of thread
 	public void run() {
+		switch(mode) {
+		case KICK:
+			kickUser(false);
+			break;
+		case BAN:
+			kickUser(true);
+			break;
+		default:
+			break;
+		}
+	}
+
+	// Class constructor
+	public UserMode(MessageEvent<PircBotX> event, UserModes mode) {
+		this.event = event;
+		this.mode = mode;
+	}
+
+	private void kickUser(boolean isBan) {
 		// Temporary variables
 		String kickUser = event.getMessage().split(" ")[1];
 		String kickReason = getReason();
-		
 		// Ensure that the kick command is allowable (user is an op and is kicking someone below their level)
-		if(isAllowable(event.getChannel(), event.getUser(), event.getBot().getUser(kickUser))){
+		if(isAllowable(event.getChannel(), event.getUser(), event.getBot().getUser(kickUser))) {
 			// Don't allow users to kick the bot
-			if(!kickUser.equals(event.getBot().getNick())) {
+			if(!kickUser.equals(event.getBot())) {
 				// Kick the offending user! (Reason optional)
 				if(kickReason != "") {
 					event.getBot().kick(event.getChannel(), event.getBot().getUser(kickUser), kickReason + " (" + event.getUser().getNick() + ")");
@@ -69,12 +88,6 @@ public class KickBan implements Runnable {
 		}
 	}
 
-	// Class constructor
-	public KickBan(MessageEvent<PircBotX> event, boolean isBan) {
-		this.event = event;
-		this.isBan = isBan;
-	}
-	
 	// Returns the specified reason for kicking the user
 	private String getReason() {
 		String[] split = event.getMessage().split(" ");
@@ -86,7 +99,7 @@ public class KickBan implements Runnable {
 		}
 		return reason.replaceAll("^\\s+", "").replaceAll("\\s+$", "");
 	}
-	
+
 	// Ensures that the kick/ban operation is valid within IRC rules
 	private boolean isAllowable(Channel channel, User op, User toKick) {
 		// If the op is the channel owner, allow it

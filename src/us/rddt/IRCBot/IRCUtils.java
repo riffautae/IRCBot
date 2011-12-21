@@ -36,6 +36,20 @@ public class IRCUtils {
 	public static final int LOG_WARNING = 1;
 	public static final int LOG_ERROR = 2;
 	public static final int LOG_FATAL = 3;
+	
+	// Enumeration of the possible mode actions that can be taken by a user
+	public static enum UserModes {
+		KICK,
+		BAN,
+		SUPEROP,
+		DESUPEROP,
+		OP,
+		DEOP,
+		HALFOP,
+		DEHALFOP,
+		VOICE,
+		DEVOICE
+	}
 
 	public static void Log(int logType, String toLog) {
 		// Temporary string to construct the log output
