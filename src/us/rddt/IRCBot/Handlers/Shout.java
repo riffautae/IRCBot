@@ -44,6 +44,7 @@ public class Shout implements Runnable {
 	private MessageEvent<PircBotX> event = null;
 	private String randomQuote = null;
 	private boolean isRandomShout = false;
+	private int quoteNumber;
 
 	private Database database;
 
@@ -68,8 +69,13 @@ public class Shout implements Runnable {
 				if(!doesQuoteExist()) addNewQuote();
 			} else {
 				// We're dealing with a !who command - respond to the user with the information about the quote.
+				String whoCommand = event.getMessage().substring(5).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+				if(isValidQuoteNumber(whoCommand)) {
+					event.respond(getQuoteLine(quoteNumber));
+					return;
+				}
 				try {
-					event.respond(getQuoteInfo(event.getMessage().substring(5).replaceAll("^\\s+", "").replaceAll("\\s+$", "")));
+					event.respond(getQuoteInfo(whoCommand));
 				} catch (IndexOutOfBoundsException ex) {
 					return;
 				}
@@ -178,6 +184,30 @@ public class Shout implements Runnable {
 			return resultSet.getString("Nick") + " shouted this about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
 		} else {
 			return "Quote not found.";
+		}
+	}
+	
+	private boolean isValidQuoteNumber(String command) {
+		try {
+			quoteNumber = Integer.parseInt(command);
+			if(quoteNumber >= 0) {
+				return true;
+			}
+			return false;
+		} catch (NumberFormatException ex) {
+			return false;
+		}
+	}
+	
+	private String getQuoteLine(int line) throws SQLException {
+		PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? LIMIT ?,1");
+		statement.setString(1, event.getChannel().getName());
+		statement.setInt(2, line);
+		ResultSet resultSet = statement.executeQuery();
+		if(resultSet.next()) {
+			return "Quote #" + line + " (" + resultSet.getString("Quote") + ") was shouted by " + resultSet.getString("Nick") + " about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
+		} else {
+			return "Quote #" + line + " not found.";
 		}
 	}
 
