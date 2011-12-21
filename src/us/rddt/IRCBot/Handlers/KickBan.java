@@ -91,12 +91,12 @@ public class KickBan implements Runnable {
 	private boolean isAllowable(Channel channel, User op, User toKick) {
 		// If the op is the channel owner, allow it
 		if(op.getChannelsOwnerIn().contains(channel)) return true;
-		// If the op is a superop AND the offending user is NOT a superop OR owner
-		else if(op.getChannelsSuperOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
-		// If the op is an op AND the offending user is NOT an op OR superop OR owner
-		else if(op.getChannelsOpIn().contains(channel) && !op.getChannelsOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
-		// If the op is a halfop AND the offending user is NOT a halfop OR op OR superop OR owner
-		else if(op.getChannelsHalfOpIn().contains(channel) && !op.getChannelsHalfOpIn().contains(channel) && !op.getChannelsOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
+		// If the op is a superop AND the offending user is NOT an owner
+		else if(op.getChannelsSuperOpIn().contains(channel) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
+		// If the op is an op AND the offending user is NOT a superop OR owner
+		else if(op.getChannelsOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
+		// If the op is a halfop AND the offending user is NOT an op OR superop OR owner
+		else if(op.getChannelsHalfOpIn().contains(channel) && !op.getChannelsOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
 		// The operation is illegal!
 		else return false;
 	}
