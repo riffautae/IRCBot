@@ -51,20 +51,6 @@ IRCBot is also capable of deciphering Twitter statuses, reddit links and user pa
 
 > 20:33 <&BOT> [Tweet by 'got_milk'] @teamhacksung: [samsung-kernel-aries] http://t.co/nt1Q3KCz Pawit Pornkitprasan - Backport (read: copied) net/wireless and drivers/net/wireless from 3.0....
 
-### Custom votekick system
-
-IRCBot is capable of allowing users to call votekicks against other users without operator intervention. Vote sessions last up to 60 seconds (unless the vote is extended by a user voting) and require 25% of the channel to vote to pass.
-
-> 23:09 <&BOT> got_milk has voted to kick PhreeWilly! Type !votekick PhreeWilly to cast a vote. (5 needed)
-
-> 23:09 <&edgesmash> !votekick PhreeWilly
-
-> 23:09 <&BOT> edgesmash has voted to kick PhreeWilly! (4 needed)
-
-> 23:09 <&edgesmash> !votekick PhreeWilly
-
-> 23:09 <&BOT> edgesmash: You cannot vote more than once!
-
 ### Fortune commands
 
 Users are able to 'ask' IRCBot to make decisions for them (chosen purely randomly by the bot). The bot will respond in accordance to the decision given.
@@ -88,18 +74,6 @@ If a user shouts in a channel (uppercase text greater than 5 characters) IRCBot 
 > 23:17 <~got_milk> !who last
 
 > 23:17 <&actnotok> got_milk: Sunoiki shouted "OHISHOULDHAVEYEL..." about 4 hours ago.
-
-### The lottery! (King Game)
-
-Users can participate in a game where they choose a number between 1 and 10 inclusive, and try to match a randomly generated number by the bot. If the numbers match, the user is crowned king and is made the lone operator of the channel, until someone else plays, wins and dethrones them.
-
-> 00:00 <+Smoky> !lottery 1
-
-> 00:00 <&BOT> Smoky: YOU WON! ALL HAIL KING SMOKY!
-
-> 00:00 -!- mode/#rddt [-o Blake] by BOT
-
-> 00:00 -!- mode/#rddt [+o Smoky] by BOT
 
 ### Seen command
 
