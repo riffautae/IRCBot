@@ -71,7 +71,11 @@ public class King implements Runnable {
 		// Someone has requested the nick of the current king
 		else if(mEvent != null && retrieveNick) {
 			String[] currentKing = getCurrentKing();
-			mEvent.respond(currentKing[0] + " is the current king. (They were crowned about " + currentKing[1] + " ago.)");
+			if(currentKing != null) {
+				mEvent.respond(currentKing[0] + " is the current king. (They were crowned about " + currentKing[1] + " ago.)");
+			} else {
+				mEvent.respond("There is no king - the throne is up for grabs!");
+			}
 		}
 		// We're just checking if the new channel joiner is king, if so op them
 		else if(jEvent != null) {
