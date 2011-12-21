@@ -65,7 +65,7 @@ public class IRCUtils {
 	
 	public static String trimString(String toTrim, int maxLength) {
 		if(toTrim.length() > maxLength) {
-			return toTrim.substring(maxLength) + "...";
+			return toTrim.substring(0, maxLength) + "...";
 		} else {
 			return toTrim;
 		}
