@@ -37,12 +37,9 @@ import org.pircbotx.hooks.events.*;
 
 import us.rddt.IRCBot.Handlers.Fortune;
 import us.rddt.IRCBot.Handlers.KickBan;
-import us.rddt.IRCBot.Handlers.King;
-import us.rddt.IRCBot.Handlers.Lottery;
 import us.rddt.IRCBot.Handlers.Sandwich;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shout;
-import us.rddt.IRCBot.Handlers.Votekick;
 
 public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 	// This handler is called upon receiving any message in a channel
@@ -93,13 +90,6 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		new Thread(new Seen(event)).start();
 	}
 	
-	public void onNickChange(NickChangeEvent<PircBotX> event) {
-		new Thread(new Votekick(event)).start();
-	}
-	public void onJoin(JoinEvent<PircBotX> event) {
-		new Thread(new King(event)).start();
-	}
-	
 	// Method to check if a string is uppercase
 	private boolean isUpperCase(String s) {
 		// Boolean value to ensure that an all numeric string does not trigger the shouting functions
@@ -128,28 +118,10 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 			new Thread(new Fortune(event)).start();
 			return true;
 		}
-		// ..or !votekick
-		if(event.getMessage().startsWith("!votekick ")) {
-			new Thread(new Votekick(event)).start();
-			return true;
-		}
-		// ..or !veto
-		if(event.getMessage().startsWith("!veto")) {
-			new Thread(new Votekick(event, true)).start();
-			return true;
-		}
 		// ..or !seen
 		if(event.getMessage().startsWith("!seen ")) {
 			new Thread(new Seen(event)).start();
 			return true;
-		}
-		// ..or !lottery
-		if(event.getMessage().startsWith("!lottery ")) {
-			new Thread(new Lottery(event)).start();
-		}
-		// ..or !king
-		if(event.getMessage().startsWith("!king")) {
-			new Thread(new King(event, true)).start();
 		}
 		// ..or !kick/.k
 		if(event.getMessage().startsWith("!kick ") || event.getMessage().substring(0, 3).equals(".k ")) {
