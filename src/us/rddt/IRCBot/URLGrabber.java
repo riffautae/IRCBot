@@ -37,9 +37,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -115,12 +117,20 @@ public class URLGrabber implements Runnable {
 	}
 
 	// Main worker function to download and extract the title from a URL
-	// TODO: Better exception handling
 	public String getPageTitle(URL url) throws Exception {
 		// No need to check validity of the URL - it's already been proven valid at this point
-		URLConnection conn = url.openConnection();
+		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 		// Set a proper user agent, some sites return HTTP 409 without it
 		conn.setRequestProperty("User-Agent", USER_AGENT);
+		// Initiate the connection
+		try {
+			conn.connect();
+		} catch (UnknownHostException ex) {
+			throw new UnknownHostException("URL does not exist: " + ex.getMessage());
+		}
+		if(conn.getResponseCode() != 200) {
+			throw new IOException("Server returned response code: " + conn.getResponseCode());
+		}
 		// Get the Content-Type property from the HTTP headers so we can parse accordingly
 		ContentType contentType = getContentTypeHeader(conn);
 		// If the document isn't HTML, return the Content-Type and Content-Length instead
@@ -147,6 +157,8 @@ public class URLGrabber implements Runnable {
 			}
 			// Close the BufferedReader
 			reader.close();
+			// Disconnect from the web server
+			conn.disconnect();
 
 			// Use the Regex defined earlier to match and extract the title tag
 			// If the title tag can't be matched, it likely wasn't part of the first 8192 bytes
@@ -282,13 +294,23 @@ public class URLGrabber implements Runnable {
 
 		// Download the JSON from Reddit
 		try {
-			URLConnection conn = appendURL.openConnection();
+			HttpURLConnection conn = (HttpURLConnection)appendURL.openConnection();
 			conn.setRequestProperty("User-Agent", USER_AGENT);
+			try {
+				conn.connect();
+			} catch (UnknownHostException ex) {
+				throw new UnknownHostException("URL does not exist: " + ex.getMessage());
+			}
+			if(conn.getResponseCode() != 200) {
+				throw new IOException("Server returned response code: " + conn.getResponseCode());
+			}
+			
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
 			while((buffer = buf.readLine()) != null) {
 				jsonToParse.append(buffer);
 			}
+			
+			conn.disconnect();
 		} catch (IOException ex) {
 			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
@@ -336,13 +358,23 @@ public class URLGrabber implements Runnable {
 
 		// Download the JSON from Reddit
 		try {
-			URLConnection conn = appendURL.openConnection();
+			HttpURLConnection conn = (HttpURLConnection)appendURL.openConnection();
 			conn.setRequestProperty("User-Agent", USER_AGENT);
+			try {
+				conn.connect();
+			} catch (UnknownHostException ex) {
+				throw new UnknownHostException("URL does not exist: " + ex.getMessage());
+			}
+			if(conn.getResponseCode() != 200) {
+				throw new IOException("Server returned response code: " + conn.getResponseCode());
+			}
+			
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
 			while((buffer = buf.readLine()) != null) {
 				jsonToParse.append(buffer);
 			}
+			
+			conn.disconnect();
 		} catch (IOException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
@@ -407,13 +439,23 @@ public class URLGrabber implements Runnable {
 		}
 		
 		try {
-			URLConnection conn = appendURL.openConnection();
+			HttpURLConnection conn = (HttpURLConnection)appendURL.openConnection();
 			conn.setRequestProperty("User-Agent", USER_AGENT);
+			try {
+				conn.connect();
+			} catch (UnknownHostException ex) {
+				throw new UnknownHostException("URL does not exist: " + ex.getMessage());
+			}
+			if(conn.getResponseCode() != 200) {
+				throw new IOException("Server returned response code: " + conn.getResponseCode());
+			}
+			
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-
 			while((buffer = buf.readLine()) != null) {
 				jsonToParse.append(buffer);
 			}
+			
+			conn.disconnect();
 		} catch (IOException ex) {
 			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
 			ex.printStackTrace();
