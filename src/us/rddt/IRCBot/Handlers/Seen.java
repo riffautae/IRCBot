@@ -137,7 +137,7 @@ public class Seen implements Runnable {
 				// Disconnect from the database
 				database.disconnect();
 			} catch (Exception ex) {
-				IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+				IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 				ex.printStackTrace();
 			}
 		}
@@ -174,7 +174,7 @@ public class Seen implements Runnable {
 			// Disconnect from the database
 			database.disconnect();
 		} catch (Exception ex) {
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 		}
 	}

@@ -170,7 +170,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		try {
 			property.load(new FileInputStream("IRCBot.properties"));
 		} catch (IOException ex) {
-			IRCUtils.Log(IRCUtils.LOG_FATAL, "Could not load properties file");
+			IRCUtils.Log(IRCUtils.LogLevels.FATAL, "Could not load properties file");
 			return null;
 		}
 		return property;

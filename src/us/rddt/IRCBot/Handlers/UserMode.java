@@ -76,11 +76,11 @@ public class UserMode implements Runnable {
 					event.getBot().kick(event.getChannel(), event.getBot().getUser(kickUser), "Requested (" + event.getUser().getNick() + ")");
 				}
 				// Log the kick
-				IRCUtils.Log(IRCUtils.LOG_INFORMATION, kickUser + " has been kicked from the channel by " + event.getUser().getNick() + ".");
+				IRCUtils.Log(IRCUtils.LogLevels.INFORMATION, kickUser + " has been kicked from the channel by " + event.getUser().getNick() + ".");
 				// If we're also to ban the user, and the op is not a half op, ban the user and log it as well
 				if(isBan && !event.getUser().getChannelsHalfOpIn().contains(event.getChannel())) {
 					event.getBot().ban(event.getChannel(), event.getBot().getUser(kickUser).getHostmask());
-					IRCUtils.Log(IRCUtils.LOG_INFORMATION, kickUser + " (hostmask " + event.getBot().getUser(kickUser).getHostmask() + ") has been banned from the channel by " + event.getUser().getNick() + ".");
+					IRCUtils.Log(IRCUtils.LogLevels.INFORMATION, kickUser + " (hostmask " + event.getBot().getUser(kickUser).getHostmask() + ") has been banned from the channel by " + event.getUser().getNick() + ".");
 				}
 			} else {
 				event.getBot().kick(event.getChannel(), event.getUser(), "You are not allowed to kick the bot.");

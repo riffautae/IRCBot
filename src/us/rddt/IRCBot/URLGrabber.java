@@ -103,7 +103,7 @@ public class URLGrabber implements Runnable {
 		try {
 			event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
 		} catch (Exception ex) {
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")"));
 			return;
@@ -276,7 +276,7 @@ public class URLGrabber implements Runnable {
 			Status status = twitter.showStatus(tweetID);
 			event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] @" + status.getUser().getScreenName() + ": " + status.getText());
 		} catch (TwitterException te) {
-			IRCUtils.Log(IRCUtils.LOG_ERROR, te.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, te.getMessage());
 			te.printStackTrace();
 		}
 	}
@@ -293,7 +293,7 @@ public class URLGrabber implements Runnable {
 			if(isUser) appendURL = new URL(redditURL.toString() + "/about.json");
 			else appendURL = new URL(redditURL.toString() + "/.json");
 		} catch (MalformedURLException ex) {
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
 		}
@@ -311,7 +311,7 @@ public class URLGrabber implements Runnable {
 			conn.disconnect();
 		} catch (IOException ex) {
 			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
 		}
@@ -333,7 +333,7 @@ public class URLGrabber implements Runnable {
 			}
 		} catch (JSONException ex) {
 			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
 		}
@@ -350,7 +350,7 @@ public class URLGrabber implements Runnable {
 		try {
 			appendURL = new URL("http://www.reddit.com/api/info.json?url=" + imgurURL.toString());
 		} catch (MalformedURLException ex) {
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 		}
 
@@ -366,7 +366,7 @@ public class URLGrabber implements Runnable {
 			
 			conn.disconnect();
 		} catch (IOException ex) {
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return false;
 		}
@@ -385,7 +385,7 @@ public class URLGrabber implements Runnable {
 					try {
 						weightScore = (submissionScore / ((double)((new Date().getTime() / 1000) - submissionDate) / 3600));
 					} catch (ArithmeticException ex) {
-						IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+						IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 						ex.printStackTrace();
 					}
 					if(weightScore > bestWeightValue) {
@@ -408,7 +408,7 @@ public class URLGrabber implements Runnable {
 				return false;
 			}
 		} catch (JSONException ex) {
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return false;
 		}
@@ -423,7 +423,7 @@ public class URLGrabber implements Runnable {
 			appendURL = new URL("http://gdata.youtube.com/feeds/api/videos?q=" + url.toString().split("=")[1] + "&v=2&alt=jsonc");
 		} catch (MalformedURLException ex) {
 			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from YouTube. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
 		}
@@ -439,7 +439,7 @@ public class URLGrabber implements Runnable {
 			
 			conn.disconnect();
 		} catch (IOException ex) {
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 		}
 		
@@ -453,7 +453,7 @@ public class URLGrabber implements Runnable {
 			}
 		} catch (JSONException ex) {
 			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from YouTube. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
-			IRCUtils.Log(IRCUtils.LOG_ERROR, ex.getMessage());
+			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
 		}

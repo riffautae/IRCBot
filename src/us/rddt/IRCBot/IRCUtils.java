@@ -31,11 +31,13 @@ package us.rddt.IRCBot;
 import java.util.Date;
 
 public class IRCUtils {
-	// Integers to represent logging levels
-	public static final int LOG_INFORMATION = 0;
-	public static final int LOG_WARNING = 1;
-	public static final int LOG_ERROR = 2;
-	public static final int LOG_FATAL = 3;
+	// Enumeration of the log levels available to the IRC bot
+	public static enum LogLevels {
+		INFORMATION,
+		WARNING,
+		ERROR,
+		FATAL
+	}
 	
 	// Enumeration of the possible mode actions that can be taken by a user
 	public static enum UserModes {
@@ -51,21 +53,21 @@ public class IRCUtils {
 		DEVOICE
 	}
 
-	public static void Log(int logType, String toLog) {
+	public static void Log(LogLevels level, String toLog) {
 		// Temporary string to construct the log output
 		String output;
 		// Prepend the proper log level to the string
-		switch(logType) {
-		case LOG_INFORMATION:
+		switch(level) {
+		case INFORMATION:
 			output = "[INFO] ";
 			break;
-		case LOG_WARNING:
+		case WARNING:
 			output = "[WARNING] ";
 			break;
-		case LOG_ERROR:
+		case ERROR:
 			output = "[ERROR] ";
 			break;
-		case LOG_FATAL:
+		case FATAL:
 			output = "[FATAL] ";
 			break;
 		default:
