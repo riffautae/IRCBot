@@ -28,8 +28,11 @@
 
 package us.rddt.IRCBot;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Properties;
 
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
@@ -76,18 +79,27 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 	
 	// This handler is called when a user has been kicked from the channel
 	public void onKick(KickEvent<PircBotX> event) throws Exception {
-		// In the case an op goes mad and kicks the bot, rejoin immediately unless got_milk kicks the bot
-		if(event.getRecipient() == event.getBot().getUserBot() && !event.getSource().getNick().equals("got_milk")) {
-			event.getBot().joinChannel(event.getChannel().getName());
-		}
+		// Nobody should be able to kick the bot from the channel, so rejoin immediately if we are kicked
+		event.getBot().joinChannel(event.getChannel().getName());
 	}
 	
+	// This handler is called when a user has left the channel
 	public void onPart(PartEvent<PircBotX> event) {
 		new Thread(new Seen(event)).start();
 	}
 	
+	// This handler is called when a user leaves the network
 	public void onQuit(QuitEvent<PircBotX> event) {
 		new Thread(new Seen(event)).start();
+	}
+	
+	// This handler is called when someone attempts to invite us to a channel
+	public void onInvite(InviteEvent<PircBotX> event) {
+		Properties properties = getProperties();
+		if(properties != null) {
+			if(event.getUser().equals(properties.getProperty("admin"))) event.getBot().joinChannel(event.getChannel());
+			return;
+		}
 	}
 	
 	// Method to check if a string is uppercase
@@ -138,6 +150,28 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 			new Thread(new Sandwich(event)).start();
 			return true;
 		}
+		// ..or !leave
+		if(event.getMessage().equals("!leave")) {
+			Properties properties = getProperties();
+			if(properties != null) {
+				if(event.getUser().getNick().equals(properties.getProperty("admin")) && event.getUser().getHostmask().equals(properties.getProperty("admin_hostmask"))) {
+					event.getBot().partChannel(event.getChannel());
+					return true;
+				}
+			}
+		}
 		return false;
+	}
+	
+	// Method to load the IRCBot's properties
+	private Properties getProperties() {
+		Properties property = new Properties();
+		try {
+			property.load(new FileInputStream("IRCBot.properties"));
+		} catch (IOException ex) {
+			IRCUtils.Log(IRCUtils.LOG_FATAL, "Could not load properties file");
+			return null;
+		}
+		return property;
 	}
 }
