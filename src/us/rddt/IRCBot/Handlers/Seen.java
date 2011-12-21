@@ -29,6 +29,7 @@
 package us.rddt.IRCBot.Handlers;
 
 import org.pircbotx.PircBotX;
+import org.pircbotx.Channel;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.QuitEvent;
@@ -39,6 +40,7 @@ import us.rddt.IRCBot.IRCUtils;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Date;
+import java.util.Iterator;
 
 public class Seen implements Runnable {
 	// Variables
@@ -59,7 +61,16 @@ public class Seen implements Runnable {
 		}
 		// We've received a notification that a user has left a channel
 		else {
-			updateSeen();
+			if(pEvent != null) {
+				updateSeen(pEvent.getUser().getNick(), pEvent.getChannel().getName());
+				return;
+			} else if(qEvent != null) {
+				Iterator<Channel> itr = qEvent.getUser().getChannels().iterator();
+				while(itr.hasNext()) {
+					updateSeen(qEvent.getUser().getNick(), itr.next().getName());
+				}
+				return;
+			}
 			return;
 		}
 	}
@@ -113,8 +124,9 @@ public class Seen implements Runnable {
 				// Connect to the database and execute our select query
 				database.connect();
 				PreparedStatement statement = database.getPreparedStatement();
-				statement = database.getConnection().prepareStatement("SELECT Date FROM Seen WHERE Nick = ?");
+				statement = database.getConnection().prepareStatement("SELECT Date FROM Seen WHERE Nick = ? AND Channel = ?");
 				statement.setString(1, seenUser);
+				statement.setString(2, event.getChannel().getName());
 				ResultSet resultSet = statement.executeQuery();
 				// Respond appropriately should our user exist/not exist in the database
 				if(resultSet.next()) {
@@ -132,38 +144,31 @@ public class Seen implements Runnable {
 	}
 
 	// Method called when a user parts/quits. Update their key/value with the timestamp of when they left.
-	private void updateSeen() {
-		// Temporary variable
-		String userToUpdate;
-		// Make sure we have our user and channel to update, regardless of the event passed
-		if(pEvent != null) {
-			userToUpdate = pEvent.getUser().getNick();
-		}
-		else {
-			userToUpdate = qEvent.getUser().getNick();
-		}
-
+	private void updateSeen(String userToUpdate, String channelToUpdate) {
 		// Create a new instance of the database
 		database = new Database();
 		try {
 			// Connect to the database and execute our select query to see whether to insert or update
 			database.connect();
 			PreparedStatement statement = database.getPreparedStatement();
-			statement = database.getConnection().prepareStatement("SELECT Date FROM Seen WHERE Nick = ?");
+			statement = database.getConnection().prepareStatement("SELECT Date FROM Seen WHERE Nick = ? AND Channel = ?");
 			statement.setString(1, userToUpdate);
+			statement.setString(2, channelToUpdate);
 			ResultSet resultSet = statement.executeQuery();
 			// If a record exists, then run another query to update the date appropriately
 			if(resultSet.next()) {
-				statement = database.getConnection().prepareStatement("UPDATE Seen SET Date = ? WHERE Nick = ?");
+				statement = database.getConnection().prepareStatement("UPDATE Seen SET Date = ? WHERE Nick = ? AND Channel = ?");
 				statement.setTimestamp(1, new java.sql.Timestamp(new Date().getTime()));
 				statement.setString(2, userToUpdate);
+				statement.setString(3, channelToUpdate);
 				statement.executeUpdate();
 			}
 			// Otherwise, create a new record in the database for the user
 			else {
-				statement = database.getConnection().prepareStatement("INSERT INTO Seen(Nick, Date) VALUES (?, ?)");
+				statement = database.getConnection().prepareStatement("INSERT INTO Seen(Nick, Date, Channel) VALUES (?, ?, ?)");
 				statement.setString(1, userToUpdate);
 				statement.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
+				statement.setString(3, channelToUpdate);
 				statement.executeUpdate();
 			}
 			// Disconnect from the database
