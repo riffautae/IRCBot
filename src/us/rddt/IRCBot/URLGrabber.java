@@ -115,10 +115,8 @@ public class URLGrabber implements Runnable {
 		this.event = event;
 		this.url = url;
 	}
-
-	// Main worker function to download and extract the title from a URL
-	public String getPageTitle(URL url) throws Exception {
-		// No need to check validity of the URL - it's already been proven valid at this point
+	
+	private HttpURLConnection initiateConnection(URL url) throws IOException, UnknownHostException {
 		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
 		// Set a proper user agent, some sites return HTTP 409 without it
 		conn.setRequestProperty("User-Agent", USER_AGENT);
@@ -131,6 +129,14 @@ public class URLGrabber implements Runnable {
 		if(conn.getResponseCode() != 200) {
 			throw new IOException("Server returned response code: " + conn.getResponseCode());
 		}
+		return conn;
+	}
+
+	// Main worker function to download and extract the title from a URL
+	public String getPageTitle(URL url) throws Exception {
+		// Connect to the server
+		HttpURLConnection conn = initiateConnection(url);
+		// No need to check validity of the URL - it's already been proven valid at this point
 		// Get the Content-Type property from the HTTP headers so we can parse accordingly
 		ContentType contentType = getContentTypeHeader(conn);
 		// If the document isn't HTML, return the Content-Type and Content-Length instead
@@ -294,17 +300,9 @@ public class URLGrabber implements Runnable {
 
 		// Download the JSON from Reddit
 		try {
-			HttpURLConnection conn = (HttpURLConnection)appendURL.openConnection();
-			conn.setRequestProperty("User-Agent", USER_AGENT);
-			try {
-				conn.connect();
-			} catch (UnknownHostException ex) {
-				throw new UnknownHostException("URL does not exist: " + ex.getMessage());
-			}
-			if(conn.getResponseCode() != 200) {
-				throw new IOException("Server returned response code: " + conn.getResponseCode());
-			}
-			
+			// Connect to the server
+			HttpURLConnection conn = initiateConnection(appendURL);
+
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			while((buffer = buf.readLine()) != null) {
 				jsonToParse.append(buffer);
@@ -358,16 +356,8 @@ public class URLGrabber implements Runnable {
 
 		// Download the JSON from Reddit
 		try {
-			HttpURLConnection conn = (HttpURLConnection)appendURL.openConnection();
-			conn.setRequestProperty("User-Agent", USER_AGENT);
-			try {
-				conn.connect();
-			} catch (UnknownHostException ex) {
-				throw new UnknownHostException("URL does not exist: " + ex.getMessage());
-			}
-			if(conn.getResponseCode() != 200) {
-				throw new IOException("Server returned response code: " + conn.getResponseCode());
-			}
+			// Connect to the server
+			HttpURLConnection conn = initiateConnection(appendURL);
 			
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			while((buffer = buf.readLine()) != null) {
@@ -439,16 +429,8 @@ public class URLGrabber implements Runnable {
 		}
 		
 		try {
-			HttpURLConnection conn = (HttpURLConnection)appendURL.openConnection();
-			conn.setRequestProperty("User-Agent", USER_AGENT);
-			try {
-				conn.connect();
-			} catch (UnknownHostException ex) {
-				throw new UnknownHostException("URL does not exist: " + ex.getMessage());
-			}
-			if(conn.getResponseCode() != 200) {
-				throw new IOException("Server returned response code: " + conn.getResponseCode());
-			}
+			// Connect to the server
+			HttpURLConnection conn = initiateConnection(appendURL);
 			
 			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 			while((buffer = buf.readLine()) != null) {
