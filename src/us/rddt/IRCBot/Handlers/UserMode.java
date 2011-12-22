@@ -33,8 +33,6 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.events.MessageEvent;
 
-import us.rddt.IRCBot.IRCUtils;
-import us.rddt.IRCBot.Enums.LogLevels;
 import us.rddt.IRCBot.Enums.UserModes;
 
 /*
