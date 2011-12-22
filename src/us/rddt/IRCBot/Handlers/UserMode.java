@@ -58,6 +58,50 @@ public class UserMode implements Runnable {
 	}
 
 	/*
+	 * Changes the user mode if the request is in accordance with IRC rules.
+	 * @param mode the user mode to apply
+	 */
+	private void changeMode(UserModes mode) {
+		String modeUser = event.getMessage().split(" ")[1];
+		if(isAllowable(event.getChannel(), event.getUser(), event.getBot().getUser(modeUser))) {
+			switch(mode) {
+			case OWNER:
+				event.getBot().owner(event.getChannel(), event.getBot().getUser(modeUser));
+				break;
+			case DEOWNER:
+				event.getBot().deOwner(event.getChannel(), event.getBot().getUser(modeUser));
+				break;
+			case SUPEROP:
+				event.getBot().superOp(event.getChannel(), event.getBot().getUser(modeUser));
+				break;
+			case DESUPEROP:
+				event.getBot().deSuperOp(event.getChannel(), event.getBot().getUser(modeUser));
+				break;
+			case OP:
+				event.getBot().op(event.getChannel(), event.getBot().getUser(modeUser));
+				break;
+			case DEOP:
+				event.getBot().deOp(event.getChannel(), event.getBot().getUser(modeUser));
+				break;
+			case HALFOP:
+				event.getBot().halfOp(event.getChannel(), event.getBot().getUser(modeUser));
+				break;
+			case DEHALFOP:
+				event.getBot().deHalfOp(event.getChannel(), event.getBot().getUser(modeUser));
+				break;
+			case VOICE:
+				event.getBot().voice(event.getChannel(), event.getBot().getUser(modeUser));
+				break;
+			case DEVOICE:
+				event.getBot().deVoice(event.getChannel(), event.getBot().getUser(modeUser));
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	/*
 	 * Returns the provided reason for the kick/ban.
 	 * @return the provided reason for the kick/ban
 	 */
@@ -75,22 +119,22 @@ public class UserMode implements Runnable {
 	/*
 	 * Ensure the kick/ban operation is in accordance to IRC rules.
 	 * @param channel the channel the operation is being performed on
-	 * @param the op requesting the kick/ban
-	 * @param toKick the user to be kicked/banned
+	 * @param the op requesting the mode change
+	 * @param toChange the user to receive the mode change
 	 */
-	private boolean isAllowable(Channel channel, User op, User toKick) {
+	private boolean isAllowable(Channel channel, User op, User toChange) {
 		// If the op is the channel owner, allow it
 		if(op.getChannelsOwnerIn().contains(channel)) return true;
 		// If the op is a superop AND the offending user is NOT an owner
-		else if(op.getChannelsSuperOpIn().contains(channel) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
+		else if(op.getChannelsSuperOpIn().contains(channel) && !toChange.getChannelsOwnerIn().contains(toChange)) return true;
 		// If the op is an op AND the offending user is NOT a superop OR owner
-		else if(op.getChannelsOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
+		else if(op.getChannelsOpIn().contains(channel) && !toChange.getChannelsSuperOpIn().contains(toChange) && !toChange.getChannelsOwnerIn().contains(toChange)) return true;
 		// If the op is a halfop AND the offending user is NOT an op OR superop OR owner
-		else if(op.getChannelsHalfOpIn().contains(channel) && !op.getChannelsOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
+		else if(op.getChannelsHalfOpIn().contains(channel) && !op.getChannelsOpIn().contains(channel) && !toChange.getChannelsSuperOpIn().contains(toChange) && !toChange.getChannelsOwnerIn().contains(toChange)) return true;
 		// The operation is illegal!
 		else return false;
 	}
-
+	
 	/*
 	 * Kicks (and bans) a user from the channel.
 	 * @param isBan true if the user should be banned as well, false if kicking only
@@ -137,6 +181,7 @@ public class UserMode implements Runnable {
 			kickUser(true);
 			break;
 		default:
+			changeMode(mode);
 			break;
 		}
 	}

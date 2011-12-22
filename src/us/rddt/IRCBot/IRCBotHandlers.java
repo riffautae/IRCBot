@@ -72,16 +72,6 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 			new Thread(new Seen(event)).start();
 			return true;
 		}
-		// ..or !kick/.k
-		if(event.getMessage().startsWith("!kick ") || event.getMessage().substring(0, 3).equals(".k ")) {
-			new Thread(new UserMode(event, UserModes.KICK)).start();
-			return true;
-		}
-		// ..or !kickban/.kb
-		if(event.getMessage().startsWith("!kickban ") || event.getMessage().substring(0, 4).equals(".kb ")) {
-			new Thread(new UserMode(event, UserModes.BAN)).start();
-			return true;
-		}
 		// ..or !sandwich
 		if(event.getMessage().startsWith("!sandwich")) {
 			new Thread(new Sandwich(event)).start();
@@ -97,9 +87,61 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 				}
 			}
 		}
+
+		/*
+		 * User mode change events
+		 */
+		if(event.getMessage().startsWith("!kick ") || event.getMessage().substring(0, 3).equals(".k ")) {
+			new Thread(new UserMode(event, UserModes.KICK)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!kickban ") || event.getMessage().substring(0, 4).equals(".kb ")) {
+			new Thread(new UserMode(event, UserModes.BAN)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!owner ")) {
+			new Thread(new UserMode(event, UserModes.OWNER)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!deowner ")) {
+			new Thread(new UserMode(event, UserModes.DEOWNER)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!protect ")) {
+			new Thread(new UserMode(event, UserModes.SUPEROP)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!deprotect ")) {
+			new Thread(new UserMode(event, UserModes.DESUPEROP)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!op ")) {
+			new Thread(new UserMode(event, UserModes.OP)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!deop ")) {
+			new Thread(new UserMode(event, UserModes.DEOP)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!halfop ")) {
+			new Thread(new UserMode(event, UserModes.HALFOP)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!dehalfop ")) {
+			new Thread(new UserMode(event, UserModes.DEHALFOP)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!voice ")) {
+			new Thread(new UserMode(event, UserModes.VOICE)).start();
+			return true;
+		}
+		if(event.getMessage().startsWith("!devoice ")) {
+			new Thread(new UserMode(event, UserModes.DEVOICE)).start();
+			return true;
+		}
 		return false;
 	}
-	
+
 	// Method to load the IRCBot's properties
 	private Properties getProperties() {
 		Properties property = new Properties();
@@ -111,7 +153,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		}
 		return property;
 	}
-	
+
 	// Method to check if a string is uppercase
 	private boolean isUpperCase(String s) {
 		// Boolean value to ensure that an all numeric string does not trigger the shouting functions
@@ -127,7 +169,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		if(includesLetter) return true;
 		else return false;
 	}
-	
+
 	// This handler is called when someone attempts to invite us to a channel
 	public void onInvite(InviteEvent<PircBotX> event) {
 		Properties properties = getProperties();
@@ -136,13 +178,13 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 			return;
 		}
 	}
-	
+
 	// This handler is called when a user has been kicked from the channel
 	public void onKick(KickEvent<PircBotX> event) throws Exception {
 		// Nobody should be able to kick the bot from the channel, so rejoin immediately if we are kicked
 		event.getBot().joinChannel(event.getChannel().getName());
 	}
-	
+
 	// This handler is called upon receiving any message in a channel
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
 		// If the message is in upper case and not from ourselves, spawn a new thread to handle the shout
@@ -168,18 +210,18 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 			if(urlCount == 2) break;
 		}
 	}
-	
+
 	// This handler is called when a user has left the channel
 	public void onPart(PartEvent<PircBotX> event) {
 		new Thread(new Seen(event)).start();
 	}
-	
+
 	// This handler is called when a private message has been sent to the bot
 	public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) throws Exception {
 		// There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
 		event.respond("Hi! I am IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ". If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my creator, got_milk, instead!");
 	}
-	
+
 	// This handler is called when a user leaves the network
 	public void onQuit(QuitEvent<PircBotX> event) {
 		new Thread(new Seen(event)).start();
