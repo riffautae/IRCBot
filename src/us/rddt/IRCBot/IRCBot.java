@@ -62,15 +62,37 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		bot.setName(property.getProperty("nick", "BOT"));
 		// Set the bot's user
 		bot.setLogin(property.getProperty("user", "BOT"));
+		// Connect to the IRC server
+		connect(property, bot);
+	}
+	
+	/*
+	 * Connects to the IRC server.
+	 * @param p the Properties object to read configuration from
+	 * @param bot the IRC bot
+	 */
+	private static void connect(Properties p, PircBotX bot) {
 		// Attempt to connect to the server and join the required channel(s)
-		IRCUtils.Log(LogLevels.INFORMATION, "Connecting to " + property.getProperty("server") + " and joining channel " + property.getProperty("channel"));
+		IRCUtils.Log(LogLevels.INFORMATION, "Connecting to " + p.getProperty("server") + " and joining channel " + p.getProperty("channel"));
 		try {
-			bot.connect(property.getProperty("server"), Integer.parseInt(property.getProperty("port")), property.getProperty("password"));
-			bot.joinChannel(property.getProperty("channel", "#rddt"));
+			bot.connect(p.getProperty("server"), Integer.parseInt(p.getProperty("port")), p.getProperty("password"));
+			joinChannels(p, bot);
 		} catch (Exception ex) {
 			IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
 			ex.printStackTrace();
 			System.exit(-1);
+		}
+	}
+
+	/*
+	 * Joins channels as defined in the bot's configuration.
+	 * @param p the Properties object to read configuration from
+	 * @param bot the IRC bot
+	 */
+	private static void joinChannels(Properties p, PircBotX bot) {
+		String[] channels = p.getProperty("channel").split(",");
+		for (int i = 0; i < channels.length; i++) {
+			bot.joinChannel(channels[i]);
 		}
 	}
 }
