@@ -28,31 +28,67 @@
 
 package us.rddt.IRCBot.Handlers;
 
-import org.pircbotx.PircBotX;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.Date;
+import java.util.Iterator;
+
 import org.pircbotx.Channel;
+import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
 import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
+import us.rddt.IRCBot.Enums.LogLevels;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.util.Date;
-import java.util.Iterator;
-
+/*
+ * @author Ryan Morrison
+ */
 public class Seen implements Runnable {
-	// Variables
+	private Database database;
+	/*
+	 * Class variables.
+	 */
 	private MessageEvent<PircBotX> event;
+	private boolean hasParted;
 	private PartEvent<PircBotX> pEvent;
 	private QuitEvent<PircBotX> qEvent;
-	private boolean hasParted;
+
 	private String seenUser;
 
-	private Database database;
+	/*
+	 * Class constructor.
+	 * @param event the event that triggered this class
+	 */
+	public Seen(MessageEvent<PircBotX> event) {
+		this.event = event;
+	}
 
-	// Method that executes upon start of thread
+	/*
+	 * Overloadable class constructor.
+	 * @param pEvent the parting event that triggered this class
+	 */
+	public Seen(PartEvent<PircBotX> pEvent) {
+		this.pEvent = pEvent;
+		this.hasParted = true;
+	}
+
+	/*
+	 * Overloadable class constructor.
+	 * @param qEvent the server quit event that triggered this class
+	 */
+	public Seen(QuitEvent<PircBotX> qEvent) {
+		this.qEvent = qEvent;
+		this.hasParted = true;
+	}
+
+	/*
+	 * Method that executes upon thread start.
+	 * (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run() {
 		// We've received a direct !seen command
 		if(!hasParted) {
@@ -75,24 +111,9 @@ public class Seen implements Runnable {
 		}
 	}
 
-	// Class constructor
-	public Seen(MessageEvent<PircBotX> event) {
-		this.event = event;
-	}
-
-	// Overloaded class constructor used for parting events
-	public Seen(PartEvent<PircBotX> pEvent) {
-		this.pEvent = pEvent;
-		this.hasParted = true;
-	}
-
-	// Overloaded class constructor used for parting events
-	public Seen(QuitEvent<PircBotX> event) {
-		this.qEvent = event;
-		this.hasParted = true;
-	}
-
-	// Method to search the key/value store for a user
+	/*
+	 * Searches the database for a user.
+	 */
 	private void searchUser() {
 		// Extract the user name from the command and remove any unnecessary whitespace
 		try {
@@ -137,13 +158,17 @@ public class Seen implements Runnable {
 				// Disconnect from the database
 				database.disconnect();
 			} catch (Exception ex) {
-				IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
+				IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 				ex.printStackTrace();
 			}
 		}
 	}
 
-	// Method called when a user parts/quits. Update their key/value with the timestamp of when they left.
+	/*
+	 * Updates the database upon user leaving a channel or disconnecting from the network.
+	 * @param userToUpdate the user that left/disconnected
+	 * @param channelToUpdate the channel we saw the user disconnect in
+	 */
 	private void updateSeen(String userToUpdate, String channelToUpdate) {
 		// Create a new instance of the database
 		database = new Database();
@@ -174,7 +199,7 @@ public class Seen implements Runnable {
 			// Disconnect from the database
 			database.disconnect();
 		} catch (Exception ex) {
-			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
+			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 		}
 	}

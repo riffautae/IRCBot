@@ -30,29 +30,17 @@ package us.rddt.IRCBot;
 
 import java.util.Date;
 
-public class IRCUtils {
-	// Enumeration of the log levels available to the IRC bot
-	public static enum LogLevels {
-		INFORMATION,
-		WARNING,
-		ERROR,
-		FATAL
-	}
-	
-	// Enumeration of the possible mode actions that can be taken by a user
-	public static enum UserModes {
-		KICK,
-		BAN,
-		SUPEROP,
-		DESUPEROP,
-		OP,
-		DEOP,
-		HALFOP,
-		DEHALFOP,
-		VOICE,
-		DEVOICE
-	}
+import us.rddt.IRCBot.Enums.LogLevels;
 
+/*
+ * @author Ryan Morrison
+ */
+public class IRCUtils {
+	/*
+	 * Writes a log entry to the console.
+	 * @param level the level to display
+	 * @param toLog the text to be logged
+	 */
 	public static void Log(LogLevels level, String toLog) {
 		// Temporary string to construct the log output
 		String output;
@@ -79,14 +67,25 @@ public class IRCUtils {
 		System.out.println(output);
 	}
 	
-	public static String trimString(String toTrim, int maxLength) {
-		if(toTrim.length() > maxLength) {
-			return toTrim.substring(0, maxLength) + "...";
+	/*
+	 * Converts a time format in long form to a human-readable minute value.
+	 * @param time the time to be converted
+	 * @return the human-readable minute value
+	 */
+	public static String toReadableMinutes(long time) {
+		if(time > 3600) {
+			return String.format("%d:%02d:%02d", time/3600, (time % 3600)/60, (time % 60));
 		} else {
-			return toTrim;
+			return String.format("%d:%02d", (time % 3600)/60, (time % 60));
 		}
 	}
 
+	/*
+	 * Converts date formats to human-readable strings.
+	 * @param date the date to be converted
+	 * @param countingDown true if we are counting down to a date, false if we are determining history
+	 * @return the human-readable string
+	 */
 	public static String toReadableTime(Date date, boolean countingDown) {
 		// Calculate the difference in seconds between the time the user left and now
 		long diffInSeconds;
@@ -108,11 +107,17 @@ public class IRCUtils {
 		else return "unknown";
 	}
 	
-	public static String toReadableMinutes(long time) {
-		if(time > 3600) {
-			return String.format("%d:%02d:%02d", time/3600, (time % 3600)/60, (time % 60));
+	/*
+	 * Trims strings greater than a provided length.
+	 * @param toTrim the string to be trimmed, if necessary
+	 * @param maxLength the maximum length the string can be
+	 * @return the trimmed string
+	 */
+	public static String trimString(String toTrim, int maxLength) {
+		if(toTrim.length() > maxLength) {
+			return toTrim.substring(0, maxLength) + "...";
 		} else {
-			return String.format("%d:%02d", (time % 3600)/60, (time % 60));
+			return toTrim;
 		}
 	}
 }

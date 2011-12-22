@@ -34,33 +34,67 @@ import org.pircbotx.User;
 import org.pircbotx.hooks.events.MessageEvent;
 
 import us.rddt.IRCBot.IRCUtils;
-import us.rddt.IRCBot.IRCUtils.UserModes;
+import us.rddt.IRCBot.Enums.LogLevels;
+import us.rddt.IRCBot.Enums.UserModes;
 
+/*
+ * @author Ryan Morrison
+ */
 public class UserMode implements Runnable {
-	// Variables
+	/*
+	 * Class variables.
+	 */
 	private MessageEvent<PircBotX> event;
 	private UserModes mode;
 
-	// Method that executes upon start of thread
-	public void run() {
-		switch(mode) {
-		case KICK:
-			kickUser(false);
-			break;
-		case BAN:
-			kickUser(true);
-			break;
-		default:
-			break;
-		}
-	}
-
-	// Class constructor
+	/*
+	 * Class constructor.
+	 * @param event the MessageEvent that triggered this class
+	 * @mode the mode to enforce on the user
+	 */
 	public UserMode(MessageEvent<PircBotX> event, UserModes mode) {
 		this.event = event;
 		this.mode = mode;
 	}
 
+	/*
+	 * Returns the provided reason for the kick/ban.
+	 * @return the provided reason for the kick/ban
+	 */
+	private String getReason() {
+		String[] split = event.getMessage().split(" ");
+		String reason = "";
+		if(split.length > 1) {
+			for(int i = 2; i < split.length; i++) {
+				reason += split[i] + " ";
+			}
+		}
+		return reason.replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+	}
+
+	/*
+	 * Ensure the kick/ban operation is in accordance to IRC rules.
+	 * @param channel the channel the operation is being performed on
+	 * @param the op requesting the kick/ban
+	 * @param toKick the user to be kicked/banned
+	 */
+	private boolean isAllowable(Channel channel, User op, User toKick) {
+		// If the op is the channel owner, allow it
+		if(op.getChannelsOwnerIn().contains(channel)) return true;
+		// If the op is a superop AND the offending user is NOT an owner
+		else if(op.getChannelsSuperOpIn().contains(channel) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
+		// If the op is an op AND the offending user is NOT a superop OR owner
+		else if(op.getChannelsOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
+		// If the op is a halfop AND the offending user is NOT an op OR superop OR owner
+		else if(op.getChannelsHalfOpIn().contains(channel) && !op.getChannelsOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
+		// The operation is illegal!
+		else return false;
+	}
+
+	/*
+	 * Kicks (and bans) a user from the channel.
+	 * @param isBan true if the user should be banned as well, false if kicking only
+	 */
 	private void kickUser(boolean isBan) {
 		// Temporary variables
 		String kickUser = event.getMessage().split(" ")[1];
@@ -76,11 +110,11 @@ public class UserMode implements Runnable {
 					event.getBot().kick(event.getChannel(), event.getBot().getUser(kickUser), "Requested (" + event.getUser().getNick() + ")");
 				}
 				// Log the kick
-				IRCUtils.Log(IRCUtils.LogLevels.INFORMATION, kickUser + " has been kicked from the channel by " + event.getUser().getNick() + ".");
+				IRCUtils.Log(LogLevels.INFORMATION, kickUser + " has been kicked from the channel by " + event.getUser().getNick() + ".");
 				// If we're also to ban the user, and the op is not a half op, ban the user and log it as well
 				if(isBan && !event.getUser().getChannelsHalfOpIn().contains(event.getChannel())) {
 					event.getBot().ban(event.getChannel(), event.getBot().getUser(kickUser).getHostmask());
-					IRCUtils.Log(IRCUtils.LogLevels.INFORMATION, kickUser + " (hostmask " + event.getBot().getUser(kickUser).getHostmask() + ") has been banned from the channel by " + event.getUser().getNick() + ".");
+					IRCUtils.Log(LogLevels.INFORMATION, kickUser + " (hostmask " + event.getBot().getUser(kickUser).getHostmask() + ") has been banned from the channel by " + event.getUser().getNick() + ".");
 				}
 			} else {
 				event.getBot().kick(event.getChannel(), event.getUser(), "You are not allowed to kick the bot.");
@@ -88,29 +122,22 @@ public class UserMode implements Runnable {
 		}
 	}
 
-	// Returns the specified reason for kicking the user
-	private String getReason() {
-		String[] split = event.getMessage().split(" ");
-		String reason = "";
-		if(split.length > 1) {
-			for(int i = 2; i < split.length; i++) {
-				reason += split[i] + " ";
-			}
+	/*
+	 * Method that executes upon thread start.
+	 * (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
+	public void run() {
+		// Execute the appropriate actions based on the mode to change.
+		switch(mode) {
+		case KICK:
+			kickUser(false);
+			break;
+		case BAN:
+			kickUser(true);
+			break;
+		default:
+			break;
 		}
-		return reason.replaceAll("^\\s+", "").replaceAll("\\s+$", "");
-	}
-
-	// Ensures that the kick/ban operation is valid within IRC rules
-	private boolean isAllowable(Channel channel, User op, User toKick) {
-		// If the op is the channel owner, allow it
-		if(op.getChannelsOwnerIn().contains(channel)) return true;
-		// If the op is a superop AND the offending user is NOT an owner
-		else if(op.getChannelsSuperOpIn().contains(channel) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
-		// If the op is an op AND the offending user is NOT a superop OR owner
-		else if(op.getChannelsOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
-		// If the op is a halfop AND the offending user is NOT an op OR superop OR owner
-		else if(op.getChannelsHalfOpIn().contains(channel) && !op.getChannelsOpIn().contains(channel) && !toKick.getChannelsSuperOpIn().contains(toKick) && !toKick.getChannelsOwnerIn().contains(toKick)) return true;
-		// The operation is illegal!
-		else return false;
 	}
 }

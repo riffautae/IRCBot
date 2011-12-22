@@ -28,12 +28,6 @@
 
 package us.rddt.IRCBot.Handlers;
 
-import org.pircbotx.PircBotX;
-import org.pircbotx.hooks.events.MessageEvent;
-
-import us.rddt.IRCBot.Database;
-import us.rddt.IRCBot.IRCUtils;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -42,84 +36,116 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Shouts implements Runnable {
-	// Variables
-	private MessageEvent<PircBotX> event = null;
-	private String randomQuote = null;
-	private boolean isRandomShout = false;
-	private int quoteNumber;
+import org.pircbotx.PircBotX;
+import org.pircbotx.hooks.events.MessageEvent;
 
-	private Database database;
+import us.rddt.IRCBot.Database;
+import us.rddt.IRCBot.IRCUtils;
+import us.rddt.IRCBot.Enums.LogLevels;
+
+/*
+ * @author Ryan Morrison
+ */
+class Shout {
+	/*
+	 * Class variables.
+	 */
+	private String quote;
+	private String readableDate;
+	private String submitter;
 	
-	private static volatile Map<String,Shout> shoutMap = Collections.synchronizedMap(new HashMap<String,Shout>());
-
-	// Method that executes upon start of thread
-	public void run() {
-		try {
-			// Connect to the database
-			database = new Database();
-			database.connect();
-			// If the message passed is NOT a !who command
-			if(isRandomShout) {
-				// Get a random quote from the database (if possible). Send it to the channel.
-				// If the quote does not exist in the database, add it!
-				if((randomQuote = getRandomQuote()) != null) {
-					event.getBot().sendMessage(event.getChannel(), randomQuote);
-				}
-				if(!doesQuoteExist()) addNewQuote();
-			} else {
-				// We're dealing with a !who command - respond to the user with the information about the quote.
-				String whoCommand = event.getMessage().substring(5).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
-				if(isValidQuoteNumber(whoCommand)) {
-					event.respond(getQuoteLine(quoteNumber));
-					return;
-				}
-				try {
-					event.respond(getQuoteInfo(whoCommand));
-				} catch (IndexOutOfBoundsException ex) {
-					return;
-				}
-			}
-			// Disconnect from the database
-			database.disconnect();
-		} catch (Exception ex) {
-			IRCUtils.Log(IRCUtils.LogLevels.ERROR, ex.getMessage());
-			ex.printStackTrace();
-			return;
-		}
+	/*
+	 * Class constructor.
+	 * @param quote the quote to store
+	 * @param submitter the user's nickname who submitted the quote
+	 * @param readableDate the date of the quote's submission in human-readable format
+	 */
+	public Shout(String quote, String submitter, String readableDate) {
+		this.quote = quote;
+		this.submitter = submitter;
+		this.readableDate = readableDate;
 	}
 
-	// Constructor for the class
+	/*
+	 * Returns the quote.
+	 * @return the quote
+	 */
+	public String getQuote() {
+		return quote;
+	}
+
+	/*
+	 * Returns the human-readable date of submission
+	 * @return the human-readable date of submission
+	 */
+	public String getReadableDate() {
+		return readableDate;
+	}
+
+	/*
+	 * Returns the quote's submitter
+	 * @return the quote's submitter
+	 */
+	public String getSubmitter() {
+		return submitter;
+	}
+}
+
+/*
+ * @author Ryan Morrison
+ */
+public class Shouts implements Runnable {
+	private static volatile Map<String,Shout> shoutMap = Collections.synchronizedMap(new HashMap<String,Shout>());
+	private Database database;
+	/*
+	 * Class variables.
+	 */
+	private MessageEvent<PircBotX> event = null;
+	private boolean isRandomShout = false;
+
+	private int quoteNumber;
+	
+	private String randomQuote = null;
+
+	/*
+	 * Class constructor.
+	 * @param event the MessageEvent that triggered this class
+	 */
 	public Shouts(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
-	// Overloadable constructor, used when a shout needs to be processed
+	/*
+	 * Overloadable class constructor.
+	 * @param event the MessageEvent that triggered this class
+	 * @param isRandomShout true if the user requested a random shout, false if the user is looking up a quote
+	 */
 	public Shouts(MessageEvent<PircBotX> event, boolean isRandomShout) {
 		this.event = event;
 		this.isRandomShout = isRandomShout;
 	}
 
-	// Method to retrieve a random quote from the database
-	private String getRandomQuote() throws SQLException {
-		// We use prepared statements to sanitize input from the user
-		// Specifying the channel allows different channels to have their own list of quotes available
-		PreparedStatement statement= database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? ORDER BY RAND() LIMIT 1");
-		statement.setString(1, event.getChannel().getName());
-		// Execute our query against the database
-		ResultSet resultSet = statement.executeQuery();
-		if(resultSet.next()) {
-			// Save the last quote to prevent an extra DB hit on !who last
-			shoutMap.put(event.getChannel().getName(), new Shout(resultSet.getString("Quote"), resultSet.getString("Nick"), IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false)));
-			// Return the random quote
-			return resultSet.getString("Quote");
-		} else {
-			// The database query returned nothing, so return null
-			return null;
-		}
+	/*
+	 * Adds a new quote to the database.
+	 * @throws SQLException if the SQL query does not execute correctly
+	 */
+	private void addNewQuote() throws SQLException {
+		java.util.Date dt = new java.util.Date();
+		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		// Build and run our update against the database
+		PreparedStatement statement = database.getConnection().prepareStatement("INSERT INTO Quotes(Nick, Date, Channel, Quote) VALUES (?, ?, ?, ?)");
+		statement.setString(1, event.getUser().getNick());
+		statement.setString(2, sdf.format(dt));
+		statement.setString(3, event.getChannel().getName());
+		statement.setString(4, event.getMessage());
+		statement.executeUpdate();
 	}
 
-	// Method to check if a quote exists
+	/*
+	 * Check to see if a quote exists.
+	 * @return true if the quote exists, false if it does not
+	 * @throws SQLException if the SQL query does not execute correctly
+	 */
 	private boolean doesQuoteExist() throws SQLException {
 		// Again, prepared statements to sanitize input
 		PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Quote = ? AND Channel = ?");
@@ -133,7 +159,20 @@ public class Shouts implements Runnable {
 		}
 	}
 
-	// Method to handle !who requests from users, returns submitter and timestamp
+	/*
+	 * Returns the appropriate shout class for the current channel.
+	 * @return the appropriate shout class
+	 */
+	private Shout getLastShout() {
+		return shoutMap.get(event.getChannel().getName());
+	}
+
+	/*
+	 * Return information about a quote provided by the user.
+	 * @param quote the quote to look up in the database
+	 * @return the formatted result of the database lookup
+	 * @throws SQLException if the SQL query does not execute correctly
+	 */
 	private String getQuoteInfo(String quote) throws SQLException {
 		// Variable to track whether the user requested the last quote from the bot
 		// If the user wants the last quote, prevent hitting the database twice and simply retrieve details from memory
@@ -179,6 +218,52 @@ public class Shouts implements Runnable {
 		}
 	}
 	
+	/*
+	 * Return the quote at a provided line number.
+	 * @param line the line number to return
+	 * @return the quote at the provided line
+	 * @throws SQLException if the SQL query does not execute correctly
+	 */
+	private String getQuoteLine(int line) throws SQLException {
+		PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? LIMIT ?,1");
+		statement.setString(1, event.getChannel().getName());
+		statement.setInt(2, line);
+		ResultSet resultSet = statement.executeQuery();
+		if(resultSet.next()) {
+			return "Quote #" + line + " (" + resultSet.getString("Quote") + ") was shouted by " + resultSet.getString("Nick") + " about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
+		} else {
+			return "Quote #" + line + " not found.";
+		}
+	}
+	
+	/*
+	 * Returns a randomly selected quote from the database.
+	 * @return the randomly selected quote
+	 * @throws SQLException if the SQL query does not execute correctly
+	 */
+	private String getRandomQuote() throws SQLException {
+		// We use prepared statements to sanitize input from the user
+		// Specifying the channel allows different channels to have their own list of quotes available
+		PreparedStatement statement= database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? ORDER BY RAND() LIMIT 1");
+		statement.setString(1, event.getChannel().getName());
+		// Execute our query against the database
+		ResultSet resultSet = statement.executeQuery();
+		if(resultSet.next()) {
+			// Save the last quote to prevent an extra DB hit on !who last
+			shoutMap.put(event.getChannel().getName(), new Shout(resultSet.getString("Quote"), resultSet.getString("Nick"), IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false)));
+			// Return the random quote
+			return resultSet.getString("Quote");
+		} else {
+			// The database query returned nothing, so return null
+			return null;
+		}
+	}
+
+	/*
+	 * Return if the provided quote is a valid quote number.
+	 * @param command the quote to parse
+	 * @return true if the quote is a valid quote number, false if it is not valid
+	 */
 	private boolean isValidQuoteNumber(String command) {
 		try {
 			quoteNumber = Integer.parseInt(command);
@@ -191,56 +276,43 @@ public class Shouts implements Runnable {
 		}
 	}
 	
-	private String getQuoteLine(int line) throws SQLException {
-		PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? LIMIT ?,1");
-		statement.setString(1, event.getChannel().getName());
-		statement.setInt(2, line);
-		ResultSet resultSet = statement.executeQuery();
-		if(resultSet.next()) {
-			return "Quote #" + line + " (" + resultSet.getString("Quote") + ") was shouted by " + resultSet.getString("Nick") + " about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
-		} else {
-			return "Quote #" + line + " not found.";
+	/*
+	 * Method that executes upon thread start.
+	 * (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
+	public void run() {
+		try {
+			// Connect to the database
+			database = new Database();
+			database.connect();
+			// If the message passed is NOT a !who command
+			if(isRandomShout) {
+				// Get a random quote from the database (if possible). Send it to the channel.
+				// If the quote does not exist in the database, add it!
+				if((randomQuote = getRandomQuote()) != null) {
+					event.getBot().sendMessage(event.getChannel(), randomQuote);
+				}
+				if(!doesQuoteExist()) addNewQuote();
+			} else {
+				// We're dealing with a !who command - respond to the user with the information about the quote.
+				String whoCommand = event.getMessage().substring(5).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
+				if(isValidQuoteNumber(whoCommand)) {
+					event.respond(getQuoteLine(quoteNumber));
+					return;
+				}
+				try {
+					event.respond(getQuoteInfo(whoCommand));
+				} catch (IndexOutOfBoundsException ex) {
+					return;
+				}
+			}
+			// Disconnect from the database
+			database.disconnect();
+		} catch (Exception ex) {
+			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+			ex.printStackTrace();
+			return;
 		}
-	}
-
-	// Method to add a new quote to the database.
-	private void addNewQuote() throws SQLException {
-		java.util.Date dt = new java.util.Date();
-		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		// Build and run our update against the database
-		PreparedStatement statement = database.getConnection().prepareStatement("INSERT INTO Quotes(Nick, Date, Channel, Quote) VALUES (?, ?, ?, ?)");
-		statement.setString(1, event.getUser().getNick());
-		statement.setString(2, sdf.format(dt));
-		statement.setString(3, event.getChannel().getName());
-		statement.setString(4, event.getMessage());
-		statement.executeUpdate();
-	}
-	
-	private Shout getLastShout() {
-		return shoutMap.get(event.getChannel().getName());
-	}
-}
-
-class Shout {
-	private String quote;
-	private String submitter;
-	private String readableDate;
-	
-	public Shout(String quote, String submitter, String readableDate) {
-		this.quote = quote;
-		this.submitter = submitter;
-		this.readableDate = readableDate;
-	}
-
-	public String getQuote() {
-		return quote;
-	}
-
-	public String getSubmitter() {
-		return submitter;
-	}
-
-	public String getReadableDate() {
-		return readableDate;
 	}
 }

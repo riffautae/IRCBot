@@ -38,18 +38,30 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+/*
+ * @author Ryan Morrison
+ */
 public class Database {
-	// Variables
+	/*
+	 * Class variables.
+	 */
 	private Connection connection = null;
-	private Statement statement = null;
 	private PreparedStatement preparedStatement = null;
 	private ResultSet resultSet = null;
+	private Statement statement = null;
 	
-	// Class constructor
+	/*
+	 * Class constructor.
+	 */
 	public Database() {
 	}
 	
-	// Method to connect to the database
+	/*
+	 * Connects to the database as specified in IRCBot.properties.
+	 * @throws SQLException if a SQL exception occurs
+	 * @throws ClassNotFoundException if the JDBC driver cannot be loaded
+	 * @throws IOException if the properties file cannot be loaded
+	 */
 	public void connect() throws SQLException, ClassNotFoundException, IOException {
 		Properties property = new Properties();
 		try {
@@ -62,7 +74,10 @@ public class Database {
 		statement = connection.createStatement();
 	}
 
-	// Method to clean up/disconnect connections to the database
+	/*
+	 * Cleans up any potential connections left behind when the database was accessed.
+	 * @throws SQLException if a SQL exception occurs
+	 */
 	public void disconnect() throws SQLException {
 		if(resultSet != null) resultSet.close();
 		if(statement != null) statement.close();
@@ -70,38 +85,34 @@ public class Database {
 	}
 	
 	/*
-	 * Get and set methods for the variables above are below
+	 * Gets the database connection.
+	 * @return the database connection
 	 */
-	
 	public Connection getConnection() {
 		return connection;
 	}
 
-	public void setConnection(Connection connect) {
-		this.connection = connect;
-	}
-
-	public Statement getStatement() {
-		return statement;
-	}
-
-	public void setStatement(Statement statement) {
-		this.statement = statement;
-	}
-
+	/*
+	 * Gets the prepared statement for use with the database
+	 * @return the prepared statement for use with the database
+	 */
 	public PreparedStatement getPreparedStatement() {
 		return preparedStatement;
 	}
 
-	public void setPreparedStatement(PreparedStatement preparedStatement) {
-		this.preparedStatement = preparedStatement;
-	}
-
+	/*
+	 * Gets the result set for a query, or null if the query has not executed
+	 * @return the result set for a processed query
+	 */
 	public ResultSet getResultSet() {
 		return resultSet;
 	}
 
-	public void setResultSet(ResultSet resultSet) {
-		this.resultSet = resultSet;
+	/*
+	 * Gets the connection's statement.
+	 * @return the connection's statement
+	 */
+	public Statement getStatement() {
+		return statement;
 	}
 }

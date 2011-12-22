@@ -35,16 +35,25 @@ import java.util.Properties;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 
+import us.rddt.IRCBot.Enums.LogLevels;
+
+/*
+ * @author Ryan Morrison
+ */
 public class IRCBot extends ListenerAdapter<PircBotX> {
+	/*
+	 * The main entry point of the application.
+	 * @param args arguments passed through the command line
+	 */
 	public static void main(String[] args) throws Exception {
 		Properties property = new Properties();
 		try {
 			property.load(new FileInputStream("IRCBot.properties"));
 		} catch (IOException ex) {
-			IRCUtils.Log(IRCUtils.LogLevels.FATAL, "Could not load properties file");
+			IRCUtils.Log(LogLevels.FATAL, "Could not load properties file");
 			System.exit(-1);
 		}
-		IRCUtils.Log(IRCUtils.LogLevels.INFORMATION, "Initialzing bot (IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ")");
+		IRCUtils.Log(LogLevels.INFORMATION, "Initialzing bot (IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ")");
 		// Create a new instance of the IRC bot
 		PircBotX bot = new PircBotX();
 		// Add new listeners for the actions we want the bot to handle
@@ -54,12 +63,12 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		// Set the bot's user
 		bot.setLogin(property.getProperty("user", "BOT"));
 		// Attempt to connect to the server and join the required channel(s)
-		IRCUtils.Log(IRCUtils.LogLevels.INFORMATION, "Connecting to " + property.getProperty("server") + " and joining channel " + property.getProperty("channel"));
+		IRCUtils.Log(LogLevels.INFORMATION, "Connecting to " + property.getProperty("server") + " and joining channel " + property.getProperty("channel"));
 		try {
 			bot.connect(property.getProperty("server"), Integer.parseInt(property.getProperty("port")), property.getProperty("password"));
 			bot.joinChannel(property.getProperty("channel", "#rddt"));
 		} catch (Exception ex) {
-			IRCUtils.Log(IRCUtils.LogLevels.FATAL, ex.getMessage());
+			IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
 			ex.printStackTrace();
 			System.exit(-1);
 		}

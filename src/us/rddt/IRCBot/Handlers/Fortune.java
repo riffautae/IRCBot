@@ -28,29 +28,31 @@
 
 package us.rddt.IRCBot.Handlers;
 
-import org.pircbotx.PircBotX;
-import org.pircbotx.hooks.events.MessageEvent;
 import java.util.Random;
 
+import org.pircbotx.PircBotX;
+import org.pircbotx.hooks.events.MessageEvent;
+
+/*
+ * @author Ryan Morrison
+ */
 public class Fortune implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event;
 
-	// Method that executes upon start of thread
-	public void run() {
-		try {
-			event.respond(parseFortune(event.getMessage().substring(8)));
-		} catch (IndexOutOfBoundsException ex) {
-			return;
-		}
-	}
-
-	// Class constructor
+	/*
+	 * Class constructor.
+	 * @param event the MessageEvent that triggered this class
+	 */
 	public Fortune(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
-	// Method to parse and return a fortune
+	/*
+	 * Parses and returns an appropriate fortune.
+	 * @param message the fortune to parse
+	 * @return the user's fortune
+	 */
 	private String parseFortune(String message) {
 		// Split the message with the delimiter 'or'
 		String[] splitMessage = message.split("\\s+or\\s+");
@@ -64,6 +66,19 @@ public class Fortune implements Runnable {
 			// Generate a random number and use it to return a decision
 			Random generator = new Random();
 			return splitMessage[generator.nextInt(splitMessage.length)].replaceAll("^\\s+", "");
+		}
+	}
+
+	/*
+	 * Method that executes upon thread start.
+	 * (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
+	public void run() {
+		try {
+			event.respond(parseFortune(event.getMessage().substring(8)));
+		} catch (IndexOutOfBoundsException ex) {
+			return;
 		}
 	}
 }
