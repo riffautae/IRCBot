@@ -76,6 +76,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		IRCUtils.Log(LogLevels.INFORMATION, "Connecting to " + p.getProperty("server") + " and joining channel " + p.getProperty("channel"));
 		try {
 			bot.connect(p.getProperty("server"), Integer.parseInt(p.getProperty("port")), p.getProperty("password"));
+			bot.sendRawLine("MODE " + bot.getNick() + " +B");
 			joinChannels(p, bot);
 		} catch (Exception ex) {
 			IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
