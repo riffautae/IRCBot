@@ -30,7 +30,6 @@ package us.rddt.IRCBot.Handlers;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Date;
 import java.util.Iterator;
 
 import org.pircbotx.Channel;
@@ -183,7 +182,7 @@ public class Seen implements Runnable {
 			// If a record exists, then run another query to update the date appropriately
 			if(resultSet.next()) {
 				statement = database.getConnection().prepareStatement("UPDATE Seen SET Date = ? WHERE Nick = ? AND Channel = ?");
-				statement.setTimestamp(1, new java.sql.Timestamp(new Date().getTime()));
+				statement.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
 				statement.setString(2, userToUpdate);
 				statement.setString(3, channelToUpdate);
 				statement.executeUpdate();
@@ -192,7 +191,7 @@ public class Seen implements Runnable {
 			else {
 				statement = database.getConnection().prepareStatement("INSERT INTO Seen(Nick, Date, Channel) VALUES (?, ?, ?)");
 				statement.setString(1, userToUpdate);
-				statement.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
+				statement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
 				statement.setString(3, channelToUpdate);
 				statement.executeUpdate();
 			}

@@ -36,7 +36,11 @@ import us.rddt.IRCBot.Enums.LogLevels;
  * @author Ryan Morrison
  */
 public class IRCUtils {
+	/*
+	 * User agent string for HTTP connections, used to workaround HTTP 402 errors on certain hosts
+	 */
 	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
+	
 	/*
 	 * Writes a log entry to the console.
 	 * @param level the level to display
@@ -90,8 +94,8 @@ public class IRCUtils {
 	public static String toReadableTime(Date date, boolean countingDown) {
 		// Calculate the difference in seconds between the time the user left and now
 		long diffInSeconds;
-		if(countingDown) diffInSeconds = (date.getTime() - new Date().getTime()) / 1000;
-		else diffInSeconds = (new Date().getTime() - date.getTime()) / 1000;
+		if(countingDown) diffInSeconds = (date.getTime() - System.currentTimeMillis()) / 1000;
+		else diffInSeconds = (System.currentTimeMillis() - date.getTime()) / 1000;
 
 		// Calculate the appropriate day/hour/minute/seconds ago values and insert them into a long array
 		long diff[] = new long[] { 0, 0, 0, 0 };

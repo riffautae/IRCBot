@@ -95,16 +95,14 @@ class Shout {
  * @author Ryan Morrison
  */
 public class Shouts implements Runnable {
-	private static volatile Map<String,Shout> shoutMap = Collections.synchronizedMap(new HashMap<String,Shout>());
-	private Database database;
 	/*
 	 * Class variables.
 	 */
+	private static volatile Map<String,Shout> shoutMap = Collections.synchronizedMap(new HashMap<String,Shout>());
+	private Database database;
 	private MessageEvent<PircBotX> event = null;
 	private boolean isRandomShout = false;
-
 	private int quoteNumber;
-	
 	private String randomQuote = null;
 
 	/*
@@ -130,12 +128,10 @@ public class Shouts implements Runnable {
 	 * @throws SQLException if the SQL query does not execute correctly
 	 */
 	private void addNewQuote() throws SQLException {
-		java.util.Date dt = new java.util.Date();
-		java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		// Build and run our update against the database
 		PreparedStatement statement = database.getConnection().prepareStatement("INSERT INTO Quotes(Nick, Date, Channel, Quote) VALUES (?, ?, ?, ?)");
 		statement.setString(1, event.getUser().getNick());
-		statement.setString(2, sdf.format(dt));
+		statement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
 		statement.setString(3, event.getChannel().getName());
 		statement.setString(4, event.getMessage());
 		statement.executeUpdate();
