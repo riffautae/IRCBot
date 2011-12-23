@@ -35,17 +35,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
@@ -55,11 +49,34 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import us.rddt.IRCBot.Enums.LogLevels;
+import us.rddt.IRCBot.Implementations.RedditLink;
+import us.rddt.IRCBot.Implementations.RedditUser;
+import us.rddt.IRCBot.Implementations.YouTubeLink;
 
 /*
  * @author Ryan Morrison
  */
 public class URLGrabber implements Runnable {
+	/*
+	 * Class variables.
+	 */
+	private MessageEvent<PircBotX> event = null;
+	private URL url = null;
+	private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
+	
+	// Regex pattern to match imgur links
+	private static final Pattern IMGUR_LINK = Pattern.compile("http:\\/\\/(www.)?(i.)?imgur\\.com\\/.+");
+	// Regex pattern to match Reddit links
+	private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments");
+	// Regex pattern to match Reddit users
+	private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
+	// Regex pattern to match the HTML title tag to extract from the URL
+	private static final Pattern TITLE_TAG = Pattern.compile("\\<title>(.*)\\</title>", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
+	// Regex pattern to match Twitter tweets
+	private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
+	// Regex pattern to match YouTube videos
+	private static final Pattern YOUTUBE_VIDEO = Pattern.compile("http:\\/\\/(www.)?youtube\\.com\\/watch\\?v=.+");
+	
 	/*
 	 * The class to construct a Content-Type value.
 	 */
@@ -89,20 +106,7 @@ public class URLGrabber implements Runnable {
 				contentType = headerValue;
 		}
 	}
-	// Regex pattern to match imgur links
-	private static final Pattern IMGUR_LINK = Pattern.compile("http:\\/\\/(www.)?(i.)?imgur\\.com\\/.+");
 	
-	// Regex pattern to match Reddit links
-	private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments");
-
-	// Regex pattern to match Reddit users
-	private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
-	// Regex pattern to match the HTML title tag to extract from the URL
-	private static final Pattern TITLE_TAG = Pattern.compile("\\<title>(.*)\\</title>", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
-	// Regex pattern to match Twitter tweets
-	private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
-	// Regex pattern to match YouTube videos
-	private static final Pattern YOUTUBE_VIDEO = Pattern.compile("http:\\/\\/(www.)?youtube\\.com\\/watch\\?v=.+");
 	/*
 	 * Extracts the character set from the Content-Type header property.
 	 * @param contentType the Content-Type property to parse
@@ -179,15 +183,6 @@ public class URLGrabber implements Runnable {
 		String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp-1) + (si ? "" : "i");
 		return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
-	
-	/*
-	 * Class variables.
-	 */
-	private MessageEvent<PircBotX> event = null;
-
-	private URL url = null;
-
-	private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
 
 	/*
 	 * Class constructor.
@@ -205,80 +200,31 @@ public class URLGrabber implements Runnable {
 	 */
 	private boolean checkImgurReddit(URL imgurURL) {
 		// Variables
-		StringBuilder jsonToParse = new StringBuilder();
-		String buffer;
 		URL appendURL = null;
 
 		// Construct the appropriate URL to get the JSON via the Reddit API
 		try {
 			appendURL = new URL("http://www.reddit.com/api/info.json?url=" + imgurURL.toString());
-		} catch (MalformedURLException ex) {
-			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
-			ex.printStackTrace();
-		}
-
-		// Download the JSON from Reddit
-		try {
-			// Connect to the server
-			HttpURLConnection conn = initiateConnection(appendURL);
-			
-			// Read the JSON data into a temporary variable
-			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			while((buffer = buf.readLine()) != null) {
-				jsonToParse.append(buffer);
-			}
-			
-			// Disconnect from the server
-			conn.disconnect();
-		} catch (IOException ex) {
-			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
-			ex.printStackTrace();
-			return false;
-		}
-
-		// Parse the JSON accordingly and send the results to the channel
-		try {
-			// Temporary variables for weighting
-			int bestSubmission = 0;
-			double bestWeightValue = 0;
-			double weightScore = 0;
-			boolean isNSFW = false;
-			JSONObject parsedArray = new JSONObject(jsonToParse.toString());
-			if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
-				for(int i = 0; i < parsedArray.getJSONObject("data").getJSONArray("children").length(); i++) {
-					int submissionScore = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getInt("score");
-					long submissionDate = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getLong("created_utc");
-					try {
-						// Weigh the potential candidate submissions to attempt to choose the most relevant submission, based upon how long ago the submission was posted and the post's karma
-						weightScore = (submissionScore / ((double)((new Date().getTime() / 1000) - submissionDate) / 3600));
-					} catch (ArithmeticException ex) {
-						IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
-						ex.printStackTrace();
-					}
-					if(weightScore > bestWeightValue) {
-						bestSubmission = i;
-						bestWeightValue = weightScore;
-					}
-					if(parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getBoolean("over_18")) {
-						isNSFW = true;
-					}
-				}
-				JSONObject redditLink = parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(bestSubmission).getJSONObject("data");
-				if(isNSFW) {
-					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " + IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) +  " ago, " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ") " + Colors.BOLD + Colors.RED + "[NSFW]");
-				}
-				else {
-					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " + IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) +  " ago, " + redditLink.getInt("score") + " points: http://redd.it/" + redditLink.getString("id") + ")");
+			RedditLink link = new RedditLink();
+			RedditLink bestSubmission = link.checkImgurLink(appendURL);
+			if(bestSubmission != null) {
+				if(bestSubmission.isOver18()) {
+					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + bestSubmission.getTitle() + " (submitted by " + bestSubmission.getAuthor() + " to r/" + bestSubmission.getSubreddit() + " about " + bestSubmission.getCreatedReadableUTC() +  " ago, " + bestSubmission.getScore() + " points: http://redd.it/" + bestSubmission.getId() + ") " + Colors.BOLD + Colors.RED + "[NSFW]");
+				} else {
+					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + bestSubmission.getTitle() + " (submitted by " + bestSubmission.getAuthor() + " to r/" + bestSubmission.getSubreddit() + " about " + bestSubmission.getCreatedReadableUTC() +  " ago, " + bestSubmission.getScore() + " points: http://redd.it/" + bestSubmission.getId() + ")");
 				}
 				return true;
 			} else {
 				return false;
 			}
-		} catch (JSONException ex) {
+		} catch (MalformedURLException ex) {
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
-			return false;
+		} catch (Exception ex) {
+			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+			ex.printStackTrace();
 		}
+		return false;
 	}
 
 	/*
@@ -289,7 +235,13 @@ public class URLGrabber implements Runnable {
 	 */
 	public String getPageTitle(URL url) throws Exception {
 		// Connect to the server
-		HttpURLConnection conn = initiateConnection(url);
+		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+		// Set a proper user agent, some sites return HTTP 409 without it
+		conn.setRequestProperty("User-Agent", USER_AGENT);
+		// Initiate the connection
+		if(conn.getResponseCode() != 200) {
+			throw new IOException("Server returned response code: " + conn.getResponseCode());
+		}
 		// No need to check validity of the URL - it's already been proven valid at this point
 		// Get the Content-Type property from the HTTP headers so we can parse accordingly
 		ContentType contentType = getContentTypeHeader(conn);
@@ -334,83 +286,38 @@ public class URLGrabber implements Runnable {
 	}
 
 	/*
-	 * Initiates a connection to a specified web server via a provided URL.
-	 * @param url the URL of the server to connect to
-	 * @return the successful HTTP connection object
-	 * @throws IOException if the server does not return a HTTP 200 OK code
-	 * @throws UnknownHostException if the server/URL does not exist
-	 */
-	private HttpURLConnection initiateConnection(URL url) throws IOException, UnknownHostException {
-		HttpURLConnection conn = (HttpURLConnection)url.openConnection();
-		// Set a proper user agent, some sites return HTTP 409 without it
-		conn.setRequestProperty("User-Agent", USER_AGENT);
-		// Initiate the connection
-		try {
-			conn.connect();
-		} catch (UnknownHostException ex) {
-			throw new UnknownHostException("URL does not exist: " + ex.getMessage());
-		}
-		if(conn.getResponseCode() != 200) {
-			throw new IOException("Server returned response code: " + conn.getResponseCode());
-		}
-		return conn;
-	}
-
-	/*
 	 * Prints the title of a Reddit submissions or information about a user depending on the URL provided.
 	 * @param redditURL the reddit URL to extract the data from
 	 * @param isUser is the URL of a user's page
 	 */
 	private void returnReddit(URL redditURL, boolean isUser) {
 		// Variables
-		StringBuilder jsonToParse = new StringBuilder();
-		String buffer;
 		URL appendURL = null;
 
 		// Construct the appropriate URL to get the JSON via the Reddit API
 		try {
-			if(isUser) appendURL = new URL(redditURL.toString() + "/about.json");
-			else appendURL = new URL(redditURL.toString() + "/.json");
+			if(isUser) {
+				appendURL = new URL(redditURL.toString() + "/about.json");
+				RedditUser user = new RedditUser();
+				event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + user.getName() + ": " + user.getLinkKarma() + " link karma, " + user.getCommentKarma() + " comment karma, user since " + user.getReadableCreated());
+				return;
+			}
+			else {
+				appendURL = new URL(redditURL.toString() + "/.json");
+				RedditLink link = new RedditLink();
+				link.getLink(appendURL);
+				if(link.isOver18()) {
+					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + link.getTitle() + " (submitted by " + link.getAuthor() + " to r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points) " + Colors.BOLD + Colors.RED + "[NSFW]"));
+				} else {
+					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + link.getTitle() + " (submitted by " + link.getAuthor() + " to r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points)"));
+				}
+				return;
+			}
 		} catch (MalformedURLException ex) {
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
-		}
-
-		// Download the JSON from Reddit
-		try {
-			// Connect to the server
-			HttpURLConnection conn = initiateConnection(appendURL);
-
-			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			while((buffer = buf.readLine()) != null) {
-				jsonToParse.append(buffer);
-			}
-			
-			conn.disconnect();
-		} catch (IOException ex) {
-			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
-			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
-			ex.printStackTrace();
-			return;
-		}
-
-		// Parse the JSON accordingly and send the result to the channel
-		try {
-			if(!isUser) {
-				JSONArray parsedArray = new JSONArray(jsonToParse.toString());
-				JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
-				if(redditLink.getBoolean("over_18")) {
-					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points) " + Colors.BOLD + Colors.RED + "[NSFW]"));
-				} else {
-					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + redditLink.getString("title") + " (submitted by " + redditLink.getString("author") + " to r/" + redditLink.getString("subreddit") + " about " +  IRCUtils.toReadableTime(new Date(redditLink.getLong("created_utc") * 1000), false) + " ago, " + redditLink.getInt("score") + " points)"));
-				}
-			} else {
-				JSONObject redditUser = new JSONObject(jsonToParse.toString()).getJSONObject("data");
-				SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-				event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + redditUser.getString("name") + ": " + redditUser.getInt("link_karma") + " link karma, " + redditUser.getInt("comment_karma") + " comment karma, user since " + dateFormat.format(new Date(redditUser.getLong("created") * 1000)));
-			}
-		} catch (JSONException ex) {
+		} catch (Exception ex) {
 			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
@@ -439,49 +346,20 @@ public class URLGrabber implements Runnable {
 	 * @param youtubeURL the URL to process
 	 */
 	private void returnYouTubeVideo(URL youtubeURL) {
-		// Variables
-		StringBuilder jsonToParse = new StringBuilder();
-		String buffer;
 		URL appendURL = null;
 		
 		// Construct the URL to read the JSON data from
 		try {
 			appendURL = new URL("http://gdata.youtube.com/feeds/api/videos?q=" + url.toString().split("=")[1] + "&v=2&alt=jsonc");
+			YouTubeLink link = new YouTubeLink();
+			link.getLink(appendURL);
+			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + link.getTitle() + " (" + link.getReadableDuration() + ")");
+			return;
 		} catch (MalformedURLException ex) {
-			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from YouTube. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
-		}
-		
-		try {
-			// Connect to the server and read the JSON to a temporary variable
-			HttpURLConnection conn = initiateConnection(appendURL);
-			
-			BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-			while((buffer = buf.readLine()) != null) {
-				jsonToParse.append(buffer);
-			}
-			
-			// Disconnect from the server
-			conn.disconnect();
-		} catch (IOException ex) {
-			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
-			ex.printStackTrace();
-		}
-		
-		try {
-			/* Attempt to parse the title and duration from the YouTube JSON.
-			 * Be sure to fail gracefully if the video details cannot be obtained.
-			 */
-			JSONObject parsedArray = new JSONObject(jsonToParse.toString());
-			if(parsedArray.getJSONObject("data").getInt("totalItems") > 0) {
-				JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
-				event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + youtubeLink .getString("title") + " (" + IRCUtils.toReadableMinutes(youtubeLink.getLong("duration")) + ")");
-			} else {
-				event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] YouTube video ID invalid or video is private.");
-			}
-		} catch (JSONException ex) {
+		} catch (Exception ex) {
 			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from YouTube. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();

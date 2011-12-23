@@ -36,6 +36,7 @@ import us.rddt.IRCBot.Enums.LogLevels;
  * @author Ryan Morrison
  */
 public class IRCUtils {
+	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
 	/*
 	 * Writes a log entry to the console.
 	 * @param level the level to display
