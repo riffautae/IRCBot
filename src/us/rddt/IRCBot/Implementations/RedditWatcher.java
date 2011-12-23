@@ -64,7 +64,6 @@ public class RedditWatcher implements Runnable {
 	 */
 	public void run() {
 		for(int i = 0; i < subreddits.length; i++) {
-			System.out.println(subreddits[i]);
 			try {
 				update(subreddits[i]);
 			} catch (Exception ex) {
