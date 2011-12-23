@@ -32,10 +32,15 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.ListenerAdapter;
 
 import us.rddt.IRCBot.Enums.LogLevels;
+import us.rddt.IRCBot.Implementations.RedditWatcher;
 
 /*
  * @author Ryan Morrison
@@ -64,8 +69,13 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		bot.setLogin(property.getProperty("user", "BOT"));
 		// Connect to the IRC server
 		connect(property, bot);
+		// Create the scheduler for watching subreddits
+		if(!property.getProperty("watch_subreddits").equals("")) {
+			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+			scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, property.getProperty("watch_subreddits").split(",")), 5, 10, TimeUnit.MINUTES);
+		}
 	}
-	
+
 	/*
 	 * Connects to the IRC server.
 	 * @param p the Properties object to read configuration from
