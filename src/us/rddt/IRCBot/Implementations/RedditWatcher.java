@@ -42,6 +42,7 @@ import java.util.Map;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.pircbotx.Channel;
+import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 
 import us.rddt.IRCBot.IRCUtils;
@@ -149,7 +150,11 @@ public class RedditWatcher implements Runnable {
 	private void updateChannels(RedditLink redditLink) {
 		Iterator<Channel> itr = bot.getChannels().iterator();
 		while(itr.hasNext()) {
-			bot.sendMessage(itr.next(), "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ")");
+			if(redditLink.isOver18()) {
+				bot.sendMessage(itr.next(), "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ") " + Colors.BOLD + Colors.RED + "[NSFW]");
+			} else {
+				bot.sendMessage(itr.next(), "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ")");
+			}
 		}
 	}
 }
