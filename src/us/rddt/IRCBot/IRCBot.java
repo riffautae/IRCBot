@@ -70,14 +70,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		// Connect to the IRC server
 		connect(property, bot);
 		// Create the scheduler for watching subreddits
-		if(!property.getProperty("watch_subreddits").equals("")) {
-			String[] subreddits = property.getProperty("watch_subreddits").split(",");
-			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(subreddits.length);
-			for(int i = 0; i < subreddits.length; i++) {
-				IRCUtils.Log(LogLevels.INFORMATION, "Scheduling subreddit updates for r/" + subreddits[i] + " starting in " + (5 * i) + " minutes");
-				scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddits[i]), (5 * i), 20, TimeUnit.MINUTES);
-			}
-		}
+		startScheduler(property, bot);
 	}
 
 	/*
@@ -108,6 +101,25 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		String[] channels = p.getProperty("channel").split(",");
 		for (int i = 0; i < channels.length; i++) {
 			bot.joinChannel(channels[i]);
+		}
+	}
+	
+	/*
+	 * Starts the scheduler(s) (if needed) to monitor configured subreddits.
+	 * @param p the Properties object to read configuration from
+	 * @param bot the IRC bot
+	 */
+	private static void startScheduler(Properties p, PircBotX bot) {
+		if(!p.getProperty("watch_subreddits").equals("")) {
+			String[] subreddits = p.getProperty("watch_subreddits").split(",");
+			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(subreddits.length);
+			for(int i = 0; i < subreddits.length; i++) {
+				String[] configuration = subreddits[i].split(":");
+				String subreddit = configuration[0];
+				int frequency = Integer.parseInt(configuration[1]);
+				IRCUtils.Log(LogLevels.INFORMATION, "Scheduling subreddit updates for r/" + subreddit + " starting in " + (5 * i) + " minutes (frequency: " + frequency + " minutes)");
+				scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddit), (5 * i), frequency, TimeUnit.MINUTES);
+			}
 		}
 	}
 }
