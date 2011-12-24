@@ -56,7 +56,7 @@ public class RedditWatcher implements Runnable {
 	 */
 	private static volatile Map<String,String> currentLinks = Collections.synchronizedMap(new HashMap<String,String>());
 	private PircBotX bot;
-	private String[] subreddits;
+	private String subreddit;
 
 	/*
 	 * Method that executes upon thread start
@@ -64,12 +64,10 @@ public class RedditWatcher implements Runnable {
 	 * @see java.lang.Runnable#run()
 	 */
 	public void run() {
-		for(int i = 0; i < subreddits.length; i++) {
-			try {
-				update(subreddits[i]);
-			} catch (Exception ex) {
-				ex.printStackTrace();
-			}
+		try {
+			update(subreddit);
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -78,9 +76,9 @@ public class RedditWatcher implements Runnable {
 	 * @param bot the IRC bot to use
 	 * @param subreddits the subreddit(s) to monitor
 	 */
-	public RedditWatcher(PircBotX bot, String[] subreddits) {
+	public RedditWatcher(PircBotX bot, String subreddit) {
 		this.bot = bot;
-		this.subreddits = subreddits;
+		this.subreddit = subreddit;
 	}
 
 	/*
@@ -96,7 +94,7 @@ public class RedditWatcher implements Runnable {
 		 */
 		StringBuilder jsonToParse = new StringBuilder();
 		String buffer;
-		URL link = new URL("http://www.reddit.com/r/" + subreddit + "/new/.json");
+		URL link = new URL("http://www.reddit.com/r/" + subreddit + "/new/.json?sort=new");
 
 		/*
 		 * Opens a connection to the provided URL, and downloads the data into a temporary variable.
@@ -117,9 +115,10 @@ public class RedditWatcher implements Runnable {
 		 */
 		conn.disconnect();
 		/*
-		 * Parse each submission into an ArrayList of RedditLink classes.
-		 * Return the best possible submission.
-		 * If there are no submissions at all, return null instead.
+		 * Parse the first submission from the subreddit's new queue.
+		 * If there is no saved submission, save it but don't display it as that's our benchmark for determining
+		 * if a submission is truly new.
+		 * If there are no submissions at all, simply return.
 		 */
 		JSONObject parsedArray = new JSONObject(jsonToParse.toString());
 		if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
