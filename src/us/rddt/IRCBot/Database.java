@@ -49,13 +49,13 @@ public class Database {
 	private PreparedStatement preparedStatement = null;
 	private ResultSet resultSet = null;
 	private Statement statement = null;
-	
+
 	/*
 	 * Class constructor.
 	 */
 	public Database() {
 	}
-	
+
 	/*
 	 * Connects to the database as specified in IRCBot.properties.
 	 * @throws SQLException if a SQL exception occurs
@@ -69,8 +69,15 @@ public class Database {
 		} catch (IOException ex) {
 			throw new IOException("Could not load properties file");
 		}
-		Class.forName("com.mysql.jdbc.Driver");
-		connection = DriverManager.getConnection("jdbc:mysql://" + property.getProperty("mysql_server") + "/" + property.getProperty("mysql_database") + "?user=" + property.getProperty("mysql_user") + "&password=" + property.getProperty("mysql_password"));
+		if(property.getProperty("database_driver").equalsIgnoreCase("mysql")) {
+			Class.forName("com.mysql.jdbc.Driver");
+			connection = DriverManager.getConnection("jdbc:mysql://" + property.getProperty("mysql_server") + "/" + property.getProperty("mysql_database") + "?user=" + property.getProperty("mysql_user") + "&password=" + property.getProperty("mysql_password"));
+		} else if(property.getProperty("database_driver").equalsIgnoreCase("sqlite")) {
+			Class.forName("org.sqlite.JDBC");
+			connection = DriverManager.getConnection("jdbc:sqlite:" + property.getProperty("sqlite_database") + ".db");
+		} else {
+			throw new SQLException("Invalid SQL configuration in properties file");
+		}
 		statement = connection.createStatement();
 	}
 
@@ -83,7 +90,7 @@ public class Database {
 		if(statement != null) statement.close();
 		if(connection != null) connection.close();
 	}
-	
+
 	/*
 	 * Gets the database connection.
 	 * @return the database connection
