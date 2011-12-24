@@ -71,8 +71,12 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		connect(property, bot);
 		// Create the scheduler for watching subreddits
 		if(!property.getProperty("watch_subreddits").equals("")) {
-			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
-			scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, property.getProperty("watch_subreddits").split(",")), 1, 10, TimeUnit.MINUTES);
+			String[] subreddits = property.getProperty("watch_subreddits").split(",");
+			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(subreddits.length);
+			for(int i = 0; i < subreddits.length; i++) {
+				IRCUtils.Log(LogLevels.INFORMATION, "Scheduling subreddit updates for r/" + subreddits[i] + " starting in " + (5 * i) + " minutes");
+				scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddits[i]), (5 * i), 20, TimeUnit.MINUTES);
+			}
 		}
 	}
 
