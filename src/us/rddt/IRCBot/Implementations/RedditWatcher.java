@@ -123,7 +123,7 @@ public class RedditWatcher implements Runnable {
 		JSONObject parsedArray = new JSONObject(jsonToParse.toString());
 		if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
 			RedditLink newLink = new RedditLink(parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("id"),
-					parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("title"),
+					IRCUtils.escapeHTMLEntities(parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("title")),
 					parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("author"),
 					parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("subreddit"),
 					parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getLong("created_utc"),

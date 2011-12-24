@@ -94,7 +94,7 @@ public class YouTubeLink {
 		JSONObject parsedArray = new JSONObject(jsonToParse.toString());
 		if(parsedArray.getJSONObject("data").getInt("totalItems") > 0) {
 			JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
-			this.title = youtubeLink.getString("title");
+			this.title = IRCUtils.escapeHTMLEntities(youtubeLink.getString("title"));
 			this.duration = youtubeLink.getLong("duration");
 		} else {
 			throw new NoSuchElementException("YouTube video ID invalid or video is private.");

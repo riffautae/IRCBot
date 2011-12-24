@@ -39,7 +39,6 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
@@ -277,8 +276,7 @@ public class URLGrabber implements Runnable {
 			Matcher matcher = TITLE_TAG.matcher(content);
 			if (matcher.find()) {
 				// Properly escape any HTML entities present in the title
-				new StringEscapeUtils();
-				return StringEscapeUtils.unescapeHtml4(matcher.group(1).replaceAll("[\\s\\<>]+", " ").trim());
+				return IRCUtils.escapeHTMLEntities((matcher.group(1).replaceAll("[\\s\\<>]+", " ").trim()));
 			}
 			else
 				return "Title not found or not within first 8192 bytes of page, aborting.";

@@ -123,7 +123,7 @@ public class RedditLink {
 		JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
 		
 		this.id = redditLink.getString("id");
-		this.title = redditLink.getString("title");
+		this.title = IRCUtils.escapeHTMLEntities(redditLink.getString("title"));
 		this.author = redditLink.getString("author");
 		this.subreddit = redditLink.getString("subreddit");
 		this.created_utc = redditLink.getLong("created_utc");
@@ -175,7 +175,7 @@ public class RedditLink {
 		if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
 			for(int i = 0; i < parsedArray.getJSONObject("data").getJSONArray("children").length(); i++) {
 				submissions.add(new RedditLink(parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getString("id"),
-						parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getString("title"),
+						IRCUtils.escapeHTMLEntities(parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getString("title")),
 						parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getString("author"),
 						parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getString("subreddit"),
 						parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getLong("created_utc"),

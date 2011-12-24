@@ -30,6 +30,8 @@ package us.rddt.IRCBot;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.StringEscapeUtils;
+
 import us.rddt.IRCBot.Enums.LogLevels;
 
 /*
@@ -40,6 +42,14 @@ public class IRCUtils {
 	 * User agent string for HTTP connections, used to workaround HTTP 402 errors on certain hosts
 	 */
 	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
+	
+	/*
+	 * 
+	 */
+	public static String escapeHTMLEntities(String toEscape) {
+		new StringEscapeUtils();
+		return StringEscapeUtils.unescapeHtml4(toEscape);
+	}
 	
 	/*
 	 * Writes a log entry to the console.
