@@ -402,7 +402,7 @@ public class URLGrabber implements Runnable {
 		} catch (Exception ex) {
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
-			event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")"));
+			event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + IRCUtils.trimString(ex.getMessage(), 45) + ")"));
 			return;
 		}
 	}
