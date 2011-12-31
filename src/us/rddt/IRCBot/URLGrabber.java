@@ -316,7 +316,7 @@ public class URLGrabber implements Runnable {
 			ex.printStackTrace();
 			return;
 		} catch (Exception ex) {
-			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
+			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + IRCUtils.trimString(ex.getMessage(), 45) + ")");
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
@@ -358,7 +358,7 @@ public class URLGrabber implements Runnable {
 			ex.printStackTrace();
 			return;
 		} catch (Exception ex) {
-			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from YouTube. (" + IRCUtils.trimString(ex.getMessage(), 30) + ")");
+			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from YouTube. (" + IRCUtils.trimString(ex.getMessage(), 45) + ")");
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
