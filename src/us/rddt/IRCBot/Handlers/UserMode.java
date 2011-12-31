@@ -123,12 +123,12 @@ public class UserMode implements Runnable {
 	private boolean isAllowable(Channel channel, User op, User toChange) {
 		// If the op is the channel owner, allow it
 		if(op.getChannelsOwnerIn().contains(channel)) return true;
-		// If the op is a superop AND the offending user is NOT an owner
-		else if(op.getChannelsSuperOpIn().contains(channel) && !toChange.getChannelsOwnerIn().contains(toChange)) return true;
-		// If the op is an op AND the offending user is NOT a superop OR owner
-		else if(op.getChannelsOpIn().contains(channel) && !toChange.getChannelsSuperOpIn().contains(toChange) && !toChange.getChannelsOwnerIn().contains(toChange)) return true;
-		// If the op is a halfop AND the offending user is NOT an op OR superop OR owner
-		else if(op.getChannelsHalfOpIn().contains(channel) && !op.getChannelsOpIn().contains(channel) && !toChange.getChannelsSuperOpIn().contains(toChange) && !toChange.getChannelsOwnerIn().contains(toChange)) return true;
+		// If the op is a superop AND the offending user is NOT another superop or owner
+		else if(op.getChannelsSuperOpIn().contains(channel) && !toChange.getChannelsSuperOpIn().contains(channel) && !toChange.getChannelsOwnerIn().contains(channel)) return true;
+		// If the op is an op AND the offending user is NOT an op OR superop OR owner
+		else if(op.getChannelsOpIn().contains(channel) && !toChange.getChannelsOpIn().contains(channel) && !toChange.getChannelsSuperOpIn().contains(channel) && !toChange.getChannelsOwnerIn().contains(channel)) return true;
+		// If the op is a halfop AND the offending user is NOT a halfop OR op OR superop OR owner
+		else if(op.getChannelsHalfOpIn().contains(channel) && !toChange.getChannelsHalfOpIn().contains(channel) && !toChange.getChannelsOpIn().contains(channel) && !toChange.getChannelsSuperOpIn().contains(channel) && !toChange.getChannelsOwnerIn().contains(channel)) return true;
 		// The operation is illegal!
 		else return false;
 	}
