@@ -28,13 +28,13 @@
 
 package us.rddt.IRCBot;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Properties;
+import java.util.Iterator;
 
+import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
+import org.pircbotx.User;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.InviteEvent;
 import org.pircbotx.hooks.events.KickEvent;
@@ -43,7 +43,6 @@ import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
-import us.rddt.IRCBot.Enums.LogLevels;
 import us.rddt.IRCBot.Enums.UserModes;
 import us.rddt.IRCBot.Handlers.Fortune;
 import us.rddt.IRCBot.Handlers.Sandwich;
@@ -55,36 +54,54 @@ import us.rddt.IRCBot.Handlers.UserMode;
  * @author Ryan Morrison
  */
 public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
-	// Method to check for any commands that may be received from a user
+	/*
+	 * Checks incoming messages from users for potential bot commands.
+	 * @param event the MessageEvent to parse
+	 * @return true if a command was parsed, false if no command was recognized
+	 */
 	private boolean checkForCommands(MessageEvent<PircBotX> event) {
-		// If the message contains !who at the start, spawn a new thread to handle the request
+		/*
+		 * Most commands below spawn threads to prevent blocking.
+		 */
 		if(event.getMessage().startsWith("!who ")) {
 			new Thread(new Shouts(event)).start();
 			return true;
 		}
-		// ..or !decide
 		if(event.getMessage().startsWith("!decide ")) {
 			new Thread(new Fortune(event)).start();
 			return true;
 		}
-		// ..or !seen
 		if(event.getMessage().startsWith("!seen ")) {
 			new Thread(new Seen(event)).start();
 			return true;
 		}
-		// ..or !sandwich
 		if(event.getMessage().startsWith("!sandwich")) {
 			new Thread(new Sandwich(event)).start();
 			return true;
 		}
-		// ..or !leave
 		if(event.getMessage().equals("!leave")) {
-			Properties properties = getProperties();
-			if(properties != null) {
-				if(event.getUser().getNick().equals(properties.getProperty("admin")) && event.getUser().getHostmask().equals(properties.getProperty("admin_hostmask"))) {
-					event.getBot().partChannel(event.getChannel());
+			if(isUserAdmin(event.getUser())) {
+				event.getBot().partChannel(event.getChannel());
+				return true;
+			}
+		}
+		if(event.getMessage().equals("!disconnect")) {
+			if(isUserAdmin(event.getUser())) {
+				event.getBot().quitServer("Disconnecting due to administrator request");
+				System.exit(0);
+			}
+		}
+		if(event.getMessage().equals("!reload")) {
+			if(isUserAdmin(event.getUser())) {
+				sendGlobalMessage(event.getBot(), "Reloading configuration...");
+				try {
+					Configuration.loadConfiguration();
+				} catch (Exception ex) {
+					sendGlobalMessage(event.getBot(), "Failed to reload configuration: " + ex.getMessage());
 					return true;
 				}
+				sendGlobalMessage(event.getBot(), "Successfully reloaded configuration.");
+				return true;
 			}
 		}
 
@@ -142,19 +159,11 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		return false;
 	}
 
-	// Method to load the IRCBot's properties
-	private Properties getProperties() {
-		Properties property = new Properties();
-		try {
-			property.load(new FileInputStream("IRCBot.properties"));
-		} catch (IOException ex) {
-			IRCUtils.Log(LogLevels.FATAL, "Could not load properties file");
-			return null;
-		}
-		return property;
-	}
-
-	// Method to check if a string is uppercase
+	/*
+	 * Checks to see if a string is uppercase.
+	 * @param s the string to check
+	 * @return true if the string is uppercase, false if it is not
+	 */
 	private boolean isUpperCase(String s) {
 		// Boolean value to ensure that an all numeric string does not trigger the shouting functions
 		boolean includesLetter = false;
@@ -170,22 +179,35 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		else return false;
 	}
 
-	// This handler is called when someone attempts to invite us to a channel
+	/*
+	 * Handler when a channel invite has been received
+	 * (non-Javadoc)
+	 * @see org.pircbotx.hooks.ListenerAdapter#onInvite(org.pircbotx.hooks.events.InviteEvent)
+	 * @param event the InviteEvent to parse
+	 */
 	public void onInvite(InviteEvent<PircBotX> event) {
-		Properties properties = getProperties();
-		if(properties != null) {
-			if(event.getUser().equals(properties.getProperty("admin"))) event.getBot().joinChannel(event.getChannel());
-			return;
-		}
+		if(event.getUser().equals(Configuration.getAdminNick())) event.getBot().joinChannel(event.getChannel());
+		return;
 	}
 
-	// This handler is called when a user has been kicked from the channel
-	public void onKick(KickEvent<PircBotX> event) throws Exception {
+	/*
+	 * Handler when the bot has been kicked from the channel
+	 * (non-Javadoc)
+	 * @see org.pircbotx.hooks.ListenerAdapter#onKick(org.pircbotx.hooks.events.KickEvent)
+	 * @param event the KickEvent to parse
+	 */
+	public void onKick(KickEvent<PircBotX> event) {
 		// Nobody should be able to kick the bot from the channel, so rejoin immediately if we are kicked
 		event.getBot().joinChannel(event.getChannel().getName());
 	}
 
-	// This handler is called upon receiving any message in a channel
+	/*
+	 * Handler when messages are received from the bot
+	 * (non-Javadoc)
+	 * @see org.pircbotx.hooks.ListenerAdapter#onMessage(org.pircbotx.hooks.events.MessageEvent)
+	 * @param event the MessageEvent to parse
+	 * @throws Exception
+	 */
 	public void onMessage(MessageEvent<PircBotX> event) throws Exception {
 		// If the message is in upper case and not from ourselves, spawn a new thread to handle the shout
 		if(isUpperCase(event.getMessage()) && event.getMessage().replaceAll("^\\s+", "").replaceAll("\\s+$", "").length() > 5 && event.getUser() != event.getBot().getUserBot()) {
@@ -211,19 +233,53 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		}
 	}
 
-	// This handler is called when a user has left the channel
+	/*
+	 * Handler when a user has left the channel
+	 * (non-Javadoc)
+	 * @see org.pircbotx.hooks.ListenerAdapter#onPart(org.pircbotx.hooks.events.PartEvent)
+	 * @param event the PartEvent to parse
+	 */
 	public void onPart(PartEvent<PircBotX> event) {
 		new Thread(new Seen(event)).start();
 	}
 
-	// This handler is called when a private message has been sent to the bot
-	public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) throws Exception {
+	/*
+	 * Handler when a private message has been sent to the bot
+	 * (non-Javadoc)
+	 * @see org.pircbotx.hooks.ListenerAdapter#onPrivateMessage(org.pircbotx.hooks.events.PrivateMessageEvent)
+	 * @param event the PrivateMessageEvent to parse
+	 */
+	public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) {
 		// There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
 		event.respond("Hi! I am IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ". If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my creator, got_milk, instead!");
 	}
 
-	// This handler is called when a user leaves the network
+	/*
+	 * Handler when a user disconnects from the IRC server
+	 * (non-Javadoc)
+	 * @see org.pircbotx.hooks.ListenerAdapter#onQuit(org.pircbotx.hooks.events.QuitEvent)
+	 * @param event the QuitEvent to parse
+	 */
 	public void onQuit(QuitEvent<PircBotX> event) {
 		new Thread(new Seen(event)).start();
+	}
+	
+	/*
+	 * Checks to see if a user is a bot administrator
+	 * @param user the user to check
+	 * @return true if the user is a bot administrator, false if they are not
+	 */
+	private boolean isUserAdmin(User user) {
+		System.out.println(user.getNick() + " || " + Configuration.getAdminNick());
+		System.out.println(user.getHostmask() + " || " + Configuration.getAdminHostmask());
+		if(user.getNick().equals(Configuration.getAdminNick()) && user.getHostmask().equals(Configuration.getAdminHostmask())) return true;
+		else return false;
+	}
+	
+	private void sendGlobalMessage(PircBotX bot, String message) {
+		Iterator<Channel> itr = bot.getChannels().iterator();
+		while(itr.hasNext()) {
+			bot.sendMessage(itr.next(), message);
+		}
 	}
 }

@@ -28,15 +28,12 @@
 
 package us.rddt.IRCBot;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.util.Properties;
-
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.pircbotx.PircBotX;
+import org.pircbotx.exception.NickAlreadyInUseException;
 import org.pircbotx.hooks.ListenerAdapter;
 
 import us.rddt.IRCBot.Enums.LogLevels;
@@ -51,11 +48,11 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 	 * @param args arguments passed through the command line
 	 */
 	public static void main(String[] args) throws Exception {
-		Properties property = new Properties();
 		try {
-			property.load(new FileInputStream("IRCBot.properties"));
-		} catch (IOException ex) {
-			IRCUtils.Log(LogLevels.FATAL, "Could not load properties file");
+			Configuration.loadConfiguration();
+		} catch(Exception ex) {
+			ex.printStackTrace();
+			IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
 			System.exit(-1);
 		}
 		IRCUtils.Log(LogLevels.INFORMATION, "Initialzing bot (IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ")");
@@ -64,54 +61,54 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		// Add new listeners for the actions we want the bot to handle
 		bot.getListenerManager().addListener(new IRCBotHandlers());
 		// Set the bot's nick
-		bot.setName(property.getProperty("nick", "BOT"));
+		bot.setName(Configuration.getNick());
 		// Set the bot's user
-		bot.setLogin(property.getProperty("user", "BOT"));
+		bot.setLogin(Configuration.getUser());
 		// Connect to the IRC server
-		connect(property, bot);
+		connect(bot);
 		// Create the scheduler for watching subreddits
-		startScheduler(property, bot);
+		startScheduler(Configuration.getWatchSubreddits(), bot);
 	}
 
 	/*
 	 * Connects to the IRC server.
-	 * @param p the Properties object to read configuration from
 	 * @param bot the IRC bot
 	 */
-	private static void connect(Properties p, PircBotX bot) {
+	private static void connect(PircBotX bot) {
 		// Attempt to connect to the server and join the required channel(s)
-		IRCUtils.Log(LogLevels.INFORMATION, "Connecting to " + p.getProperty("server") + " and joining channel " + p.getProperty("channel"));
+		IRCUtils.Log(LogLevels.INFORMATION, "Connecting to " + Configuration.getServer() + " and joining channel(s).");
 		try {
-			bot.connect(p.getProperty("server"), Integer.parseInt(p.getProperty("port")), p.getProperty("password"));
-			bot.sendRawLine("MODE " + bot.getNick() + " +B");
-			joinChannels(p, bot);
+			bot.connect(Configuration.getServer(), Configuration.getPort(), Configuration.getPassword());
+		} catch (NickAlreadyInUseException ex) {
+			IRCUtils.Log(LogLevels.WARNING, ex.getMessage());
+			bot.setName(bot.getNick() + "_");
 		} catch (Exception ex) {
 			IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
-			ex.printStackTrace();
+			bot.disconnect();
 			System.exit(-1);
 		}
+		bot.sendRawLine("MODE " + bot.getNick() + " +B");
+		joinChannels(Configuration.getChannels(), bot);
 	}
 
 	/*
 	 * Joins channels as defined in the bot's configuration.
-	 * @param p the Properties object to read configuration from
+	 * @param channels the channels to join
 	 * @param bot the IRC bot
 	 */
-	private static void joinChannels(Properties p, PircBotX bot) {
-		String[] channels = p.getProperty("channel").split(",");
+	private static void joinChannels(String[] channels, PircBotX bot) {
 		for (int i = 0; i < channels.length; i++) {
 			bot.joinChannel(channels[i]);
 		}
 	}
-	
+
 	/*
 	 * Starts the scheduler(s) (if needed) to monitor configured subreddits.
-	 * @param p the Properties object to read configuration from
+	 * @param subreddits the subreddits to watch
 	 * @param bot the IRC bot
 	 */
-	private static void startScheduler(Properties p, PircBotX bot) {
-		if(!p.getProperty("watch_subreddits").equals("")) {
-			String[] subreddits = p.getProperty("watch_subreddits").split(",");
+	private static void startScheduler(String[] subreddits, PircBotX bot) {
+		if(!subreddits.equals("")) {
 			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(subreddits.length);
 			for(int i = 0; i < subreddits.length; i++) {
 				String[] configuration = subreddits[i].split(":");
