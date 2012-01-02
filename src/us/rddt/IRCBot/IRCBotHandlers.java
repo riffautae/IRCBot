@@ -270,8 +270,6 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 	 * @return true if the user is a bot administrator, false if they are not
 	 */
 	private boolean isUserAdmin(User user) {
-		System.out.println(user.getNick() + " || " + Configuration.getAdminNick());
-		System.out.println(user.getHostmask() + " || " + Configuration.getAdminHostmask());
 		if(user.getNick().equals(Configuration.getAdminNick()) && user.getHostmask().equals(Configuration.getAdminHostmask())) return true;
 		else return false;
 	}
