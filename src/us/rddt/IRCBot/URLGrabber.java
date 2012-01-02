@@ -298,7 +298,7 @@ public class URLGrabber implements Runnable {
 				RedditUser user = new RedditUser();
 				user.getUser(appendURL);
 				if(user.isGold()) {
-					event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.YELLOW + user.getName() + Colors.NORMAL + ": " + user.getLinkKarma() + " link karma, " + user.getCommentKarma() + " comment karma, user since " + user.getReadableCreated());
+					event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + user.getName() + ": " + user.getLinkKarma() + " link karma, " + user.getCommentKarma() + " comment karma, user since " + user.getReadableCreated() + " [reddit gold]");
 				}
 				else {
 					event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + user.getName() + ": " + user.getLinkKarma() + " link karma, " + user.getCommentKarma() + " comment karma, user since " + user.getReadableCreated());
