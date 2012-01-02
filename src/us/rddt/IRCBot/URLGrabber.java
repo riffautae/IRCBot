@@ -297,6 +297,7 @@ public class URLGrabber implements Runnable {
 			if(isUser) {
 				appendURL = new URL(redditURL.toString() + "/about.json");
 				RedditUser user = new RedditUser();
+				user.getUser(appendURL);
 				event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + user.getName() + ": " + user.getLinkKarma() + " link karma, " + user.getCommentKarma() + " comment karma, user since " + user.getReadableCreated());
 				return;
 			}
