@@ -34,7 +34,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 
 import us.rddt.IRCBot.Enums.LogLevels;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class IRCUtils {
@@ -43,16 +43,18 @@ public class IRCUtils {
 	 */
 	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
 	
-	/*
-	 * 
+	/**
+	 * Returns a properly escaped string value
+	 * @param toEscape the string to escape
+	 * @return the escaped string
 	 */
 	public static String escapeHTMLEntities(String toEscape) {
 		new StringEscapeUtils();
 		return StringEscapeUtils.unescapeHtml4(toEscape);
 	}
 	
-	/*
-	 * Writes a log entry to the console.
+	/**
+	 * Writes a log entry to the console
 	 * @param level the level to display
 	 * @param toLog the text to be logged
 	 */
@@ -82,8 +84,8 @@ public class IRCUtils {
 		System.out.println(output);
 	}
 	
-	/*
-	 * Converts a time format in long form to a human-readable minute value.
+	/**
+	 * Converts a time format in long form to a human-readable minute value
 	 * @param time the time to be converted
 	 * @return the human-readable minute value
 	 */
@@ -95,8 +97,8 @@ public class IRCUtils {
 		}
 	}
 
-	/*
-	 * Converts date formats to human-readable strings.
+	/**
+	 * Converts date formats to human-readable strings
 	 * @param date the date to be converted
 	 * @param countingDown true if we are counting down to a date, false if we are determining history
 	 * @return the human-readable string
@@ -122,8 +124,8 @@ public class IRCUtils {
 		else return "unknown";
 	}
 	
-	/*
-	 * Trims strings greater than a provided length.
+	/**
+	 * Trims strings greater than a provided length
 	 * @param toTrim the string to be trimmed, if necessary
 	 * @param maxLength the maximum length the string can be
 	 * @return the trimmed string

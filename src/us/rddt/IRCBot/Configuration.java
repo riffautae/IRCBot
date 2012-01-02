@@ -1,3 +1,31 @@
+/*
+ * This file is part of IRCBot.
+ * Copyright (c) 2011 Ryan Morrison
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ * 
+ *  * Redistributions of source code must retain the above copyright notice,
+ *    this list of conditions, and the following disclaimer.
+ *  * Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions, and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ *  * Neither the name of the author of this software nor the name of
+ *  contributors to this software may be used to endorse or promote products
+ *  derived from this software without specific prior written consent.
+ *  
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ *  AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ *  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ *  ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ *  LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ *  CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ *  SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ *  INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ *  CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ *  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ */
+
 package us.rddt.IRCBot;
 
 import java.io.FileInputStream;
@@ -6,6 +34,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Configuration {
+	/*
+	 * Class variables.
+	 */
 	private static String nick;
 	private static String user;
 	private static String server;
@@ -27,6 +58,11 @@ public class Configuration {
 	
 	private static String sqlite_database;
 	
+	/**
+	 * Loads the configuration provided via a properties file
+	 * @throws FileNotFoundException if the properties file does not exist
+	 * @throws IOException if an exception is raised reading the properties file
+	 */
 	public static void loadConfiguration() throws FileNotFoundException, IOException {
 		Properties config = new Properties();
 		config.load(new FileInputStream("IRCBot.properties"));
@@ -51,105 +87,120 @@ public class Configuration {
 	}
 
 	/**
-	 * @return the nick
+	 * Returns the bot's nickname
+	 * @return the bot's nickname
 	 */
 	public static String getNick() {
 		return nick;
 	}
 
 	/**
-	 * @return the user
+	 * Returns the bot's username
+	 * @return the bot's username
 	 */
 	public static String getUser() {
 		return user;
 	}
 
 	/**
-	 * @return the server
+	 * Returns the server to connect to
+	 * @return the server to connect to
 	 */
 	public static String getServer() {
 		return server;
 	}
 
 	/**
-	 * @return the port
+	 * Returns the server's port
+	 * @return the server's port
 	 */
 	public static int getPort() {
 		return port;
 	}
 
 	/**
-	 * @return the password
+	 * Returns the server's password
+	 * @return the server's password
 	 */
 	public static String getPassword() {
 		return password;
 	}
 
 	/**
-	 * @return the channels
+	 * Returns the channels to join
+	 * @return the channels to join
 	 */
 	public static String[] getChannels() {
 		return channels;
 	}
 
 	/**
-	 * @return the watchSubreddits
+	 * Returns the subreddits to watch
+	 * @return the subreddits to watch
 	 */
 	public static String[] getWatchSubreddits() {
 		return watchSubreddits;
 	}
 
 	/**
-	 * @return the admin_nick
+	 * Returns the nick of the administrator
+	 * @return the nick of the administrator
 	 */
 	public static String getAdminNick() {
 		return admin_nick;
 	}
 
 	/**
-	 * @return the admin_host
+	 * Returns the hostmask of the administrator
+	 * @return the hostmask of the administrator
 	 */
 	public static String getAdminHostmask() {
 		return admin_hostmask;
 	}
 
 	/**
-	 * @return the database_driver
+	 * Returns the database driver to use
+	 * @return the database driver to use
 	 */
 	public static String getDatabaseDriver() {
 		return database_driver;
 	}
 
 	/**
-	 * @return the mysql_server
+	 * Returns the MySQL server
+	 * @return the MySQL server
 	 */
 	public static String getMySQLServer() {
 		return mysql_server;
 	}
 
 	/**
-	 * @return the mysql_user
+	 * Returns the MySQL user
+	 * @return the MySQL user
 	 */
 	public static String getMySQLUser() {
 		return mysql_user;
 	}
 
 	/**
-	 * @return the mysql_password
+	 * Returns the MySQL password
+	 * @return the MySQL password
 	 */
 	public static String getMySQLPassword() {
 		return mysql_password;
 	}
 
 	/**
-	 * @return the mysql_database
+	 * Returns the MySQL database
+	 * @return the MySQL database
 	 */
 	public static String getMySQLDatabase() {
 		return mysql_database;
 	}
 
 	/**
-	 * @return the sqlite_database
+	 * Returns the SQLite database
+	 * @return the SQLite database
 	 */
 	public static String getSQLiteDatabase() {
 		return sqlite_database;

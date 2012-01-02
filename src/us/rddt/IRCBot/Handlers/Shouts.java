@@ -43,7 +43,7 @@ import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Enums.LogLevels;
 
-/*
+/**
  * @author Ryan Morrison
  */
 class Shout {
@@ -54,8 +54,8 @@ class Shout {
 	private String readableDate;
 	private String submitter;
 	
-	/*
-	 * Class constructor.
+	/**
+	 * Class constructor
 	 * @param quote the quote to store
 	 * @param submitter the user's nickname who submitted the quote
 	 * @param readableDate the date of the quote's submission in human-readable format
@@ -66,15 +66,15 @@ class Shout {
 		this.readableDate = readableDate;
 	}
 
-	/*
-	 * Returns the quote.
+	/**
+	 * Returns the quote
 	 * @return the quote
 	 */
 	public String getQuote() {
 		return quote;
 	}
 
-	/*
+	/**
 	 * Returns the human-readable date of submission
 	 * @return the human-readable date of submission
 	 */
@@ -82,7 +82,7 @@ class Shout {
 		return readableDate;
 	}
 
-	/*
+	/**
 	 * Returns the quote's submitter
 	 * @return the quote's submitter
 	 */
@@ -91,7 +91,7 @@ class Shout {
 	}
 }
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class Shouts implements Runnable {
@@ -105,16 +105,16 @@ public class Shouts implements Runnable {
 	private int quoteNumber;
 	private String randomQuote = null;
 
-	/*
-	 * Class constructor.
+	/**
+	 * Class constructor
 	 * @param event the MessageEvent that triggered this class
 	 */
 	public Shouts(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
-	/*
-	 * Overloadable class constructor.
+	/**
+	 * Overloadable class constructor
 	 * @param event the MessageEvent that triggered this class
 	 * @param isRandomShout true if the user requested a random shout, false if the user is looking up a quote
 	 */
@@ -123,8 +123,8 @@ public class Shouts implements Runnable {
 		this.isRandomShout = isRandomShout;
 	}
 
-	/*
-	 * Adds a new quote to the database.
+	/**
+	 * Adds a new quote to the database
 	 * @throws SQLException if the SQL query does not execute correctly
 	 */
 	private void addNewQuote() throws SQLException {
@@ -137,8 +137,8 @@ public class Shouts implements Runnable {
 		statement.executeUpdate();
 	}
 
-	/*
-	 * Check to see if a quote exists.
+	/**
+	 * Check to see if a quote exists
 	 * @return true if the quote exists, false if it does not
 	 * @throws SQLException if the SQL query does not execute correctly
 	 */
@@ -155,16 +155,16 @@ public class Shouts implements Runnable {
 		}
 	}
 
-	/*
-	 * Returns the appropriate shout class for the current channel.
+	/**
+	 * Returns the appropriate shout class for the current channel
 	 * @return the appropriate shout class
 	 */
 	private Shout getLastShout() {
 		return shoutMap.get(event.getChannel().getName());
 	}
 
-	/*
-	 * Return information about a quote provided by the user.
+	/**
+	 * Return information about a quote provided by the user
 	 * @param quote the quote to look up in the database
 	 * @return the formatted result of the database lookup
 	 * @throws SQLException if the SQL query does not execute correctly
@@ -214,8 +214,8 @@ public class Shouts implements Runnable {
 		}
 	}
 	
-	/*
-	 * Return the quote at a provided line number.
+	/**
+	 * Return the quote at a provided line number
 	 * @param line the line number to return
 	 * @return the quote at the provided line
 	 * @throws SQLException if the SQL query does not execute correctly
@@ -232,8 +232,8 @@ public class Shouts implements Runnable {
 		}
 	}
 	
-	/*
-	 * Returns a randomly selected quote from the database.
+	/**
+	 * Returns a randomly selected quote from the database
 	 * @return the randomly selected quote
 	 * @throws SQLException if the SQL query does not execute correctly
 	 */
@@ -255,8 +255,8 @@ public class Shouts implements Runnable {
 		}
 	}
 
-	/*
-	 * Return if the provided quote is a valid quote number.
+	/**
+	 * Return if the provided quote is a valid quote number
 	 * @param command the quote to parse
 	 * @return true if the quote is a valid quote number, false if it is not valid
 	 */
@@ -272,8 +272,8 @@ public class Shouts implements Runnable {
 		}
 	}
 	
-	/*
-	 * Method that executes upon thread start.
+	/**
+	 * Method that executes upon thread start
 	 * (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */

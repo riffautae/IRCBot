@@ -40,7 +40,7 @@ import org.json.JSONObject;
 
 import us.rddt.IRCBot.IRCUtils;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class YouTubeLink {
@@ -50,14 +50,14 @@ public class YouTubeLink {
 	private String title;
 	private long duration;
 	
-	/*
-	 * Class constructor.
+	/**
+	 * Class constructor
 	 */
 	public YouTubeLink() {
 	}
 	
-	/*
-	 * Gets information about a provided link to a YouTube video.
+	/**
+	 * Gets information about a provided link to a YouTube video
 	 * @param link the link to the user page
 	 * @throws IOException if the download fails
 	 * @throws JSONException if the JSON cannot be parsed
@@ -101,25 +101,25 @@ public class YouTubeLink {
 		}
 	}
 
-	/*
-	 * Returns the video's title.
+	/**
+	 * Returns the video's title
 	 * @return the video's title
 	 */
 	public String getTitle() {
 		return title;
 	}
 
-	/*
-	 * Returns the video's duration.
+	/**
+	 * Returns the video's duration
 	 * @return the video's duration
 	 */
 	public long getDuration() {
 		return duration;
 	}
 	
-	/*
-	 * Returns the video's duration in a readable string format.
-	 * @return the video's duration in a readable string format.
+	/**
+	 * Returns the video's duration in a readable string format
+	 * @return the video's duration in a readable string format
 	 */
 	public String getReadableDuration() {
 		return IRCUtils.toReadableMinutes(getDuration());

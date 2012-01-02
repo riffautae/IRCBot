@@ -47,7 +47,7 @@ import org.pircbotx.PircBotX;
 
 import us.rddt.IRCBot.IRCUtils;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class RedditWatcher implements Runnable {
@@ -58,7 +58,7 @@ public class RedditWatcher implements Runnable {
 	private PircBotX bot;
 	private String subreddit;
 
-	/*
+	/**
 	 * Method that executes upon thread start
 	 * (non-Javadoc)
 	 * @see java.lang.Runnable#run()
@@ -71,18 +71,18 @@ public class RedditWatcher implements Runnable {
 		}
 	}
 
-	/*
-	 * Class constructor.
+	/**
+	 * Class constructor
 	 * @param bot the IRC bot to use
-	 * @param subreddits the subreddit(s) to monitor
+	 * @param subreddit the subreddit to monitor
 	 */
 	public RedditWatcher(PircBotX bot, String subreddit) {
 		this.bot = bot;
 		this.subreddit = subreddit;
 	}
 
-	/*
-	 * Checks to see and updates accordingly if there is a new submission in a subreddit.
+	/**
+	 * Checks to see and updates accordingly if there is a new submission in a subreddit
 	 * @param subreddit the subreddit to monitor
 	 * @throws MalformedURLException if the subreddit URL cannot be formed
 	 * @throws IOException if the download fails
@@ -142,8 +142,8 @@ public class RedditWatcher implements Runnable {
 		}
 	}
 
-	/*
-	 * Updates all the channels the bot is connected to with the new submission.
+	/**
+	 * Updates all the channels the bot is connected to with the new submission
 	 * @param redditLink the reddit submission to update
 	 */
 	private void updateChannels(RedditLink redditLink) {

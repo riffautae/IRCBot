@@ -39,12 +39,12 @@ import org.pircbotx.hooks.ListenerAdapter;
 import us.rddt.IRCBot.Enums.LogLevels;
 import us.rddt.IRCBot.Implementations.RedditWatcher;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class IRCBot extends ListenerAdapter<PircBotX> {
-	/*
-	 * The main entry point of the application.
+	/**
+	 * The main entry point of the application
 	 * @param args arguments passed through the command line
 	 */
 	public static void main(String[] args) throws Exception {
@@ -70,8 +70,8 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		startScheduler(Configuration.getWatchSubreddits(), bot);
 	}
 
-	/*
-	 * Connects to the IRC server.
+	/**
+	 * Connects to the IRC server
 	 * @param bot the IRC bot
 	 */
 	private static void connect(PircBotX bot) {
@@ -91,8 +91,8 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		joinChannels(Configuration.getChannels(), bot);
 	}
 
-	/*
-	 * Joins channels as defined in the bot's configuration.
+	/**
+	 * Joins channels as defined in the bot's configuration
 	 * @param channels the channels to join
 	 * @param bot the IRC bot
 	 */
@@ -102,8 +102,8 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		}
 	}
 
-	/*
-	 * Starts the scheduler(s) (if needed) to monitor configured subreddits.
+	/**
+	 * Starts the scheduler(s) (if needed) to monitor configured subreddits
 	 * @param subreddits the subreddits to watch
 	 * @param bot the IRC bot
 	 */

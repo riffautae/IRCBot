@@ -42,7 +42,7 @@ import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Enums.LogLevels;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class Seen implements Runnable {
@@ -57,16 +57,16 @@ public class Seen implements Runnable {
 
 	private String seenUser;
 
-	/*
-	 * Class constructor.
+	/**
+	 * Class constructor
 	 * @param event the event that triggered this class
 	 */
 	public Seen(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
-	/*
-	 * Overloadable class constructor.
+	/**
+	 * Overloadable class constructor
 	 * @param pEvent the parting event that triggered this class
 	 */
 	public Seen(PartEvent<PircBotX> pEvent) {
@@ -74,8 +74,8 @@ public class Seen implements Runnable {
 		this.hasParted = true;
 	}
 
-	/*
-	 * Overloadable class constructor.
+	/**
+	 * Overloadable class constructor
 	 * @param qEvent the server quit event that triggered this class
 	 */
 	public Seen(QuitEvent<PircBotX> qEvent) {
@@ -83,8 +83,8 @@ public class Seen implements Runnable {
 		this.hasParted = true;
 	}
 
-	/*
-	 * Method that executes upon thread start.
+	/**
+	 * Method that executes upon thread start
 	 * (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
@@ -110,8 +110,8 @@ public class Seen implements Runnable {
 		}
 	}
 
-	/*
-	 * Searches the database for a user.
+	/**
+	 * Searches the database for a user
 	 */
 	private void searchUser() {
 		// Extract the user name from the command and remove any unnecessary whitespace
@@ -163,8 +163,8 @@ public class Seen implements Runnable {
 		}
 	}
 
-	/*
-	 * Updates the database upon user leaving a channel or disconnecting from the network.
+	/**
+	 * Updates the database upon user leaving a channel or disconnecting from the network
 	 * @param userToUpdate the user that left/disconnected
 	 * @param channelToUpdate the channel we saw the user disconnect in
 	 */

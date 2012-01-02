@@ -35,7 +35,7 @@ import org.pircbotx.hooks.events.MessageEvent;
 
 import us.rddt.IRCBot.Enums.UserModes;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class UserMode implements Runnable {
@@ -45,18 +45,18 @@ public class UserMode implements Runnable {
 	private MessageEvent<PircBotX> event;
 	private UserModes mode;
 
-	/*
-	 * Class constructor.
+	/**
+	 * Class constructor
 	 * @param event the MessageEvent that triggered this class
-	 * @mode the mode to enforce on the user
+	 * @param mode the mode to enforce on the user
 	 */
 	public UserMode(MessageEvent<PircBotX> event, UserModes mode) {
 		this.event = event;
 		this.mode = mode;
 	}
 
-	/*
-	 * Changes the user mode if the request is in accordance with IRC rules.
+	/**
+	 * Changes the user mode if the request is in accordance with IRC rules
 	 * @param mode the user mode to apply
 	 */
 	private void changeMode(UserModes mode) {
@@ -99,8 +99,8 @@ public class UserMode implements Runnable {
 		}
 	}
 
-	/*
-	 * Returns the provided reason for the kick/ban.
+	/**
+	 * Returns the provided reason for the kick/ban
 	 * @return the provided reason for the kick/ban
 	 */
 	private String getReason() {
@@ -114,10 +114,10 @@ public class UserMode implements Runnable {
 		return reason.replaceAll("^\\s+", "").replaceAll("\\s+$", "");
 	}
 
-	/*
-	 * Ensure the kick/ban operation is in accordance to IRC rules.
+	/**
+	 * Ensure the kick/ban operation is in accordance to IRC rules
 	 * @param channel the channel the operation is being performed on
-	 * @param the op requesting the mode change
+	 * @param op the op requesting the mode change
 	 * @param toChange the user to receive the mode change
 	 */
 	private boolean isAllowable(Channel channel, User op, User toChange) {
@@ -133,8 +133,8 @@ public class UserMode implements Runnable {
 		else return false;
 	}
 	
-	/*
-	 * Kicks (and bans) a user from the channel.
+	/**
+	 * Kicks (and bans) a user from the channel
 	 * @param isBan true if the user should be banned as well, false if kicking only
 	 */
 	private void kickUser(boolean isBan) {
@@ -161,8 +161,8 @@ public class UserMode implements Runnable {
 		}
 	}
 
-	/*
-	 * Method that executes upon thread start.
+	/**
+	 * Method that executes upon thread start
 	 * (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */

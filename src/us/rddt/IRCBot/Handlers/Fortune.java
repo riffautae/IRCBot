@@ -33,23 +33,23 @@ import java.util.Random;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class Fortune implements Runnable {
 	// Variables
 	private MessageEvent<PircBotX> event;
 
-	/*
-	 * Class constructor.
+	/**
+	 * Class constructor
 	 * @param event the MessageEvent that triggered this class
 	 */
 	public Fortune(MessageEvent<PircBotX> event) {
 		this.event = event;
 	}
 
-	/*
-	 * Parses and returns an appropriate fortune.
+	/**
+	 * Parses and returns an appropriate fortune
 	 * @param message the fortune to parse
 	 * @return the user's fortune
 	 */
@@ -69,8 +69,8 @@ public class Fortune implements Runnable {
 		}
 	}
 
-	/*
-	 * Method that executes upon thread start.
+	/**
+	 * Method that executes upon thread start
 	 * (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */

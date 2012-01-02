@@ -50,12 +50,12 @@ import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
 import us.rddt.IRCBot.Handlers.UserMode;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
-	/*
-	 * Checks incoming messages from users for potential bot commands.
+	/**
+	 * Checks incoming messages from users for potential bot commands
 	 * @param event the MessageEvent to parse
 	 * @return true if a command was parsed, false if no command was recognized
 	 */
@@ -159,8 +159,8 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		return false;
 	}
 
-	/*
-	 * Checks to see if a string is uppercase.
+	/**
+	 * Checks to see if a string is uppercase
 	 * @param s the string to check
 	 * @return true if the string is uppercase, false if it is not
 	 */
@@ -179,7 +179,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		else return false;
 	}
 
-	/*
+	/**
 	 * Handler when a channel invite has been received
 	 * (non-Javadoc)
 	 * @see org.pircbotx.hooks.ListenerAdapter#onInvite(org.pircbotx.hooks.events.InviteEvent)
@@ -190,7 +190,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		return;
 	}
 
-	/*
+	/**
 	 * Handler when the bot has been kicked from the channel
 	 * (non-Javadoc)
 	 * @see org.pircbotx.hooks.ListenerAdapter#onKick(org.pircbotx.hooks.events.KickEvent)
@@ -201,7 +201,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		event.getBot().joinChannel(event.getChannel().getName());
 	}
 
-	/*
+	/**
 	 * Handler when messages are received from the bot
 	 * (non-Javadoc)
 	 * @see org.pircbotx.hooks.ListenerAdapter#onMessage(org.pircbotx.hooks.events.MessageEvent)
@@ -233,7 +233,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		}
 	}
 
-	/*
+	/**
 	 * Handler when a user has left the channel
 	 * (non-Javadoc)
 	 * @see org.pircbotx.hooks.ListenerAdapter#onPart(org.pircbotx.hooks.events.PartEvent)
@@ -243,7 +243,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		new Thread(new Seen(event)).start();
 	}
 
-	/*
+	/**
 	 * Handler when a private message has been sent to the bot
 	 * (non-Javadoc)
 	 * @see org.pircbotx.hooks.ListenerAdapter#onPrivateMessage(org.pircbotx.hooks.events.PrivateMessageEvent)
@@ -254,7 +254,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		event.respond("Hi! I am IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ". If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my creator, got_milk, instead!");
 	}
 
-	/*
+	/**
 	 * Handler when a user disconnects from the IRC server
 	 * (non-Javadoc)
 	 * @see org.pircbotx.hooks.ListenerAdapter#onQuit(org.pircbotx.hooks.events.QuitEvent)
@@ -264,7 +264,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		new Thread(new Seen(event)).start();
 	}
 	
-	/*
+	/**
 	 * Checks to see if a user is a bot administrator
 	 * @param user the user to check
 	 * @return true if the user is a bot administrator, false if they are not
@@ -274,6 +274,11 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 		else return false;
 	}
 	
+	/**
+	 * Sends a message to each channel the bot is currently in
+	 * @param bot the IRC bot
+	 * @param message the message to send
+	 */
 	private void sendGlobalMessage(PircBotX bot, String message) {
 		Iterator<Channel> itr = bot.getChannels().iterator();
 		while(itr.hasNext()) {

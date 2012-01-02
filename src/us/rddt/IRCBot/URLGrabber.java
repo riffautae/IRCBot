@@ -52,7 +52,7 @@ import us.rddt.IRCBot.Implementations.RedditLink;
 import us.rddt.IRCBot.Implementations.RedditUser;
 import us.rddt.IRCBot.Implementations.YouTubeLink;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class URLGrabber implements Runnable {
@@ -76,8 +76,8 @@ public class URLGrabber implements Runnable {
 	// Regex pattern to match YouTube videos
 	private static final Pattern YOUTUBE_VIDEO = Pattern.compile("http:\\/\\/(www.)?youtube\\.com\\/watch\\?v=.+");
 	
-	/*
-	 * The class to construct a Content-Type value.
+	/**
+	 * Content-Type class definition
 	 */
 	private static final class ContentType {
 		// Regex pattern to match the character set from the Content-Type
@@ -106,8 +106,8 @@ public class URLGrabber implements Runnable {
 		}
 	}
 	
-	/*
-	 * Extracts the character set from the Content-Type header property.
+	/**
+	 * Extracts the character set from the Content-Type header property
 	 * @param contentType the Content-Type property to parse
 	 * @return the character set
 	 */
@@ -118,8 +118,8 @@ public class URLGrabber implements Runnable {
 		else
 			return null;
 	}
-	/*
-	 * Extracts the Content-Length property from the HTTP response.
+	/**
+	 * Extracts the Content-Length property from the HTTP response
 	 * @param conn the open HTTP connection to read the headers from
 	 * @return the length of the data stream
 	 */
@@ -142,8 +142,8 @@ public class URLGrabber implements Runnable {
 		return 0;
 	}
 
-	/*
-	 * Extracts the Content-Type property from the HTTP response.
+	/**
+	 * Extracts the Content-Type property from the HTTP response
 	 * @param conn the open HTTP connection to read the headers from
 	 * @return the content type header value(s)
 	 */
@@ -166,8 +166,8 @@ public class URLGrabber implements Runnable {
 		return null;
 	}
 
-	/*
-	 * Converts a data measurement value to a more human-readable format.
+	/**
+	 * Converts a data measurement value to a more human-readable format
 	 * @param bytes the length to convert into a data measurement
 	 * @param si whether to use the SI measurement
 	 * @return the formatted human-readable string
@@ -183,17 +183,16 @@ public class URLGrabber implements Runnable {
 		return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
 	}
 
-	/*
-	 * Class constructor.
+	/**
+	 * Class constructor
 	 */
 	public URLGrabber(MessageEvent<PircBotX> event, URL url) {
 		this.event = event;
 		this.url = url;
 	}
 
-	/*
-	 * Determines if an imgur link has been posted to Reddit.
-	 * If the link has, return the most appropriate post details.
+	/**
+	 * Determines if an imgur link has been posted to Reddit and return post details if it has
 	 * @param imgurURL the imgur URL to check against Reddit
 	 * @return true if the image appears on Reddit, false if it does not
 	 */
@@ -226,8 +225,8 @@ public class URLGrabber implements Runnable {
 		return false;
 	}
 
-	/*
-	 * Gets the page title from a provided URL.
+	/**
+	 * Gets the page title from a provided URL
 	 * @param url the URL of the page to extract the title from
 	 * @return the page title
 	 * @throws Exception if an error occurs downloading the page
@@ -283,8 +282,8 @@ public class URLGrabber implements Runnable {
 		}
 	}
 
-	/*
-	 * Prints the title of a Reddit submissions or information about a user depending on the URL provided.
+	/**
+	 * Prints the title of a Reddit submissions or information about a user depending on the URL provided
 	 * @param redditURL the reddit URL to extract the data from
 	 * @param isUser is the URL of a user's page
 	 */
@@ -324,8 +323,8 @@ public class URLGrabber implements Runnable {
 		}
 	}
 
-	/*
-	 * Prints the content of a provided tweet to a specified channel.
+	/**
+	 * Prints the content of a provided tweet to a specified channel
 	 * @param tweetID the ID value of the tweet to print
 	 */
 	private void returnTweet(long tweetID) {
@@ -340,8 +339,8 @@ public class URLGrabber implements Runnable {
 		}
 	}
 
-	/*
-	 * Prints the title and duration of a YouTube video to a specified channel.
+	/**
+	 * Prints the title and duration of a YouTube video to a specified channel
 	 * @param youtubeURL the URL to process
 	 */
 	private void returnYouTubeVideo(URL youtubeURL) {
@@ -366,8 +365,8 @@ public class URLGrabber implements Runnable {
 		}
 	}
 	
-	/*
-	 * Method that executes upon thread start.
+	/**
+	 * Method that executes upon thread start
 	 * (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */

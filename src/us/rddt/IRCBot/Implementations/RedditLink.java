@@ -43,7 +43,7 @@ import org.json.JSONObject;
 import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Enums.LogLevels;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class RedditLink {
@@ -58,14 +58,14 @@ public class RedditLink {
 	private int score;
 	private boolean over_18;
 	
-	/*
-	 * Class constructor.
+	/**
+	 * Class constructor
 	 */
 	public RedditLink() {
 	}
 	
-	/*
-	 * Class constructor.
+	/**
+	 * Class constructor
 	 * @param id the reddit submission's ID
 	 * @param title the reddit submission's title
 	 * @param author the reddit submission's author
@@ -84,8 +84,8 @@ public class RedditLink {
 		this.over_18 = over_18;
 	}
 	
-	/*
-	 * Gets the content of a provided Reddit URL.
+	/**
+	 * Gets the content of a provided Reddit URL
 	 * @param link the URL to fetch the JSON data from
 	 * @throws IOException if the download fails
 	 * @throws JSONException if the JSON cannot be parsed
@@ -131,8 +131,8 @@ public class RedditLink {
 		this.over_18 = redditLink.getBoolean("over_18");
 	}
 	
-	/*
-	 * Checks imgur links against the Reddit API.
+	/**
+	 * Checks imgur links against the Reddit API
 	 * @param link the URL to fetch the JSON data from
 	 * @return the best possible submission to use
 	 * @throws IOException if the download fails
@@ -188,8 +188,8 @@ public class RedditLink {
 		}
 	}
 	
-	/*
-	 * Weighs Reddit submissions to determine the most appropriate submission to use.
+	/**
+	 * Weighs Reddit submissions to determine the most appropriate submission to use
 	 * @param submissions the submissions (stored in an ArrayList) to weigh
 	 * @return the best submission
 	 */
@@ -223,64 +223,64 @@ public class RedditLink {
 		return submissions.get(bestSubmission);
 	}
 
-	/*
-	 * Returns the title.
+	/**
+	 * Returns the title
 	 * @return the title
 	 */
 	public String getTitle() {
 		return title;
 	}
 
-	/*
-	 * Returns the author.
+	/**
+	 * Returns the author
 	 * @return the author
 	 */
 	public String getAuthor() {
 		return author;
 	}
 
-	/*
-	 * Returns the subreddit.
+	/**
+	 * Returns the subreddit
 	 * @return the subreddit
 	 */
 	public String getSubreddit() {
 		return subreddit;
 	}
 
-	/*
-	 * Returns the creation date in UTC time.
+	/**
+	 * Returns the creation date in UTC time
 	 * @return the creation date in UTC time
 	 */
 	public long getCreatedUTC() {
 		return created_utc;
 	}
 	
-	/*
-	 * Returns the creation date in UTC time, in a human-readable string format.
-	 * @return the creation date in UTC time, in a human-readable string format.
+	/**
+	 * Returns the creation date in UTC time, in a human-readable string format
+	 * @return the creation date in UTC time, in a human-readable string format
 	 */
 	public String getCreatedReadableUTC() {
 		return IRCUtils.toReadableTime(new Date(getCreatedUTC() * 1000), false);
 	}
 
-	/*
-	 * Returns the score.
+	/**
+	 * Returns the score
 	 * @return the score
 	 */
 	public int getScore() {
 		return score;
 	}
 
-	/*
-	 * Returns if the submission is marked NSFW or not.
+	/**
+	 * Returns if the submission is marked NSFW or not
 	 * @return true if the submission is NSFW, false if not
 	 */
 	public boolean isOver18() {
 		return over_18;
 	}
 
-	/*
-	 * Returns the unique link ID.
+	/**
+	 * Returns the unique link ID
 	 * @return the unique link ID
 	 */
 	public String getId() {

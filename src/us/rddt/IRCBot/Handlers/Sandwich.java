@@ -31,7 +31,7 @@ package us.rddt.IRCBot.Handlers;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class Sandwich implements Runnable {
@@ -44,8 +44,8 @@ public class Sandwich implements Runnable {
 		this.event = event;
 	}
 	
-	/*
-	 * Method that executes upon thread start.
+	/**
+	 * Method that executes upon thread start
 	 * (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */

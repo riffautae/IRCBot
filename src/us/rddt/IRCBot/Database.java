@@ -36,7 +36,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/*
+/**
  * @author Ryan Morrison
  */
 public class Database {
@@ -48,14 +48,14 @@ public class Database {
 	private ResultSet resultSet = null;
 	private Statement statement = null;
 
-	/*
+	/**
 	 * Class constructor.
 	 */
 	public Database() {
 	}
 
-	/*
-	 * Connects to the database as specified in IRCBot.properties.
+	/**
+	 * Connects to the database as specified in IRCBot.properties
 	 * @throws SQLException if a SQL exception occurs
 	 * @throws ClassNotFoundException if the JDBC driver cannot be loaded
 	 * @throws IOException if the properties file cannot be loaded
@@ -73,8 +73,8 @@ public class Database {
 		statement = connection.createStatement();
 	}
 
-	/*
-	 * Cleans up any potential connections left behind when the database was accessed.
+	/**
+	 * Cleans up any potential connections left behind when the database was accessed
 	 * @throws SQLException if a SQL exception occurs
 	 */
 	public void disconnect() throws SQLException {
@@ -83,15 +83,15 @@ public class Database {
 		if(connection != null) connection.close();
 	}
 
-	/*
-	 * Gets the database connection.
+	/**
+	 * Gets the database connection
 	 * @return the database connection
 	 */
 	public Connection getConnection() {
 		return connection;
 	}
 
-	/*
+	/**
 	 * Gets the prepared statement for use with the database
 	 * @return the prepared statement for use with the database
 	 */
@@ -99,7 +99,7 @@ public class Database {
 		return preparedStatement;
 	}
 
-	/*
+	/**
 	 * Gets the result set for a query, or null if the query has not executed
 	 * @return the result set for a processed query
 	 */
@@ -107,8 +107,8 @@ public class Database {
 		return resultSet;
 	}
 
-	/*
-	 * Gets the connection's statement.
+	/**
+	 * Gets the connection's statement
 	 * @return the connection's statement
 	 */
 	public Statement getStatement() {
