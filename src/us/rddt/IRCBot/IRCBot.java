@@ -108,7 +108,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 	 * @param bot the IRC bot
 	 */
 	private static void startScheduler(String[] subreddits, PircBotX bot) {
-		if(subreddits.length > 0) {
+		if(subreddits.length > 0 && !subreddits[0].equals("")) {
 			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(subreddits.length);
 			for(int i = 0; i < subreddits.length; i++) {
 				String[] configuration = subreddits[i].split(":");
