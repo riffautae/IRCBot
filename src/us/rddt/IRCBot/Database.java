@@ -28,7 +28,6 @@
 
 package us.rddt.IRCBot;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -36,7 +35,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Properties;
 
 /*
  * @author Ryan Morrison
@@ -63,18 +61,12 @@ public class Database {
 	 * @throws IOException if the properties file cannot be loaded
 	 */
 	public void connect() throws SQLException, ClassNotFoundException, IOException {
-		Properties property = new Properties();
-		try {
-			property.load(new FileInputStream("IRCBot.properties"));
-		} catch (IOException ex) {
-			throw new IOException("Could not load properties file");
-		}
-		if(property.getProperty("database_driver").equalsIgnoreCase("mysql")) {
+		if(Configuration.getDatabaseDriver().equalsIgnoreCase("mysql")) {
 			Class.forName("com.mysql.jdbc.Driver");
-			connection = DriverManager.getConnection("jdbc:mysql://" + property.getProperty("mysql_server") + "/" + property.getProperty("mysql_database") + "?user=" + property.getProperty("mysql_user") + "&password=" + property.getProperty("mysql_password"));
-		} else if(property.getProperty("database_driver").equalsIgnoreCase("sqlite")) {
+			connection = DriverManager.getConnection("jdbc:mysql://" + Configuration.getMySQLServer() + "/" + Configuration.getMySQLDatabase() + "?user=" + Configuration.getMySQLUser() + "&password=" + Configuration.getMySQLPassword());
+		} else if(Configuration.getDatabaseDriver().equalsIgnoreCase("sqlite")) {
 			Class.forName("org.sqlite.JDBC");
-			connection = DriverManager.getConnection("jdbc:sqlite:" + property.getProperty("sqlite_database") + ".db");
+			connection = DriverManager.getConnection("jdbc:sqlite:" + Configuration.getSQLiteDatabase() + ".db");
 		} else {
 			throw new SQLException("Invalid SQL configuration in properties file");
 		}
