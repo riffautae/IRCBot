@@ -83,36 +83,9 @@
 				</execution>
 			</executions>
 			<configuration>
-				<doCheck>true</doCheck>
+				<doCheck>false</doCheck>
 				<doUpdate>true</doUpdate>
 			</configuration>
-		</plugin>
-
-		<plugin>
-			<groupId>org.apache.maven.plugins</groupId>
-			<artifactId>maven-assembly-plugin</artifactId>
-			<executions>
-				<execution>
-					<goals>
-						<goal>attached</goal>
-					</goals>
-					<phase>package</phase>
-					<configuration>
-						<descriptorRefs>
-							<descriptorRef>jar-with-dependencies</descriptorRef>
-						</descriptorRefs>
-						<archive>
-							<manifest>
-								<addClasspath>true</addClasspath>
-								<mainClass>us.rddt.IRCBot.IRCBot</mainClass>
-							</manifest>
-							<manifestEntries>
-								<Build-Version>${version}-${buildNumber}</Build-Version>
-							</manifestEntries>
-						</archive>
-					</configuration>
-				</execution>
-			</executions>
 		</plugin>
 	</plugins>
 
