@@ -28,16 +28,11 @@
 
 package us.rddt.IRCBot;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.pircbotx.PircBotX;
 import org.pircbotx.exception.NickAlreadyInUseException;
 import org.pircbotx.hooks.ListenerAdapter;
 
 import us.rddt.IRCBot.Enums.LogLevels;
-import us.rddt.IRCBot.Implementations.RedditWatcher;
 
 /**
  * @author Ryan Morrison
@@ -67,7 +62,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		// Connect to the IRC server
 		connect(bot);
 		// Create the scheduler for watching subreddits
-		startScheduler(Configuration.getWatchSubreddits(), bot);
+		Configuration.startScheduler(bot);
 	}
 
 	/**
@@ -99,24 +94,6 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 	private static void joinChannels(String[] channels, PircBotX bot) {
 		for (int i = 0; i < channels.length; i++) {
 			bot.joinChannel(channels[i]);
-		}
-	}
-
-	/**
-	 * Starts the scheduler(s) (if needed) to monitor configured subreddits
-	 * @param subreddits the subreddits to watch
-	 * @param bot the IRC bot
-	 */
-	private static void startScheduler(String[] subreddits, PircBotX bot) {
-		if(subreddits.length > 0 && !subreddits[0].equals("")) {
-			ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(subreddits.length);
-			for(int i = 0; i < subreddits.length; i++) {
-				String[] configuration = subreddits[i].split(":");
-				String subreddit = configuration[0];
-				int frequency = Integer.parseInt(configuration[1]);
-				IRCUtils.Log(LogLevels.INFORMATION, "Scheduling subreddit updates for r/" + subreddit + " starting in " + (5 * i) + " minutes (frequency: " + frequency + " minutes)");
-				scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddit), (5 * i), frequency, TimeUnit.MINUTES);
-			}
 		}
 	}
 }

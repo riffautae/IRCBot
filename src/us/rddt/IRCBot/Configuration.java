@@ -32,6 +32,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import org.pircbotx.PircBotX;
+
+import us.rddt.IRCBot.Enums.LogLevels;
+import us.rddt.IRCBot.Implementations.RedditWatcher;
 
 public class Configuration {
 	/*
@@ -58,6 +66,8 @@ public class Configuration {
 	
 	private static String sqlite_database;
 	
+	private static ScheduledExecutorService scheduler;
+	
 	/**
 	 * Loads the configuration provided via a properties file
 	 * @throws FileNotFoundException if the properties file does not exist
@@ -83,6 +93,28 @@ public class Configuration {
 			mysql_database = config.getProperty("mysql_database");
 		} else if(database_driver.equalsIgnoreCase("sqlite")) {
 			sqlite_database = config.getProperty("sqlite_database");
+		}
+	}
+	
+	/**
+	 * Starts the scheduler(s) (if needed) to monitor configured subreddits
+	 * @param subreddits the subreddits to watch
+	 * @param bot the IRC bot
+	 */
+	public static void startScheduler(PircBotX bot) {
+		if(watchSubreddits.length > 0 && !watchSubreddits[0].equals("")) {
+			if(scheduler != null) {
+				IRCUtils.Log(LogLevels.INFORMATION, "Shutting down existing subreddit updates");
+				scheduler.shutdownNow();
+			}
+			scheduler = Executors.newScheduledThreadPool(watchSubreddits.length);
+			for(int i = 0; i < watchSubreddits.length; i++) {
+				String[] configuration = watchSubreddits[i].split(":");
+				String subreddit = configuration[0];
+				int frequency = Integer.parseInt(configuration[1]);
+				IRCUtils.Log(LogLevels.INFORMATION, "Scheduling subreddit updates for r/" + subreddit + " starting in " + (5 * i) + " minutes (frequency: " + frequency + " minutes)");
+				scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddit), (5 * i), frequency, TimeUnit.MINUTES);
+			}
 		}
 	}
 

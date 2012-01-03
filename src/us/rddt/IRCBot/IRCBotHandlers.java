@@ -96,6 +96,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 				sendGlobalMessage(event.getBot(), "Reloading configuration...");
 				try {
 					Configuration.loadConfiguration();
+					Configuration.startScheduler(event.getBot());
 				} catch (Exception ex) {
 					sendGlobalMessage(event.getBot(), "Failed to reload configuration: " + ex.getMessage());
 					return true;
