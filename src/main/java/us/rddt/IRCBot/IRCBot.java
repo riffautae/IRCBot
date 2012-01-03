@@ -43,7 +43,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 	 * @param args arguments passed through the command line
 	 */
 	public static void main(String[] args) throws Exception {
-		IRCUtils.Log(LogLevels.INFORMATION, "Initialzing bot (IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ")");
+		IRCUtils.Log(LogLevels.INFORMATION, "Initialzing bot (IRCBot version " + Configuration.getApplicationVersion() + ")");
 		try {
 			Configuration.loadConfiguration();
 		} catch(Exception ex) {

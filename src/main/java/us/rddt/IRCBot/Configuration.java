@@ -31,10 +31,17 @@ package us.rddt.IRCBot;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URL;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.jar.Attributes;
+import java.util.jar.Manifest;
 
 import org.pircbotx.PircBotX;
 
@@ -115,6 +122,21 @@ public class Configuration {
 				IRCUtils.Log(LogLevels.INFORMATION, "Scheduling subreddit updates for r/" + subreddit + " starting in " + (5 * i) + " minutes (frequency: " + frequency + " minutes)");
 				scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddit), (5 * i), frequency, TimeUnit.MINUTES);
 			}
+		}
+	}
+	
+	public static String getApplicationVersion() {
+		try {
+			Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources("META-INF/MANIFEST.MF");
+			while(resources.hasMoreElements()) {
+				Manifest manifest = new Manifest(((URL)resources.nextElement()).openStream());
+				Attributes mainAttribs = (Attributes)manifest.getMainAttributes();
+				if(mainAttribs.getValue("Build-Version") != null) return mainAttribs.getValue("Build-Version");
+			}
+			return null;
+		} catch (IOException ex) {
+			ex.printStackTrace();
+			return null;
 		}
 	}
 
