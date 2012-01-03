@@ -33,10 +33,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -105,7 +102,6 @@ public class Configuration {
 	
 	/**
 	 * Starts the scheduler(s) (if needed) to monitor configured subreddits
-	 * @param subreddits the subreddits to watch
 	 * @param bot the IRC bot
 	 */
 	public static void startScheduler(PircBotX bot) {
@@ -125,6 +121,10 @@ public class Configuration {
 		}
 	}
 	
+	/**
+	 * Returns the application's version string from the manifest.
+	 * @return the application version string
+	 */
 	public static String getApplicationVersion() {
 		try {
 			Enumeration<URL> resources = Thread.currentThread().getContextClassLoader().getResources("META-INF/MANIFEST.MF");
