@@ -43,6 +43,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 	 * @param args arguments passed through the command line
 	 */
 	public static void main(String[] args) throws Exception {
+		IRCUtils.Log(LogLevels.INFORMATION, "Initialzing bot (IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ")");
 		try {
 			Configuration.loadConfiguration();
 		} catch(Exception ex) {
@@ -50,7 +51,6 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 			IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
 			System.exit(-1);
 		}
-		IRCUtils.Log(LogLevels.INFORMATION, "Initialzing bot (IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ")");
 		// Create a new instance of the IRC bot
 		PircBotX bot = new PircBotX();
 		// Add new listeners for the actions we want the bot to handle
