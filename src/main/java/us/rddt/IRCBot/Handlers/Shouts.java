@@ -36,6 +36,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
@@ -287,7 +288,7 @@ public class Shouts implements Runnable {
 				// Get a random quote from the database (if possible). Send it to the channel.
 				// If the quote does not exist in the database, add it!
 				if((randomQuote = getRandomQuote()) != null) {
-					event.getBot().sendMessage(event.getChannel(), randomQuote);
+					event.getBot().sendMessage(event.getChannel(), (randomQuote + Colors.NORMAL));
 				}
 				if(!doesQuoteExist()) addNewQuote();
 			} else {
