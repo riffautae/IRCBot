@@ -288,7 +288,7 @@ public class Shouts implements Runnable {
 				// Get a random quote from the database (if possible). Send it to the channel.
 				// If the quote does not exist in the database, add it!
 				if((randomQuote = getRandomQuote()) != null) {
-					event.getBot().sendMessage(event.getChannel(), (randomQuote + Colors.NORMAL));
+					event.getBot().sendMessage(event.getChannel(), (Colors.removeFormattingAndColors(randomQuote)));
 				}
 				if(!doesQuoteExist()) addNewQuote();
 			} else {
