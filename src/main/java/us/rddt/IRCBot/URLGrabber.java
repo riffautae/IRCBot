@@ -206,11 +206,11 @@ public class URLGrabber implements Runnable {
 			RedditLink link = new RedditLink();
 			RedditLink bestSubmission = link.checkImgurLink(appendURL);
 			if(bestSubmission != null) {
+				String formattedString = "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + Colors.BOLD + bestSubmission.getTitle() + Colors.NORMAL + " (submitted by " + bestSubmission.getAuthor() + " to r/" + bestSubmission.getSubreddit() + " about " + bestSubmission.getCreatedReadableUTC() + " ago, " + bestSubmission.getScore() + " points: http://redd.it/" + bestSubmission.getId() + ")";
 				if(bestSubmission.isOver18()) {
-					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + bestSubmission.getTitle() + " (submitted by " + bestSubmission.getAuthor() + " to r/" + bestSubmission.getSubreddit() + " about " + bestSubmission.getCreatedReadableUTC() +  " ago, " + bestSubmission.getScore() + " points: http://redd.it/" + bestSubmission.getId() + ") " + Colors.BOLD + Colors.RED + "[NSFW]");
-				} else {
-					event.getBot().sendMessage(event.getChannel(), "[imgur by '" + event.getUser().getNick() + "'] As spotted on Reddit: " + bestSubmission.getTitle() + " (submitted by " + bestSubmission.getAuthor() + " to r/" + bestSubmission.getSubreddit() + " about " + bestSubmission.getCreatedReadableUTC() +  " ago, " + bestSubmission.getScore() + " points: http://redd.it/" + bestSubmission.getId() + ")");
+					formattedString += (" " + Colors.BOLD + Colors.RED + "[NSFW]");
 				}
+				event.getBot().sendMessage(event.getChannel(), formattedString);
 				return true;
 			} else {
 				return false;
@@ -223,6 +223,15 @@ public class URLGrabber implements Runnable {
 			ex.printStackTrace();
 		}
 		return false;
+	}
+	
+	/**
+	 * Formats a friendly error message to return to a user if a lookup fails
+	 * @param site the website where the lookup failed
+	 * @param message the error message
+	 */
+	private String formatError(String site, String message) {
+		return "[" + site + " by '" + event.getUser().getNick() + "'] " + Colors.BOLD + "An error occurred while retrieving this URL. (" + IRCUtils.trimString(message, 50) + ")";
 	}
 
 	/**
@@ -275,7 +284,7 @@ public class URLGrabber implements Runnable {
 			Matcher matcher = TITLE_TAG.matcher(content);
 			if (matcher.find()) {
 				// Properly escape any HTML entities present in the title
-				return IRCUtils.escapeHTMLEntities((matcher.group(1).replaceAll("[\\s\\<>]+", " ").trim()));
+				return Colors.BOLD + IRCUtils.escapeHTMLEntities((matcher.group(1).replaceAll("[\\s\\<>]+", " ").trim()));
 			}
 			else
 				return "Title not found or not within first 8192 bytes of page, aborting.";
@@ -297,23 +306,22 @@ public class URLGrabber implements Runnable {
 				appendURL = new URL(redditURL.toString() + "/about.json");
 				RedditUser user = new RedditUser();
 				user.getUser(appendURL);
+				String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.BOLD + user.getName() + Colors.NORMAL + ": " + user.getLinkKarma() + " link karma, " + user.getCommentKarma() + " comment karma, user since " + user.getReadableCreated();
 				if(user.isGold()) {
-					event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + user.getName() + ": " + user.getLinkKarma() + " link karma, " + user.getCommentKarma() + " comment karma, user since " + user.getReadableCreated() + " [reddit gold]");
+					formattedString += " [reddit gold]";
 				}
-				else {
-					event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] " + user.getName() + ": " + user.getLinkKarma() + " link karma, " + user.getCommentKarma() + " comment karma, user since " + user.getReadableCreated());
-				}
+				event.getBot().sendMessage(event.getChannel(), formattedString);
 				return;
 			}
 			else {
 				appendURL = new URL(redditURL.toString() + "/.json");
 				RedditLink link = new RedditLink();
 				link.getLink(appendURL);
+				String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (submitted by " + link.getAuthor() + " to r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points)";
 				if(link.isOver18()) {
-					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + link.getTitle() + " (submitted by " + link.getAuthor() + " to r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points) " + Colors.BOLD + Colors.RED + "[NSFW]"));
-				} else {
-					event.getBot().sendMessage(event.getChannel(), ("[Reddit by '" + event.getUser().getNick() + "'] " + link.getTitle() + " (submitted by " + link.getAuthor() + " to r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points)"));
+					formattedString += (" " + Colors.BOLD + Colors.RED + "[NSFW]");
 				}
+				event.getBot().sendMessage(event.getChannel(), formattedString);
 				return;
 			}
 		} catch (MalformedURLException ex) {
@@ -321,7 +329,7 @@ public class URLGrabber implements Runnable {
 			ex.printStackTrace();
 			return;
 		} catch (Exception ex) {
-			event.getBot().sendMessage(event.getChannel(), "[Reddit by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from Reddit. (" + IRCUtils.trimString(ex.getMessage(), 45) + ")");
+			event.getBot().sendMessage(event.getChannel(), formatError("Reddit", ex.getMessage()));
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
@@ -337,8 +345,9 @@ public class URLGrabber implements Runnable {
 			// Get the Tweet and send it back to the channel
 			Twitter twitter = new TwitterFactory().getInstance();
 			Status status = twitter.showStatus(tweetID);
-			event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] @" + status.getUser().getScreenName() + ": " + status.getText());
+			event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] " + Colors.BOLD + "@" + status.getUser().getScreenName() + Colors.NORMAL + ": " + status.getText());
 		} catch (TwitterException te) {
+			event.getBot().sendMessage(event.getChannel(), formatError("Twitter", te.getMessage()));
 			IRCUtils.Log(LogLevels.ERROR, te.getMessage());
 			te.printStackTrace();
 		}
@@ -356,14 +365,14 @@ public class URLGrabber implements Runnable {
 			appendURL = new URL("http://gdata.youtube.com/feeds/api/videos?q=" + url.toString().split("=")[1] + "&v=2&alt=jsonc");
 			YouTubeLink link = new YouTubeLink();
 			link.getLink(appendURL);
-			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + link.getTitle() + " (" + link.getReadableDuration() + ")");
+			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (" + link.getReadableDuration() + ")");
 			return;
 		} catch (MalformedURLException ex) {
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
 		} catch (Exception ex) {
-			event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] An error occurred while retrieving the data from YouTube. (" + IRCUtils.trimString(ex.getMessage(), 45) + ")");
+			event.getBot().sendMessage(event.getChannel(), formatError("YouTube", event.getMessage()));
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
 			return;
@@ -407,7 +416,7 @@ public class URLGrabber implements Runnable {
 		} catch (Exception ex) {
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
-			event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + IRCUtils.trimString(ex.getMessage(), 45) + ")"));
+			event.getBot().sendMessage(event.getChannel(), formatError("URL", event.getMessage()));
 			return;
 		}
 	}

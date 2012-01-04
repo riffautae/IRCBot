@@ -177,7 +177,7 @@ public class Shouts implements Runnable {
 			// On startup there is no previous quote, so return as such if a user attempts a !who last
 			if(getLastShout() == null) return "No previous quote.";
 			// Tease the user if it's their own quote
-			if(getLastShout().getSubmitter().equals(event.getUser().getNick())) return "don't you remember? YOU submitted this! Put down the bong!";
+			if(getLastShout().getSubmitter().equals(event.getUser().getNick())) return "don't you remember? " + Colors.BOLD + "YOU" + Colors.NORMAL + "submitted this! Put down the bong!";
 			// Provide context if the !who last command was used, but trim it if the quote is longer than 10 characters (use 60% of the quote instead)
 			if(quote.length() < 11) {
 				return getLastShout().getSubmitter() + " shouted \"" + getLastShout().getQuote() + "\" about " + getLastShout().getReadableDate() + " ago.";
