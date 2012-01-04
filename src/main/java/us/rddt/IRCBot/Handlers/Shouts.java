@@ -224,7 +224,7 @@ public class Shouts implements Runnable {
 	private String getQuoteLine(int line) throws SQLException {
 		PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? LIMIT ?,1");
 		statement.setString(1, event.getChannel().getName());
-		statement.setInt(2, line);
+		statement.setInt(2, line - 1);
 		ResultSet resultSet = statement.executeQuery();
 		if(resultSet.next()) {
 			return "Quote #" + line + " (" + resultSet.getString("Quote") + ") was shouted by " + resultSet.getString("Nick") + " about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
