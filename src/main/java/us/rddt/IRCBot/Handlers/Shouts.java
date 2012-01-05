@@ -208,7 +208,7 @@ public class Shouts implements Runnable {
 		ResultSet resultSet = statement.executeQuery();
 		if(resultSet.next()) {
 			// Tease the user if it's their own quote
-			if(resultSet.getString("Nick").equals(event.getUser().getNick())) return "don't you remember? YOU submitted this! Put down the bong!";
+			if(resultSet.getString("Nick").equals(event.getUser().getNick())) return Colors.BOLD + "YOU" + Colors.NORMAL + " taught me that! (Don't you remember? Put down the bong!) about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
 			return resultSet.getString("Nick") + " shouted this about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
 		} else {
 			return "Quote not found.";
