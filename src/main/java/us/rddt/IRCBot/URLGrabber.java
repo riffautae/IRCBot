@@ -416,7 +416,7 @@ public class URLGrabber implements Runnable {
 		} catch (Exception ex) {
 			IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
 			ex.printStackTrace();
-			event.getBot().sendMessage(event.getChannel(), formatError("URL", event.getMessage()));
+			event.getBot().sendMessage(event.getChannel(), formatError("URL", ex.getMessage()));
 			return;
 		}
 	}
