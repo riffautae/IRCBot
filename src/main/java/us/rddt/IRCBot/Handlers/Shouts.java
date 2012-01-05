@@ -222,6 +222,7 @@ public class Shouts implements Runnable {
 	 * @throws SQLException if the SQL query does not execute correctly
 	 */
 	private String getQuoteLine(int line) throws SQLException {
+		if(line < 1) return "Line number " + line + " is invalid.";
 		PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? LIMIT ?,1");
 		statement.setString(1, event.getChannel().getName());
 		statement.setInt(2, line - 1);
