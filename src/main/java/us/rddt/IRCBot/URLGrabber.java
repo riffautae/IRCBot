@@ -231,7 +231,7 @@ public class URLGrabber implements Runnable {
 	 * @param message the error message
 	 */
 	private String formatError(String site, String message) {
-		return "[" + site + " by '" + event.getUser().getNick() + "'] " + Colors.BOLD + "An error occurred while retrieving this URL. (" + IRCUtils.trimString(message, 50) + ")";
+		return "[" + site + " by '" + event.getUser().getNick() + "'] An error occurred while retrieving this URL. (" + IRCUtils.trimString(message, 50) + ")";
 	}
 
 	/**
