@@ -38,6 +38,11 @@ import us.rddt.IRCBot.Enums.LogLevels;
  * @author Ryan Morrison
  */
 public class IRCBot extends ListenerAdapter<PircBotX> {
+	/*
+	 * Class variables
+	 */
+	private static PircBotX bot;
+	
 	/**
 	 * The main entry point of the application
 	 * @param args arguments passed through the command line
@@ -52,7 +57,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 			System.exit(-1);
 		}
 		// Create a new instance of the IRC bot
-		PircBotX bot = new PircBotX();
+		bot = new PircBotX();
 		// Add new listeners for the actions we want the bot to handle
 		bot.getListenerManager().addListener(new IRCBotHandlers());
 		// Set the bot's nick
@@ -63,6 +68,12 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
 		connect(bot);
 		// Create the scheduler for watching subreddits
 		Configuration.startScheduler(bot);
+		// Add a shutdown handler to attempt to properly disconnect from the server upon shutdown
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			public void run() {
+				if(bot.isConnected()) bot.quitServer("Received SIGINT from command line");
+			}
+		}));
 	}
 
 	/**
