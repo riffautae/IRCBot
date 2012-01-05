@@ -28,9 +28,10 @@
 
 package us.rddt.IRCBot;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
@@ -216,21 +217,13 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
 			return;
 		}
 		if(checkForCommands(event)) return;
-		// Split the message using a space delimiter and attempt to form a URL from each split string
-		// If a MalformedURLException is thrown, the string isn't a valid URL and continue on
-		// If a URL can be formed from it, spawn a new thread to process it for a title
-		String[] splitMessage = event.getMessage().split(" ");
-		// We don't want to process more than 2 URLs at a time to prevent abuse and spam
+		// Use a regex pattern to match URLs out of user messages
 		int urlCount = 0;
-		for(int i = 0; i < splitMessage.length; i++) {
-			try {
-				URL url = new URL(splitMessage[i]);
-				new Thread(new URLGrabber(event, url)).start();
-				urlCount++;
-			} catch (MalformedURLException ex) {
-				continue;
-			}
-			if(urlCount == 2) break;
+		Pattern urlPattern = Pattern.compile("\\bhttps?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+		Matcher urlMatcher = urlPattern.matcher(event.getMessage());
+		while(urlMatcher.find()) {
+			if(++urlCount > 2) break;
+			new Thread(new URLGrabber(event, new URL(urlMatcher.group()))).start();
 		}
 	}
 
