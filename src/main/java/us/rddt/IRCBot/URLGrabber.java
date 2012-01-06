@@ -246,7 +246,7 @@ public class URLGrabber implements Runnable {
 		// Set a proper user agent, some sites return HTTP 409 without it
 		conn.setRequestProperty("User-Agent", USER_AGENT);
 		// Initiate the connection
-		if(conn.getResponseCode() != 200) {
+		if(conn.getResponseCode() >= 400) {
 			throw new IOException("Server returned response code: " + conn.getResponseCode());
 		}
 		// No need to check validity of the URL - it's already been proven valid at this point

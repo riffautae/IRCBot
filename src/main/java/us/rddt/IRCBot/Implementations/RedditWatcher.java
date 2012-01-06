@@ -101,7 +101,7 @@ public class RedditWatcher implements Runnable {
 		 */
 		HttpURLConnection conn = (HttpURLConnection)link.openConnection();
 		conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
-		if(conn.getResponseCode() != 200) {
+		if(conn.getResponseCode() >= 400) {
 			throw new IOException("Server returned response code: " + conn.getResponseCode());
 		}
 
