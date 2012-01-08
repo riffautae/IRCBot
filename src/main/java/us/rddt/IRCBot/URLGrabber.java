@@ -61,7 +61,6 @@ public class URLGrabber implements Runnable {
      */
     private MessageEvent<PircBotX> event = null;
     private URL url = null;
-    private final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
 
     // Regex pattern to match imgur links
     private static final Pattern IMGUR_LINK = Pattern.compile("http:\\/\\/(www.)?(i.)?imgur\\.com\\/.+");
