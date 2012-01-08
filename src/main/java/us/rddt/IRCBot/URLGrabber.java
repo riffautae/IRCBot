@@ -65,7 +65,7 @@ public class URLGrabber implements Runnable {
     // Regex pattern to match imgur links
     private static final Pattern IMGUR_LINK = Pattern.compile("http:\\/\\/(www.)?(i.)?imgur\\.com\\/.+");
     // Regex pattern to match Reddit links
-    private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments");
+    private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments\\/.+\\/.+\\/");
     // Regex pattern to match Reddit users
     private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
     // Regex pattern to match the HTML title tag to extract from the URL
@@ -392,7 +392,11 @@ public class URLGrabber implements Runnable {
         }
         urlMatcher = REDDIT_LINK.matcher(url.toString());
         if(urlMatcher.find()) {
-            returnReddit(url, false);
+            try {
+                returnReddit(new URL(urlMatcher.group()), false);
+            } catch (MalformedURLException ex) {
+                return;
+            }
             return;
         }
         urlMatcher = REDDIT_USER.matcher(url.toString());
