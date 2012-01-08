@@ -82,8 +82,8 @@ public class URLGrabber implements Runnable {
         // Regex pattern to match the character set from the Content-Type
         private static final Pattern CHARSET_HEADER = Pattern.compile("charset=([-_a-zA-Z0-9]+)", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
 
-        private String charsetName;
         // Variables
+        private String charsetName;
         private String contentType;
 
         // Constructor for the ContentType class
@@ -243,7 +243,7 @@ public class URLGrabber implements Runnable {
         // Connect to the server
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         // Set a proper user agent, some sites return HTTP 409 without it
-        conn.setRequestProperty("User-Agent", USER_AGENT);
+        conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
         // Initiate the connection
         if(conn.getResponseCode() >= 400) {
             throw new IOException("Server returned response code: " + conn.getResponseCode());
