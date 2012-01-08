@@ -45,110 +45,110 @@ import us.rddt.IRCBot.IRCUtils;
  * @author Ryan Morrison
  */
 public class RedditUser {
-	/*
-	 * Variables
-	 */
-	private String name;
-	private int link_karma;
-	private int comment_karma;
-	private long created;
-	private boolean isGold;
-	
-	/**
-	 * Class constructor
-	 */
-	public RedditUser() {
-	}
-	
-	/**
-	 * Gets information about a provided link to a Reddit user page.
-	 * @param link the link to the user page
-	 * @throws IOException if the download fails
-	 * @throws JSONException if the JSON cannot be parsed
-	 */
-	public void getUser(URL link) throws IOException, JSONException {
-		/*
-		 * Variables
-		 */
-		StringBuilder jsonToParse = new StringBuilder();
-		String buffer;
-		
-		/*
-		 * Opens a connection to the provided URL, and downloads the data into a temporary variable.
-		 */
-		HttpURLConnection conn = (HttpURLConnection)link.openConnection();
-		conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
-		if(conn.getResponseCode() >= 400) {
-			throw new IOException("Server returned response code: " + conn.getResponseCode());
-		}
-		
-		BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		while((buffer = buf.readLine()) != null) {
-			jsonToParse.append(buffer);
-		}
-		
-		/*
-		 * Disconnect from the server.
-		 */
-		conn.disconnect();
-		
-		/*
-		 * Parse the JSON data.
-		 */
-		JSONObject redditUser = new JSONObject(jsonToParse.toString()).getJSONObject("data");
-		this.name = redditUser.getString("name");
-		this.link_karma = redditUser.getInt("link_karma");
-		this.comment_karma = redditUser.getInt("comment_karma");
-		this.created = redditUser.getLong("created");
-		this.isGold = redditUser.getBoolean("is_gold");
-	}
+    /*
+     * Variables
+     */
+    private String name;
+    private int link_karma;
+    private int comment_karma;
+    private long created;
+    private boolean isGold;
 
-	/**
-	 * Returns the user's name
-	 * @return the user's name
-	 */
-	public String getName() {
-		return name;
-	}
+    /**
+     * Class constructor
+     */
+    public RedditUser() {
+    }
 
-	/**
-	 * Returns the user's link karma
-	 * @return the user's link karma
-	 */
-	public int getLinkKarma() {
-		return link_karma;
-	}
+    /**
+     * Gets information about a provided link to a Reddit user page.
+     * @param link the link to the user page
+     * @throws IOException if the download fails
+     * @throws JSONException if the JSON cannot be parsed
+     */
+    public void getUser(URL link) throws IOException, JSONException {
+        /*
+         * Variables
+         */
+        StringBuilder jsonToParse = new StringBuilder();
+        String buffer;
 
-	/**
-	 * Returns the user's comment karma
-	 * @return the user's comment karma
-	 */
-	public int getCommentKarma() {
-		return comment_karma;
-	}
+        /*
+         * Opens a connection to the provided URL, and downloads the data into a temporary variable.
+         */
+        HttpURLConnection conn = (HttpURLConnection)link.openConnection();
+        conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
+        if(conn.getResponseCode() >= 400) {
+            throw new IOException("Server returned response code: " + conn.getResponseCode());
+        }
 
-	/**
-	 * Returns the user's creation date
-	 * @return the user's creation date
-	 */
-	public long getCreated() {
-		return created;
-	}
-	
-	/**
-	 * Returns the user's creation date in a readable string format
-	 * @return the user's creation date in a readable string format
-	 */
-	public String getReadableCreated() {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
-		return dateFormat.format(new Date(getCreated() * 1000));
-	}
+        BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        while((buffer = buf.readLine()) != null) {
+            jsonToParse.append(buffer);
+        }
 
-	/**
-	 * Returns if the user is a Reddit Gold member or not
-	 * @return true if the user is a Reddit Gold member, false if the user is not
-	 */
-	public boolean isGold() {
-		return isGold;
-	}
+        /*
+         * Disconnect from the server.
+         */
+        conn.disconnect();
+
+        /*
+         * Parse the JSON data.
+         */
+        JSONObject redditUser = new JSONObject(jsonToParse.toString()).getJSONObject("data");
+        this.name = redditUser.getString("name");
+        this.link_karma = redditUser.getInt("link_karma");
+        this.comment_karma = redditUser.getInt("comment_karma");
+        this.created = redditUser.getLong("created");
+        this.isGold = redditUser.getBoolean("is_gold");
+    }
+
+    /**
+     * Returns the user's name
+     * @return the user's name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Returns the user's link karma
+     * @return the user's link karma
+     */
+    public int getLinkKarma() {
+        return link_karma;
+    }
+
+    /**
+     * Returns the user's comment karma
+     * @return the user's comment karma
+     */
+    public int getCommentKarma() {
+        return comment_karma;
+    }
+
+    /**
+     * Returns the user's creation date
+     * @return the user's creation date
+     */
+    public long getCreated() {
+        return created;
+    }
+
+    /**
+     * Returns the user's creation date in a readable string format
+     * @return the user's creation date in a readable string format
+     */
+    public String getReadableCreated() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd");
+        return dateFormat.format(new Date(getCreated() * 1000));
+    }
+
+    /**
+     * Returns if the user is a Reddit Gold member or not
+     * @return true if the user is a Reddit Gold member, false if the user is not
+     */
+    public boolean isGold() {
+        return isGold;
+    }
 }

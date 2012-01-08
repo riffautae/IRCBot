@@ -38,73 +38,73 @@ import us.rddt.IRCBot.Enums.LogLevels;
  * @author Ryan Morrison
  */
 public class IRCBot extends ListenerAdapter<PircBotX> {
-	/*
-	 * Class variables
-	 */
-	private static PircBotX bot;
-	
-	/**
-	 * The main entry point of the application
-	 * @param args arguments passed through the command line
-	 */
-	public static void main(String[] args) throws Exception {
-		IRCUtils.Log(LogLevels.INFORMATION, "Initialzing bot (IRCBot version " + Configuration.getApplicationVersion() + ")");
-		try {
-			Configuration.loadConfiguration();
-		} catch(Exception ex) {
-			ex.printStackTrace();
-			IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
-			System.exit(-1);
-		}
-		// Create a new instance of the IRC bot
-		bot = new PircBotX();
-		// Add new listeners for the actions we want the bot to handle
-		bot.getListenerManager().addListener(new IRCBotHandlers());
-		// Set the bot's nick
-		bot.setName(Configuration.getNick());
-		// Set the bot's user
-		bot.setLogin(Configuration.getUser());
-		// Connect to the IRC server
-		connect(bot);
-		// Create the scheduler for watching subreddits
-		Configuration.startScheduler(bot);
-		// Add a shutdown handler to attempt to properly disconnect from the server upon shutdown
-		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
-			public void run() {
-				if(bot.isConnected()) bot.quitServer("Received SIGINT from command line");
-			}
-		}));
-	}
+    /*
+     * Class variables
+     */
+    private static PircBotX bot;
 
-	/**
-	 * Connects to the IRC server
-	 * @param bot the IRC bot
-	 */
-	private static void connect(PircBotX bot) {
-		// Attempt to connect to the server and join the required channel(s)
-		IRCUtils.Log(LogLevels.INFORMATION, "Connecting to " + Configuration.getServer() + " and joining channel(s).");
-		try {
-			bot.connect(Configuration.getServer(), Configuration.getPort(), Configuration.getPassword());
-		} catch (NickAlreadyInUseException ex) {
-			IRCUtils.Log(LogLevels.WARNING, ex.getMessage());
-			bot.setName(bot.getNick() + "_");
-		} catch (Exception ex) {
-			IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
-			bot.disconnect();
-			System.exit(-1);
-		}
-		bot.sendRawLine("MODE " + bot.getNick() + " +B");
-		joinChannels(Configuration.getChannels(), bot);
-	}
+    /**
+     * The main entry point of the application
+     * @param args arguments passed through the command line
+     */
+    public static void main(String[] args) throws Exception {
+        IRCUtils.Log(LogLevels.INFORMATION, "Initialzing bot (IRCBot version " + Configuration.getApplicationVersion() + ")");
+        try {
+            Configuration.loadConfiguration();
+        } catch(Exception ex) {
+            ex.printStackTrace();
+            IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
+            System.exit(-1);
+        }
+        // Create a new instance of the IRC bot
+        bot = new PircBotX();
+        // Add new listeners for the actions we want the bot to handle
+        bot.getListenerManager().addListener(new IRCBotHandlers());
+        // Set the bot's nick
+        bot.setName(Configuration.getNick());
+        // Set the bot's user
+        bot.setLogin(Configuration.getUser());
+        // Connect to the IRC server
+        connect(bot);
+        // Create the scheduler for watching subreddits
+        Configuration.startScheduler(bot);
+        // Add a shutdown handler to attempt to properly disconnect from the server upon shutdown
+        Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+            public void run() {
+                if(bot.isConnected()) bot.quitServer("Received SIGINT from command line");
+            }
+        }));
+    }
 
-	/**
-	 * Joins channels as defined in the bot's configuration
-	 * @param channels the channels to join
-	 * @param bot the IRC bot
-	 */
-	private static void joinChannels(String[] channels, PircBotX bot) {
-		for (int i = 0; i < channels.length; i++) {
-			bot.joinChannel(channels[i]);
-		}
-	}
+    /**
+     * Connects to the IRC server
+     * @param bot the IRC bot
+     */
+    private static void connect(PircBotX bot) {
+        // Attempt to connect to the server and join the required channel(s)
+        IRCUtils.Log(LogLevels.INFORMATION, "Connecting to " + Configuration.getServer() + " and joining channel(s).");
+        try {
+            bot.connect(Configuration.getServer(), Configuration.getPort(), Configuration.getPassword());
+        } catch (NickAlreadyInUseException ex) {
+            IRCUtils.Log(LogLevels.WARNING, ex.getMessage());
+            bot.setName(bot.getNick() + "_");
+        } catch (Exception ex) {
+            IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
+            bot.disconnect();
+            System.exit(-1);
+        }
+        bot.sendRawLine("MODE " + bot.getNick() + " +B");
+        joinChannels(Configuration.getChannels(), bot);
+    }
+
+    /**
+     * Joins channels as defined in the bot's configuration
+     * @param channels the channels to join
+     * @param bot the IRC bot
+     */
+    private static void joinChannels(String[] channels, PircBotX bot) {
+        for (int i = 0; i < channels.length; i++) {
+            bot.joinChannel(channels[i]);
+        }
+    }
 }

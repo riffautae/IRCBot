@@ -44,84 +44,84 @@ import us.rddt.IRCBot.IRCUtils;
  * @author Ryan Morrison
  */
 public class YouTubeLink {
-	/*
-	 * Variables
-	 */
-	private String title;
-	private long duration;
-	
-	/**
-	 * Class constructor
-	 */
-	public YouTubeLink() {
-	}
-	
-	/**
-	 * Gets information about a provided link to a YouTube video
-	 * @param link the link to the user page
-	 * @throws IOException if the download fails
-	 * @throws JSONException if the JSON cannot be parsed
-	 */
-	public void getLink(URL link) throws IOException, JSONException {
-		/*
-		 * Variables
-		 */
-		StringBuilder jsonToParse = new StringBuilder();
-		String buffer;
-		
-		/*
-		 * Opens a connection to the provided URL, and downloads the data into a temporary variable.
-		 */
-		HttpURLConnection conn = (HttpURLConnection)link.openConnection();
-		conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
-		if(conn.getResponseCode() >= 400) {
-			throw new IOException("Server returned response code: " + conn.getResponseCode());
-		}
-		
-		BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		while((buffer = buf.readLine()) != null) {
-			jsonToParse.append(buffer);
-		}
-		
-		/*
-		 * Disconnect from the server.
-		 */
-		conn.disconnect();
-		
-		/*
-		 * Parse the JSON data.
-		 */
-		JSONObject parsedArray = new JSONObject(jsonToParse.toString());
-		if(parsedArray.getJSONObject("data").getInt("totalItems") > 0) {
-			JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
-			this.title = IRCUtils.escapeHTMLEntities(youtubeLink.getString("title"));
-			this.duration = youtubeLink.getLong("duration");
-		} else {
-			throw new NoSuchElementException("YouTube video ID invalid or video is private.");
-		}
-	}
+    /*
+     * Variables
+     */
+    private String title;
+    private long duration;
 
-	/**
-	 * Returns the video's title
-	 * @return the video's title
-	 */
-	public String getTitle() {
-		return title;
-	}
+    /**
+     * Class constructor
+     */
+    public YouTubeLink() {
+    }
 
-	/**
-	 * Returns the video's duration
-	 * @return the video's duration
-	 */
-	public long getDuration() {
-		return duration;
-	}
-	
-	/**
-	 * Returns the video's duration in a readable string format
-	 * @return the video's duration in a readable string format
-	 */
-	public String getReadableDuration() {
-		return IRCUtils.toReadableMinutes(getDuration());
-	}
+    /**
+     * Gets information about a provided link to a YouTube video
+     * @param link the link to the user page
+     * @throws IOException if the download fails
+     * @throws JSONException if the JSON cannot be parsed
+     */
+    public void getLink(URL link) throws IOException, JSONException {
+        /*
+         * Variables
+         */
+        StringBuilder jsonToParse = new StringBuilder();
+        String buffer;
+
+        /*
+         * Opens a connection to the provided URL, and downloads the data into a temporary variable.
+         */
+        HttpURLConnection conn = (HttpURLConnection)link.openConnection();
+        conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
+        if(conn.getResponseCode() >= 400) {
+            throw new IOException("Server returned response code: " + conn.getResponseCode());
+        }
+
+        BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        while((buffer = buf.readLine()) != null) {
+            jsonToParse.append(buffer);
+        }
+
+        /*
+         * Disconnect from the server.
+         */
+        conn.disconnect();
+
+        /*
+         * Parse the JSON data.
+         */
+        JSONObject parsedArray = new JSONObject(jsonToParse.toString());
+        if(parsedArray.getJSONObject("data").getInt("totalItems") > 0) {
+            JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
+            this.title = IRCUtils.escapeHTMLEntities(youtubeLink.getString("title"));
+            this.duration = youtubeLink.getLong("duration");
+        } else {
+            throw new NoSuchElementException("YouTube video ID invalid or video is private.");
+        }
+    }
+
+    /**
+     * Returns the video's title
+     * @return the video's title
+     */
+    public String getTitle() {
+        return title;
+    }
+
+    /**
+     * Returns the video's duration
+     * @return the video's duration
+     */
+    public long getDuration() {
+        return duration;
+    }
+
+    /**
+     * Returns the video's duration in a readable string format
+     * @return the video's duration in a readable string format
+     */
+    public String getReadableDuration() {
+        return IRCUtils.toReadableMinutes(getDuration());
+    }
 }

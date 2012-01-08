@@ -38,103 +38,103 @@ import us.rddt.IRCBot.Enums.LogLevels;
  * @author Ryan Morrison
  */
 public class IRCUtils {
-	/*
-	 * User agent string for HTTP connections, used to workaround HTTP 402 errors on certain hosts
-	 */
-	public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
-	
-	/**
-	 * Returns a properly escaped string value
-	 * @param toEscape the string to escape
-	 * @return the escaped string
-	 */
-	public static String escapeHTMLEntities(String toEscape) {
-		new StringEscapeUtils();
-		return StringEscapeUtils.unescapeHtml4(toEscape);
-	}
-	
-	/**
-	 * Writes a log entry to the console
-	 * @param level the level to display
-	 * @param toLog the text to be logged
-	 */
-	public static void Log(LogLevels level, String toLog) {
-		// Temporary string to construct the log output
-		String output;
-		// Prepend the proper log level to the string
-		switch(level) {
-		case INFORMATION:
-			output = "[INFO] ";
-			break;
-		case WARNING:
-			output = "[WARNING] ";
-			break;
-		case ERROR:
-			output = "[ERROR] ";
-			break;
-		case FATAL:
-			output = "[FATAL] ";
-			break;
-		default:
-			output = "[UNKNOWN] ";
-		}
-		// Add the current date/time and the string to log
-		output += (new Date().toString() + ": " + toLog);
-		// Log to the console
-		System.out.println(output);
-	}
-	
-	/**
-	 * Converts a time format in long form to a human-readable minute value
-	 * @param time the time to be converted
-	 * @return the human-readable minute value
-	 */
-	public static String toReadableMinutes(long time) {
-		if(time > 3600) {
-			return String.format("%d:%02d:%02d", time/3600, (time % 3600)/60, (time % 60));
-		} else {
-			return String.format("%d:%02d", (time % 3600)/60, (time % 60));
-		}
-	}
+    /*
+     * User agent string for HTTP connections, used to workaround HTTP 402 errors on certain hosts
+     */
+    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
 
-	/**
-	 * Converts date formats to human-readable strings
-	 * @param date the date to be converted
-	 * @param countingDown true if we are counting down to a date, false if we are determining history
-	 * @return the human-readable string
-	 */
-	public static String toReadableTime(Date date, boolean countingDown) {
-		// Calculate the difference in seconds between the time the user left and now
-		long diffInSeconds;
-		if(countingDown) diffInSeconds = (date.getTime() - System.currentTimeMillis()) / 1000;
-		else diffInSeconds = (System.currentTimeMillis() - date.getTime()) / 1000;
+    /**
+     * Returns a properly escaped string value
+     * @param toEscape the string to escape
+     * @return the escaped string
+     */
+    public static String escapeHTMLEntities(String toEscape) {
+        new StringEscapeUtils();
+        return StringEscapeUtils.unescapeHtml4(toEscape);
+    }
 
-		// Calculate the appropriate day/hour/minute/seconds ago values and insert them into a long array
-		long diff[] = new long[] { 0, 0, 0, 0 };
-		diff[3] = (diffInSeconds >= 60 ? diffInSeconds % 60 : diffInSeconds);
-		diff[2] = (diffInSeconds = (diffInSeconds / 60)) >= 60 ? diffInSeconds % 60 : diffInSeconds;
-		diff[1] = (diffInSeconds = (diffInSeconds / 60)) >= 24 ? diffInSeconds % 24 : diffInSeconds;
-		diff[0] = (diffInSeconds = (diffInSeconds / 24));
+    /**
+     * Writes a log entry to the console
+     * @param level the level to display
+     * @param toLog the text to be logged
+     */
+    public static void Log(LogLevels level, String toLog) {
+        // Temporary string to construct the log output
+        String output;
+        // Prepend the proper log level to the string
+        switch(level) {
+        case INFORMATION:
+            output = "[INFO] ";
+            break;
+        case WARNING:
+            output = "[WARNING] ";
+            break;
+        case ERROR:
+            output = "[ERROR] ";
+            break;
+        case FATAL:
+            output = "[FATAL] ";
+            break;
+        default:
+            output = "[UNKNOWN] ";
+        }
+        // Add the current date/time and the string to log
+        output += (new Date().toString() + ": " + toLog);
+        // Log to the console
+        System.out.println(output);
+    }
 
-		// Build the readable format string
-		if(diff[0] != 0) return String.format("%d day%s", diff[0], diff[0] > 1 ? "s" : "");
-		if(diff[1] != 0) return String.format("%s%s hour%s", diff[1] > 1 ? "" : "an", diff[1] > 1 ? String.valueOf(diff[1]) : "", diff[1] > 1 ? "s" : "");
-		if(diff[2] != 0) return String.format("%d minute%s", diff[2], diff[2] > 1 ? "s" : "");
-		if(diff[3] != 0) return "a moment";
-		else return "unknown";
-	}
-	
-	/**
-	 * Trims strings greater than a provided length
-	 * @param toTrim the string to be trimmed, if necessary
-	 * @param maxLength the maximum length the string can be
-	 * @return the trimmed string
-	 */
-	public static String trimString(String toTrim, int maxLength) {
-		if(toTrim.length() > maxLength) {
-			return toTrim.substring(0, maxLength) + "...";
-		} else {
-			return toTrim;
-		}
-	}
+    /**
+     * Converts a time format in long form to a human-readable minute value
+     * @param time the time to be converted
+     * @return the human-readable minute value
+     */
+    public static String toReadableMinutes(long time) {
+        if(time > 3600) {
+            return String.format("%d:%02d:%02d", time/3600, (time % 3600)/60, (time % 60));
+        } else {
+            return String.format("%d:%02d", (time % 3600)/60, (time % 60));
+        }
+    }
+
+    /**
+     * Converts date formats to human-readable strings
+     * @param date the date to be converted
+     * @param countingDown true if we are counting down to a date, false if we are determining history
+     * @return the human-readable string
+     */
+    public static String toReadableTime(Date date, boolean countingDown) {
+        // Calculate the difference in seconds between the time the user left and now
+        long diffInSeconds;
+        if(countingDown) diffInSeconds = (date.getTime() - System.currentTimeMillis()) / 1000;
+        else diffInSeconds = (System.currentTimeMillis() - date.getTime()) / 1000;
+
+        // Calculate the appropriate day/hour/minute/seconds ago values and insert them into a long array
+        long diff[] = new long[] { 0, 0, 0, 0 };
+        diff[3] = (diffInSeconds >= 60 ? diffInSeconds % 60 : diffInSeconds);
+        diff[2] = (diffInSeconds = (diffInSeconds / 60)) >= 60 ? diffInSeconds % 60 : diffInSeconds;
+        diff[1] = (diffInSeconds = (diffInSeconds / 60)) >= 24 ? diffInSeconds % 24 : diffInSeconds;
+        diff[0] = (diffInSeconds = (diffInSeconds / 24));
+
+        // Build the readable format string
+        if(diff[0] != 0) return String.format("%d day%s", diff[0], diff[0] > 1 ? "s" : "");
+        if(diff[1] != 0) return String.format("%s%s hour%s", diff[1] > 1 ? "" : "an", diff[1] > 1 ? String.valueOf(diff[1]) : "", diff[1] > 1 ? "s" : "");
+        if(diff[2] != 0) return String.format("%d minute%s", diff[2], diff[2] > 1 ? "s" : "");
+        if(diff[3] != 0) return "a moment";
+        else return "unknown";
+    }
+
+    /**
+     * Trims strings greater than a provided length
+     * @param toTrim the string to be trimmed, if necessary
+     * @param maxLength the maximum length the string can be
+     * @return the trimmed string
+     */
+    public static String trimString(String toTrim, int maxLength) {
+        if(toTrim.length() > maxLength) {
+            return toTrim.substring(0, maxLength) + "...";
+        } else {
+            return toTrim;
+        }
+    }
 }

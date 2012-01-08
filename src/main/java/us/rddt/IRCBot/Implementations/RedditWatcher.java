@@ -51,109 +51,109 @@ import us.rddt.IRCBot.IRCUtils;
  * @author Ryan Morrison
  */
 public class RedditWatcher implements Runnable {
-	/*
-	 * Class variables
-	 */
-	private static volatile Map<String,String> currentLinks = Collections.synchronizedMap(new HashMap<String,String>());
-	private PircBotX bot;
-	private String subreddit;
+    /*
+     * Class variables
+     */
+    private static volatile Map<String,String> currentLinks = Collections.synchronizedMap(new HashMap<String,String>());
+    private PircBotX bot;
+    private String subreddit;
 
-	/**
-	 * Method that executes upon thread start
-	 * (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
-	public void run() {
-		try {
-			update(subreddit);
-		} catch (Exception ex) {
-			ex.printStackTrace();
-		}
-	}
+    /**
+     * Method that executes upon thread start
+     * (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
+    public void run() {
+        try {
+            update(subreddit);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
-	/**
-	 * Class constructor
-	 * @param bot the IRC bot to use
-	 * @param subreddit the subreddit to monitor
-	 */
-	public RedditWatcher(PircBotX bot, String subreddit) {
-		this.bot = bot;
-		this.subreddit = subreddit;
-	}
+    /**
+     * Class constructor
+     * @param bot the IRC bot to use
+     * @param subreddit the subreddit to monitor
+     */
+    public RedditWatcher(PircBotX bot, String subreddit) {
+        this.bot = bot;
+        this.subreddit = subreddit;
+    }
 
-	/**
-	 * Checks to see and updates accordingly if there is a new submission in a subreddit
-	 * @param subreddit the subreddit to monitor
-	 * @throws MalformedURLException if the subreddit URL cannot be formed
-	 * @throws IOException if the download fails
-	 * @throws JSONExceptions if the JSON cannot be parsed
-	 */
-	private void update(String subreddit) throws MalformedURLException, IOException, JSONException {
-		/*
-		 * Variables.
-		 */
-		StringBuilder jsonToParse = new StringBuilder();
-		String buffer;
-		URL link = new URL("http://www.reddit.com/r/" + subreddit + "/new/.json?sort=new");
+    /**
+     * Checks to see and updates accordingly if there is a new submission in a subreddit
+     * @param subreddit the subreddit to monitor
+     * @throws MalformedURLException if the subreddit URL cannot be formed
+     * @throws IOException if the download fails
+     * @throws JSONExceptions if the JSON cannot be parsed
+     */
+    private void update(String subreddit) throws MalformedURLException, IOException, JSONException {
+        /*
+         * Variables.
+         */
+        StringBuilder jsonToParse = new StringBuilder();
+        String buffer;
+        URL link = new URL("http://www.reddit.com/r/" + subreddit + "/new/.json?sort=new");
 
-		/*
-		 * Opens a connection to the provided URL, and downloads the data into a temporary variable.
-		 */
-		HttpURLConnection conn = (HttpURLConnection)link.openConnection();
-		conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
-		if(conn.getResponseCode() >= 400) {
-			throw new IOException("Server returned response code: " + conn.getResponseCode());
-		}
+        /*
+         * Opens a connection to the provided URL, and downloads the data into a temporary variable.
+         */
+        HttpURLConnection conn = (HttpURLConnection)link.openConnection();
+        conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
+        if(conn.getResponseCode() >= 400) {
+            throw new IOException("Server returned response code: " + conn.getResponseCode());
+        }
 
-		BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-		while((buffer = buf.readLine()) != null) {
-			jsonToParse.append(buffer);
-		}
+        BufferedReader buf = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        while((buffer = buf.readLine()) != null) {
+            jsonToParse.append(buffer);
+        }
 
-		/*
-		 * Disconnect from the server.
-		 */
-		conn.disconnect();
-		/*
-		 * Parse the first submission from the subreddit's new queue.
-		 * If there is no saved submission, save it but don't display it as that's our benchmark for determining
-		 * if a submission is truly new.
-		 * If there are no submissions at all, simply return.
-		 */
-		JSONObject parsedArray = new JSONObject(jsonToParse.toString());
-		if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
-			RedditLink newLink = new RedditLink(parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("id"),
-					IRCUtils.escapeHTMLEntities(parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("title")),
-					parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("author"),
-					parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("subreddit"),
-					parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getLong("created_utc"),
-					parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getInt("score"),
-					parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getBoolean("over_18"));
-			if(currentLinks.get(newLink.getSubreddit()) == null) {
-				currentLinks.put(newLink.getSubreddit(), newLink.getId());
-			}
-			else if(!currentLinks.get(newLink.getSubreddit()).equals(newLink.getId())) {
-				currentLinks.put(newLink.getSubreddit(), newLink.getId());
-				updateChannels(newLink);
-			}
-			return;
-		} else {
-			return;
-		}
-	}
+        /*
+         * Disconnect from the server.
+         */
+        conn.disconnect();
+        /*
+         * Parse the first submission from the subreddit's new queue.
+         * If there is no saved submission, save it but don't display it as that's our benchmark for determining
+         * if a submission is truly new.
+         * If there are no submissions at all, simply return.
+         */
+        JSONObject parsedArray = new JSONObject(jsonToParse.toString());
+        if(parsedArray.getJSONObject("data").getJSONArray("children").length() > 0) {
+            RedditLink newLink = new RedditLink(parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("id"),
+                    IRCUtils.escapeHTMLEntities(parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("title")),
+                    parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("author"),
+                    parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("subreddit"),
+                    parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getLong("created_utc"),
+                    parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getInt("score"),
+                    parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getBoolean("over_18"));
+            if(currentLinks.get(newLink.getSubreddit()) == null) {
+                currentLinks.put(newLink.getSubreddit(), newLink.getId());
+            }
+            else if(!currentLinks.get(newLink.getSubreddit()).equals(newLink.getId())) {
+                currentLinks.put(newLink.getSubreddit(), newLink.getId());
+                updateChannels(newLink);
+            }
+            return;
+        } else {
+            return;
+        }
+    }
 
-	/**
-	 * Updates all the channels the bot is connected to with the new submission
-	 * @param redditLink the reddit submission to update
-	 */
-	private void updateChannels(RedditLink redditLink) {
-		Iterator<Channel> itr = bot.getChannels().iterator();
-		while(itr.hasNext()) {
-			if(redditLink.isOver18()) {
-				bot.sendMessage(itr.next(), "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ") " + Colors.BOLD + Colors.RED + "[NSFW]");
-			} else {
-				bot.sendMessage(itr.next(), "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ")");
-			}
-		}
-	}
+    /**
+     * Updates all the channels the bot is connected to with the new submission
+     * @param redditLink the reddit submission to update
+     */
+    private void updateChannels(RedditLink redditLink) {
+        Iterator<Channel> itr = bot.getChannels().iterator();
+        while(itr.hasNext()) {
+            if(redditLink.isOver18()) {
+                bot.sendMessage(itr.next(), "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ") " + Colors.BOLD + Colors.RED + "[NSFW]");
+            } else {
+                bot.sendMessage(itr.next(), "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ")");
+            }
+        }
+    }
 }

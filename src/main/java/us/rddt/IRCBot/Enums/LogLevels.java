@@ -29,8 +29,8 @@
 package us.rddt.IRCBot.Enums;
 
 public enum LogLevels {
-	INFORMATION,
-	WARNING,
-	ERROR,
-	FATAL
+    INFORMATION,
+    WARNING,
+    ERROR,
+    FATAL
 }

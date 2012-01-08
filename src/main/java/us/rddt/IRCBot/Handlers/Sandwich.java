@@ -35,27 +35,27 @@ import org.pircbotx.hooks.events.MessageEvent;
  * @author Ryan Morrison
  */
 public class Sandwich implements Runnable {
-	private MessageEvent<PircBotX> event;
-	
-	/*
-	 * Class constructor.
-	 */
-	public Sandwich(MessageEvent<PircBotX> event) {
-		this.event = event;
-	}
-	
-	/**
-	 * Method that executes upon thread start
-	 * (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
-	public void run() {
-		if(event.getMessage().length() < 10) {
-			event.getBot().sendAction(event.getChannel(), "gives " + event.getUser().getNick() + " some bread on a plate. Enjoy your \"sandwich\".");
-		} else if(event.getMessage().substring(10).equals("")) {
-			event.getBot().sendAction(event.getChannel(), "gives " + event.getUser().getNick() + " some bread on a plate. Enjoy your \"sandwich\".");
-		} else {
-			event.getBot().sendAction(event.getChannel(), "gives " + event.getUser().getNick() + " a sandwich with " + event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "") + ". Mmm! Sounds good!");
-		}
-	}
+    private MessageEvent<PircBotX> event;
+
+    /*
+     * Class constructor.
+     */
+    public Sandwich(MessageEvent<PircBotX> event) {
+        this.event = event;
+    }
+
+    /**
+     * Method that executes upon thread start
+     * (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
+    public void run() {
+        if(event.getMessage().length() < 10) {
+            event.getBot().sendAction(event.getChannel(), "gives " + event.getUser().getNick() + " some bread on a plate. Enjoy your \"sandwich\".");
+        } else if(event.getMessage().substring(10).equals("")) {
+            event.getBot().sendAction(event.getChannel(), "gives " + event.getUser().getNick() + " some bread on a plate. Enjoy your \"sandwich\".");
+        } else {
+            event.getBot().sendAction(event.getChannel(), "gives " + event.getUser().getNick() + " a sandwich with " + event.getMessage().substring(10).replaceAll("^\\s+", "").replaceAll("\\s+$", "") + ". Mmm! Sounds good!");
+        }
+    }
 }
