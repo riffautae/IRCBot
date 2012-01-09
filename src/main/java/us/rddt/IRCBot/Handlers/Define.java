@@ -55,6 +55,21 @@ public class Define implements Runnable {
     }
     
     /**
+     * Formats a lookup into a string that can be inserted into a URL
+     * @param phrase the phrase(s) to lookup in array form
+     * @return the properly formatted string
+     * @throws ArrayIndexOutOfBoundsException if the user did not define a phrase to look up
+     */
+    private String formatLookup(String[] phrase) throws ArrayIndexOutOfBoundsException {
+        String temp = "";
+        for(int i = 1; i < phrase.length; i++) {
+            if(i == (phrase.length - 1)) temp += phrase[i];
+            else temp += phrase[i] + "%20";
+        }
+        return temp;
+    }
+    
+    /**
      * Method that executes upon thread-start
      * (non-Javadoc)
      * @see java.lang.Runnable#run()
@@ -67,16 +82,16 @@ public class Define implements Runnable {
         String toDefine = null;
         
         /*
-         * Attempts to extract the word to define from the user's message
+         * Attempts to extract the phrase to define from the user's message
          */
         try {
-            toDefine = event.getMessage().split(" ")[1];
+            toDefine = formatLookup(event.getMessage().split(" "));
         } catch (ArrayIndexOutOfBoundsException ex) {
             return;
         }
         
         /*
-         * Attempts to define the word via UrbanDictionary. If an exception occurs,
+         * Attempts to define the phrase via UrbanDictionary. If an exception occurs,
          * return a proper error message.
          */
         try {
