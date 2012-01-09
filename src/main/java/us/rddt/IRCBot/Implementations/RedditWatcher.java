@@ -128,7 +128,8 @@ public class RedditWatcher implements Runnable {
                     parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("subreddit"),
                     parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getLong("created_utc"),
                     parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getInt("score"),
-                    parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getBoolean("over_18"));
+                    parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getBoolean("over_18"),
+                    parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data").getString("author").toUpperCase().contains("NSFL"));
             if(currentLinks.get(newLink.getSubreddit()) == null) {
                 currentLinks.put(newLink.getSubreddit(), newLink.getId());
             }
