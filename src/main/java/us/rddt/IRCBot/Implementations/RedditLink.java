@@ -57,6 +57,7 @@ public class RedditLink {
     private long created_utc;
     private int score;
     private boolean over_18;
+    private boolean is_nsfl;
 
     /**
      * Class constructor
@@ -129,6 +130,7 @@ public class RedditLink {
         this.created_utc = redditLink.getLong("created_utc");
         this.score = redditLink.getInt("score");
         this.over_18 = redditLink.getBoolean("over_18");
+        this.is_nsfl = this.title.toUpperCase().contains("NSFL");
     }
 
     /**
@@ -277,6 +279,14 @@ public class RedditLink {
      */
     public boolean isOver18() {
         return over_18;
+    }
+    
+    /**
+     * Returns if the submission contains NSFL in the title
+     * @return true if the submission contains NSFL in the title
+     */
+    public boolean isNSFL() {
+        return is_nsfl;
     }
 
     /**

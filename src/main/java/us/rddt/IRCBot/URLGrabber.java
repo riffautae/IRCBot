@@ -320,6 +320,9 @@ public class URLGrabber implements Runnable {
                 if(link.isOver18()) {
                     formattedString += (" " + Colors.BOLD + Colors.RED + "[NSFW]");
                 }
+                if(link.isNSFL()) {
+                    formattedString += (" " + Colors.BOLD + Colors.RED + "[NSFL]");
+                }
                 event.getBot().sendMessage(event.getChannel(), formattedString);
                 return;
             }
