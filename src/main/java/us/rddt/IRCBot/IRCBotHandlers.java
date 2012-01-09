@@ -45,6 +45,7 @@ import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
 import us.rddt.IRCBot.Enums.UserModes;
+import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
 import us.rddt.IRCBot.Handlers.Sandwich;
 import us.rddt.IRCBot.Handlers.Seen;
@@ -79,6 +80,9 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(event.getMessage().startsWith("!sandwich")) {
             new Thread(new Sandwich(event)).start();
             return true;
+        }
+        if(event.getMessage().startsWith("!define")) {
+            new Thread(new Define(event)).start();
         }
         if(event.getMessage().equals("!leave")) {
             if(isUserAdmin(event.getUser())) {
