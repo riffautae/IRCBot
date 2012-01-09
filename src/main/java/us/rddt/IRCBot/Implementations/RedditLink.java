@@ -130,7 +130,7 @@ public class RedditLink {
                 redditLink.getLong("created_utc"),
                 redditLink.getInt("score"),
                 redditLink.getBoolean("over_18"),
-                redditLink.getString("author").toUpperCase().contains("NSFL"));
+                redditLink.getString("title").toUpperCase().contains("NSFL"));
     }
 
     /**
@@ -183,7 +183,7 @@ public class RedditLink {
                         parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getLong("created_utc"),
                         parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getInt("score"),
                         parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getBoolean("over_18"),
-                        parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getString("author").toUpperCase().contains("NSFL")));
+                        parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getString("title").toUpperCase().contains("NSFL")));
             }
             return weighSubmissions(submissions);
         } else {
