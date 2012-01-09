@@ -59,14 +59,31 @@ public class RedditUser {
      */
     public RedditUser() {
     }
+    
+    /**
+     * Class constructor
+     * @param name the user's name
+     * @param link_karma the user's link karma
+     * @param comment_karma the user's comment karma
+     * @param created the date of the user's creation
+     * @param isGold true if the user is a reddit gold member, false if they are not
+     */
+    public RedditUser(String name, int link_karma, int comment_karma, long created, boolean isGold) {
+        this.name = name;
+        this.link_karma = link_karma;
+        this.comment_karma = comment_karma;
+        this.created = created;
+        this.isGold = isGold;
+    }
 
     /**
      * Gets information about a provided link to a Reddit user page.
      * @param link the link to the user page
+     * @return a new instance of the class with the user's details
      * @throws IOException if the download fails
      * @throws JSONException if the JSON cannot be parsed
      */
-    public void getUser(URL link) throws IOException, JSONException {
+    public static RedditUser getUser(URL link) throws IOException, JSONException {
         /*
          * Variables
          */
@@ -96,11 +113,11 @@ public class RedditUser {
          * Parse the JSON data.
          */
         JSONObject redditUser = new JSONObject(jsonToParse.toString()).getJSONObject("data");
-        this.name = redditUser.getString("name");
-        this.link_karma = redditUser.getInt("link_karma");
-        this.comment_karma = redditUser.getInt("comment_karma");
-        this.created = redditUser.getLong("created");
-        this.isGold = redditUser.getBoolean("is_gold");
+        return new RedditUser(redditUser.getString("name"),
+                redditUser.getInt("link_karma"),
+                redditUser.getInt("comment_karma"),
+                redditUser.getLong("created"),
+                redditUser.getBoolean("is_gold"));
     }
 
     /**

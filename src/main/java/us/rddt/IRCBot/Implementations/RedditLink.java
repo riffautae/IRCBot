@@ -75,7 +75,7 @@ public class RedditLink {
      * @param score the reddit submission's current score
      * @param over_18 is the reddit submission marked as NSFW
      */
-    public RedditLink(String id, String title, String author, String subreddit, long created_utc, int score, boolean over_18) {
+    public RedditLink(String id, String title, String author, String subreddit, long created_utc, int score, boolean over_18, boolean is_nsfl) {
         this.id = id;
         this.title = title;
         this.author = author;
@@ -83,6 +83,7 @@ public class RedditLink {
         this.created_utc = created_utc;
         this.score = score;
         this.over_18 = over_18;
+        this.is_nsfl = is_nsfl;
     }
 
     /**
@@ -91,7 +92,7 @@ public class RedditLink {
      * @throws IOException if the download fails
      * @throws JSONException if the JSON cannot be parsed
      */
-    public void getLink(URL link) throws IOException, JSONException {
+    public static RedditLink getLink(URL link) throws IOException, JSONException {
         /*
          * Variables.
          */
@@ -122,15 +123,14 @@ public class RedditLink {
          */
         JSONArray parsedArray = new JSONArray(jsonToParse.toString());
         JSONObject redditLink = parsedArray.getJSONObject(0).getJSONObject("data").getJSONArray("children").getJSONObject(0).getJSONObject("data");
-
-        this.id = redditLink.getString("id");
-        this.title = IRCUtils.escapeHTMLEntities(redditLink.getString("title"));
-        this.author = redditLink.getString("author");
-        this.subreddit = redditLink.getString("subreddit");
-        this.created_utc = redditLink.getLong("created_utc");
-        this.score = redditLink.getInt("score");
-        this.over_18 = redditLink.getBoolean("over_18");
-        this.is_nsfl = this.title.toUpperCase().contains("NSFL");
+        return new RedditLink(redditLink.getString("id"),
+                IRCUtils.escapeHTMLEntities(redditLink.getString("title")),
+                redditLink.getString("author"),
+                redditLink.getString("subreddit"),
+                redditLink.getLong("created_utc"),
+                redditLink.getInt("score"),
+                redditLink.getBoolean("over_18"),
+                redditLink.getString("author").toUpperCase().contains("NSFL"));
     }
 
     /**
@@ -182,7 +182,8 @@ public class RedditLink {
                         parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getString("subreddit"),
                         parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getLong("created_utc"),
                         parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getInt("score"),
-                        parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getBoolean("over_18")));
+                        parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getBoolean("over_18"),
+                        parsedArray.getJSONObject("data").getJSONArray("children").getJSONObject(i).getJSONObject("data").getString("author").toUpperCase().contains("NSFL")));
             }
             return weighSubmissions(submissions);
         } else {

@@ -303,8 +303,7 @@ public class URLGrabber implements Runnable {
         try {
             if(isUser) {
                 appendURL = new URL(redditURL.toString() + "/about.json");
-                RedditUser user = new RedditUser();
-                user.getUser(appendURL);
+                RedditUser user = RedditUser.getUser(appendURL);
                 String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.BOLD + user.getName() + Colors.NORMAL + ": " + user.getLinkKarma() + " link karma, " + user.getCommentKarma() + " comment karma, user since " + user.getReadableCreated();
                 if(user.isGold()) {
                     formattedString += " [reddit gold]";
@@ -314,8 +313,7 @@ public class URLGrabber implements Runnable {
             }
             else {
                 appendURL = new URL(redditURL.toString() + "/.json");
-                RedditLink link = new RedditLink();
-                link.getLink(appendURL);
+                RedditLink link = RedditLink.getLink(appendURL);
                 String formattedString = "[Reddit by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (submitted by " + link.getAuthor() + " to r/" + link.getSubreddit() + " about " +  link.getCreatedReadableUTC() + " ago, " + link.getScore() + " points)";
                 if(link.isOver18()) {
                     formattedString += (" " + Colors.BOLD + Colors.RED + "[NSFW]");
@@ -365,8 +363,7 @@ public class URLGrabber implements Runnable {
         // Construct the URL to read the JSON data from
         try {
             appendURL = new URL("http://gdata.youtube.com/feeds/api/videos?q=" + url.toString().split("=")[1] + "&v=2&alt=jsonc");
-            YouTubeLink link = new YouTubeLink();
-            link.getLink(appendURL);
+            YouTubeLink link = YouTubeLink.getLink(appendURL);
             event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (" + link.getReadableDuration() + ")");
             return;
         } catch (MalformedURLException ex) {

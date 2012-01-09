@@ -55,14 +55,25 @@ public class YouTubeLink {
      */
     public YouTubeLink() {
     }
+    
+    /**
+     * Class constructor
+     * @param title the video's title
+     * @param duration the video's duration
+     */
+    public YouTubeLink(String title, long duration) {
+        this.title = title;
+        this.duration = duration;
+    }
 
     /**
      * Gets information about a provided link to a YouTube video
+     * @return a new instance of the class with the video's details
      * @param link the link to the user page
      * @throws IOException if the download fails
      * @throws JSONException if the JSON cannot be parsed
      */
-    public void getLink(URL link) throws IOException, JSONException {
+    public static YouTubeLink getLink(URL link) throws IOException, JSONException {
         /*
          * Variables
          */
@@ -94,8 +105,7 @@ public class YouTubeLink {
         JSONObject parsedArray = new JSONObject(jsonToParse.toString());
         if(parsedArray.getJSONObject("data").getInt("totalItems") > 0) {
             JSONObject youtubeLink = parsedArray.getJSONObject("data").getJSONArray("items").getJSONObject(0);
-            this.title = IRCUtils.escapeHTMLEntities(youtubeLink.getString("title"));
-            this.duration = youtubeLink.getLong("duration");
+            return new YouTubeLink(IRCUtils.escapeHTMLEntities(youtubeLink.getString("title")), youtubeLink.getLong("duration"));
         } else {
             throw new NoSuchElementException("YouTube video ID invalid or video is private.");
         }

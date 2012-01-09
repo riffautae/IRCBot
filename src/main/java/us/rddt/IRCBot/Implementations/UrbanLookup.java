@@ -73,7 +73,7 @@ public class UrbanLookup {
     }
     
     /**
-     * Returns an instance of the class with a definition of the provided word
+     * Gets the definition of a provided word
      * @param toDefine the word to define
      * @return a new instance of the class with the definition
      * @throws IOException if the download fails
