@@ -32,7 +32,10 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -55,6 +58,8 @@ public class Configuration {
     private static int port;
     private static String password;
     private static String[] channels;
+    
+    private static List<String> disabled_functions;
 
     private static String[] watchSubreddits;
 
@@ -86,6 +91,7 @@ public class Configuration {
         port = Integer.parseInt(config.getProperty("port"));
         password = config.getProperty("password");
         channels = config.getProperty("channels").split(",");
+        disabled_functions = new ArrayList<String>(Arrays.asList(config.getProperty("disabled_plugins").split(",")));
         watchSubreddits = config.getProperty("watch_subreddits").split(",");
         admin_nick = config.getProperty("admin_nick");
         admin_hostmask = config.getProperty("admin_hostmask");
@@ -187,7 +193,15 @@ public class Configuration {
     public static String[] getChannels() {
         return channels;
     }
-
+    
+    /**
+     * Returns the list of functions to disable
+     * @return the list of functions to disable
+     */
+    public static List<String> getDisabledFunctions() {
+        return disabled_functions;
+    }
+    
     /**
      * Returns the subreddits to watch
      * @return the subreddits to watch

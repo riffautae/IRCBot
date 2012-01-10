@@ -44,6 +44,7 @@ import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
+import us.rddt.IRCBot.Enums.LogLevels;
 import us.rddt.IRCBot.Enums.UserModes;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
@@ -66,23 +67,34 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
          * Most commands below spawn threads to prevent blocking.
          */
         if(event.getMessage().startsWith("!who ")) {
-            new Thread(new Shouts(event)).start();
-            return true;
+            if(!Configuration.getDisabledFunctions().contains("shout")) {
+                new Thread(new Shouts(event)).start();
+                return true;
+            }
         }
         if(event.getMessage().startsWith("!decide ")) {
-            new Thread(new Fortune(event)).start();
-            return true;
+            if(!Configuration.getDisabledFunctions().contains("fortune")) {
+                new Thread(new Fortune(event)).start();
+                return true;
+            }
         }
         if(event.getMessage().startsWith("!seen ")) {
-            new Thread(new Seen(event)).start();
-            return true;
+            if(!Configuration.getDisabledFunctions().contains("seen")) {
+                new Thread(new Seen(event)).start();
+                return true;
+            }
         }
         if(event.getMessage().startsWith("!sandwich")) {
-            new Thread(new Sandwich(event)).start();
-            return true;
+            if(!Configuration.getDisabledFunctions().contains("sandwich")) {
+                new Thread(new Sandwich(event)).start();
+                return true;
+            }
         }
-        if(event.getMessage().startsWith("!define")) {
-            new Thread(new Define(event)).start();
+        if(event.getMessage().startsWith("!ud")) {
+            if(!Configuration.getDisabledFunctions().contains("dictionary")) {
+                new Thread(new Define(event)).start();
+                return true;
+            }
         }
         if(event.getMessage().equals("!leave")) {
             if(isUserAdmin(event.getUser())) {
@@ -92,20 +104,25 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         }
         if(event.getMessage().equals("!disconnect")) {
             if(isUserAdmin(event.getUser())) {
+                IRCUtils.Log(LogLevels.INFORMATION, "Disconnecting due to administrator request");
                 event.getBot().quitServer("Disconnecting due to administrator request");
                 System.exit(0);
             }
         }
         if(event.getMessage().equals("!reload")) {
             if(isUserAdmin(event.getUser())) {
+                IRCUtils.Log(LogLevels.INFORMATION, "Reloading configuration due to administrator request...");
                 sendGlobalMessage(event.getBot(), "Reloading configuration...");
                 try {
                     Configuration.loadConfiguration();
                     Configuration.startScheduler(event.getBot());
                 } catch (Exception ex) {
+                    IRCUtils.Log(LogLevels.INFORMATION, "Failed to reload configuration!");
+                    ex.printStackTrace();
                     sendGlobalMessage(event.getBot(), "Failed to reload configuration: " + ex.getMessage());
                     return true;
                 }
+                IRCUtils.Log(LogLevels.INFORMATION, "Reload complete");
                 sendGlobalMessage(event.getBot(), "Successfully reloaded configuration.");
                 return true;
             }
@@ -220,14 +237,18 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             new Thread(new Shouts(event, true)).start();
             return;
         }
-        if(checkForCommands(event)) return;
-        // Use a regex pattern to match URLs out of user messages
-        int urlCount = 0;
-        Pattern urlPattern = Pattern.compile("\\bhttps?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
-        Matcher urlMatcher = urlPattern.matcher(event.getMessage());
-        while(urlMatcher.find()) {
-            if(++urlCount > 2) break;
-            new Thread(new URLGrabber(event, new URL(urlMatcher.group()))).start();
+        if(event.getMessage().charAt(0) == '!') {
+            if(checkForCommands(event)) return;
+        }
+        if(!Configuration.getDisabledFunctions().contains("url")) {
+            // Use a regex pattern to match URLs out of user messages
+            int urlCount = 0;
+            Pattern urlPattern = Pattern.compile("\\bhttps?://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+            Matcher urlMatcher = urlPattern.matcher(event.getMessage());
+            while(urlMatcher.find()) {
+                if(++urlCount > 2) break;
+                new Thread(new URLGrabber(event, new URL(urlMatcher.group()))).start();
+            }
         }
     }
 
@@ -238,7 +259,9 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @param event the PartEvent to parse
      */
     public void onPart(PartEvent<PircBotX> event) {
-        new Thread(new Seen(event)).start();
+        if(!Configuration.getDisabledFunctions().contains("seen")) {
+            new Thread(new Seen(event)).start();
+        }
     }
 
     /**
@@ -259,7 +282,9 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @param event the QuitEvent to parse
      */
     public void onQuit(QuitEvent<PircBotX> event) {
-        new Thread(new Seen(event)).start();
+        if(!Configuration.getDisabledFunctions().contains("seen")) {
+            new Thread(new Seen(event)).start();
+        }
     }
 
     /**
