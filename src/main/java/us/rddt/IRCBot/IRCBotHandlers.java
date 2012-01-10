@@ -91,7 +91,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             }
         }
         if(event.getMessage().startsWith("!ud")) {
-            if(!Configuration.getDisabledFunctions().contains("dictionary")) {
+            if(!Configuration.getDisabledFunctions().contains("urbandictionary")) {
                 new Thread(new Define(event)).start();
                 return true;
             }
