@@ -111,7 +111,7 @@ public class Configuration {
      * @param bot the IRC bot
      */
     public static void startScheduler(PircBotX bot) {
-        if(watchSubreddits.length > 0 && !watchSubreddits[0].equals("")) {
+        if(watchSubreddits.length > 0 && !watchSubreddits[0].equals("") && !disabled_functions.contains("watcher")) {
             if(scheduler != null) {
                 IRCUtils.Log(LogLevels.INFORMATION, "Shutting down existing subreddit updates");
                 scheduler.shutdownNow();
