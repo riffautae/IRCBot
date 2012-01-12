@@ -102,26 +102,25 @@ public class Shouts implements Runnable {
     private static volatile Map<String,Shout> shoutMap = Collections.synchronizedMap(new HashMap<String,Shout>());
     private Database database;
     private MessageEvent<PircBotX> event = null;
-    private boolean isRandomShout = false;
+    private ShoutEvents eventType;
     private int quoteNumber;
     private String randomQuote = null;
+    
+    public enum ShoutEvents {
+        RANDOM_SHOUT,
+        LOOKUP_COMMAND,
+        LAST_COMMAND,
+        LIST_COMMAND,
+        TOP10_COMMAND
+    }
 
     /**
      * Class constructor
      * @param event the MessageEvent that triggered this class
      */
-    public Shouts(MessageEvent<PircBotX> event) {
+    public Shouts(MessageEvent<PircBotX> event, ShoutEvents eventType) {
         this.event = event;
-    }
-
-    /**
-     * Overloadable class constructor
-     * @param event the MessageEvent that triggered this class
-     * @param isRandomShout true if the user requested a random shout, false if the user is looking up a quote
-     */
-    public Shouts(MessageEvent<PircBotX> event, boolean isRandomShout) {
-        this.event = event;
-        this.isRandomShout = isRandomShout;
+        this.eventType = eventType;
     }
 
     /**
@@ -160,8 +159,25 @@ public class Shouts implements Runnable {
      * Returns the appropriate shout class for the current channel
      * @return the appropriate shout class
      */
-    private Shout getLastShout() {
+    private Shout getShoutMap() {
         return shoutMap.get(event.getChannel().getName());
+    }
+    
+    /**
+     * Returns the last shout if possible
+     * @return the last shout (if possible)
+     */
+    private String getLastShout() {
+        // On startup there is no previous quote, so return as such if a user attempts a !who last
+        if(getShoutMap() == null) return "No previous quote.";
+        // Tease the user if it's their own quote
+        if(getShoutMap().getSubmitter().equals(event.getUser().getNick())) return Colors.BOLD + "YOU" + Colors.NORMAL + " taught me that! (Don't you remember? Put down the bong!) about " + getShoutMap().getReadableDate() + " ago.";
+        // Provide context if the !who last command was used, but trim it if the quote is longer than 10 characters (use 60% of the quote instead)
+        if(getShoutMap().getQuote().length() < 11) {
+            return getShoutMap().getSubmitter() + " shouted \"" + getShoutMap().getQuote() + "\" about " + getShoutMap().getReadableDate() + " ago.";
+        } else {
+            return getShoutMap().getSubmitter() + " shouted \"" + getShoutMap().getQuote().substring(0, (int)(getShoutMap().getQuote().length() * 0.6)) + "...\" " + getShoutMap().getReadableDate() + ".";
+        }
     }
 
     /**
@@ -171,36 +187,6 @@ public class Shouts implements Runnable {
      * @throws SQLException if the SQL query does not execute correctly
      */
     private String getQuoteInfo(String quote) throws SQLException {
-        // Variable to track whether the user requested the last quote from the bot
-        // If the user wants the last quote, prevent hitting the database twice and simply retrieve details from memory
-        if(quote.equals("last")) {
-            // On startup there is no previous quote, so return as such if a user attempts a !who last
-            if(getLastShout() == null) return "No previous quote.";
-            // Tease the user if it's their own quote
-            if(getLastShout().getSubmitter().equals(event.getUser().getNick())) return Colors.BOLD + "YOU" + Colors.NORMAL + " taught me that! (Don't you remember? Put down the bong!) about " + getLastShout().getReadableDate() + " ago.";
-            // Provide context if the !who last command was used, but trim it if the quote is longer than 10 characters (use 60% of the quote instead)
-            if(quote.length() < 11) {
-                return getLastShout().getSubmitter() + " shouted \"" + getLastShout().getQuote() + "\" about " + getLastShout().getReadableDate() + " ago.";
-            } else {
-                return getLastShout().getSubmitter() + " shouted \"" + getLastShout().getQuote().substring(0, (int)(getLastShout().getQuote().length() * 0.6)) + "...\" " + getLastShout().getReadableDate() + ".";
-            }
-        }
-        // We need 2 queries to pull details about the database (for now), sadly.
-        else if(quote.equals("list")) {
-            // First query to pull the total number of quotes
-            PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(*) FROM Quotes");
-            ResultSet resultSet = statement.executeQuery();
-            if(resultSet.next()) {
-                int count = resultSet.getInt("COUNT(*)");
-                // and the second to pull the most active shouter.
-                statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 1");
-                resultSet = statement.executeQuery();
-                if(resultSet.next()) {
-                    // If both of these execute successfully (which they always should) then return the details the user asked for
-                    return "I have " + count + " quotes in my database. The most active shouter is " + resultSet.getString("Nick") + " with " + resultSet.getInt("COUNT(Nick)") + ".";
-                }
-            }
-        }
         // You should know why by now.
         PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Quote = ? AND Channel = ?");
         statement.setString(1, quote);
@@ -213,6 +199,30 @@ public class Shouts implements Runnable {
         } else {
             return "Quote not found.";
         }
+    }
+    
+    /**
+     * Returns the statistics of the quote database
+     * @return the formatted statistics of the quote database
+     * @throws SQLException if the SQL query does not execute correctly
+     */
+    private String getQuoteStats() throws SQLException {
+        // First query to pull the total number of quotes
+        PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(*) FROM Quotes WHERE Channel = ?");
+        statement.setString(1, event.getChannel().getName());
+        ResultSet resultSet = statement.executeQuery();
+        if(resultSet.next()) {
+            int count = resultSet.getInt("COUNT(*)");
+            // and the second to pull the most active shouter.
+            statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes WHERE Channel = ? GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 1");
+            statement.setString(1, event.getChannel().getName());
+            resultSet = statement.executeQuery();
+            if(resultSet.next()) {
+                // If both of these execute successfully (which they always should) then return the details the user asked for
+                return "I have " + count + " quotes in my database. The most active shouter is " + resultSet.getString("Nick") + " with " + resultSet.getInt("COUNT(Nick)") + ".";
+            }
+        }
+        return null;
     }
 
     /**
@@ -255,6 +265,29 @@ public class Shouts implements Runnable {
             return null;
         }
     }
+    
+    /**
+     * Returns the top 10 shouters on the channel
+     * @return the formatted top 10 shouters on the channel
+     * @throws SQLException if the SQL query does not execute correctly
+     */
+    private String getTop10Shouters() throws SQLException {
+        int tempCount = 1;
+        // A temporary StringBuilder to construct our top 10 list
+        StringBuilder constructedString = new StringBuilder();
+        constructedString.append("The top 10 shouters in " + event.getChannel().getName() + ": ");
+        // We use prepared statements to sanitize input from the user
+        // Specifying the channel allows different channels to have their own list of quotes available
+        PreparedStatement statement = database.getConnection().prepareStatement("SELECT COUNT(Nick), Nick FROM Quotes WHERE Channel = ? GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 10");
+        statement.setString(1, event.getChannel().getName());
+        // Execute our query against the database
+        ResultSet resultSet = statement.executeQuery();
+        while(resultSet.next()) {
+            constructedString.append(tempCount + ": " + resultSet.getString("Nick") + " (" + resultSet.getInt("COUNT(Nick)") + "), ");
+            tempCount++;
+        }
+        return constructedString.toString().substring(0, constructedString.length() - 2);
+    }
 
     /**
      * Return if the provided quote is a valid quote number
@@ -283,16 +316,16 @@ public class Shouts implements Runnable {
             // Connect to the database
             database = new Database();
             database.connect();
-            // If the message passed is NOT a !who command
-            if(isRandomShout) {
+            // If we're to return a random shout
+            if(eventType.equals(ShoutEvents.RANDOM_SHOUT)) {
                 // Get a random quote from the database (if possible). Send it to the channel.
                 // If the quote does not exist in the database, add it!
                 if((randomQuote = getRandomQuote()) != null) {
                     event.getBot().sendMessage(event.getChannel(), (Colors.removeFormattingAndColors(randomQuote)));
                 }
                 if(!doesQuoteExist()) addNewQuote();
-            } else {
-                // We're dealing with a !who command - respond to the user with the information about the quote.
+            } else if(eventType.equals(ShoutEvents.LOOKUP_COMMAND)) {
+                // We're dealing with a !who list command - respond to the user with the information about the quote.
                 String whoCommand = event.getMessage().substring(5).replaceAll("^\\s+", "").replaceAll("\\s+$", "");
                 if(isValidQuoteNumber(whoCommand)) {
                     event.respond(getQuoteLine(quoteNumber));
@@ -303,6 +336,15 @@ public class Shouts implements Runnable {
                 } catch (IndexOutOfBoundsException ex) {
                     return;
                 }
+            } else if(eventType.equals(ShoutEvents.LIST_COMMAND)) {
+                // We're dealing with a !who list command - respond to the user with the quote database's statistics
+                event.respond(getQuoteStats());
+            } else if(eventType.equals(ShoutEvents.LAST_COMMAND)) {
+                // We're dealing with a !who last command - respond to the user with the last shout
+                event.respond(getLastShout());
+            } else if(eventType.equals(ShoutEvents.TOP10_COMMAND)) {
+                // We're dealing with a !who top10 command - respond to the user with the top 10 users
+                event.respond(getTop10Shouters());
             }
             // Disconnect from the database
             database.disconnect();

@@ -66,9 +66,27 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         /*
          * Most commands below spawn threads to prevent blocking.
          */
+        if(event.getMessage().startsWith("!who last")) {
+            if(!Configuration.getDisabledFunctions().contains("shout")) {
+                new Thread(new Shouts(event, Shouts.ShoutEvents.LAST_COMMAND)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!who list")) {
+            if(!Configuration.getDisabledFunctions().contains("shout")) {
+                new Thread(new Shouts(event, Shouts.ShoutEvents.LIST_COMMAND)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!who top10")) {
+            if(!Configuration.getDisabledFunctions().contains("shout")) {
+                new Thread(new Shouts(event, Shouts.ShoutEvents.TOP10_COMMAND)).start();
+                return true;
+            }
+        }
         if(event.getMessage().startsWith("!who ")) {
             if(!Configuration.getDisabledFunctions().contains("shout")) {
-                new Thread(new Shouts(event)).start();
+                new Thread(new Shouts(event, Shouts.ShoutEvents.LOOKUP_COMMAND)).start();
                 return true;
             }
         }
@@ -234,7 +252,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
     public void onMessage(MessageEvent<PircBotX> event) throws Exception {
         // If the message is in upper case and not from ourselves, spawn a new thread to handle the shout
         if(isUpperCase(event.getMessage()) && event.getMessage().replaceAll("^\\s+", "").replaceAll("\\s+$", "").length() > 5 && event.getUser() != event.getBot().getUserBot()) {
-            new Thread(new Shouts(event, true)).start();
+            new Thread(new Shouts(event, Shouts.ShoutEvents.RANDOM_SHOUT)).start();
             return;
         }
         if(event.getMessage().charAt(0) == '!') {
