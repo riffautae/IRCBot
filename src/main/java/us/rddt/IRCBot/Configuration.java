@@ -91,7 +91,7 @@ public class Configuration {
         port = Integer.parseInt(config.getProperty("port"));
         password = config.getProperty("password");
         channels = config.getProperty("channels").split(",");
-        disabled_functions = new ArrayList<String>(Arrays.asList(config.getProperty("disabled_plugins").split(",")));
+        disabled_functions = new ArrayList<String>(Arrays.asList(config.getProperty("disabled_functions").split(",")));
         watchSubreddits = config.getProperty("watch_subreddits").split(",");
         admin_nick = config.getProperty("admin_nick");
         admin_hostmask = config.getProperty("admin_hostmask");
