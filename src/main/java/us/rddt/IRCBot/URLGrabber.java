@@ -379,7 +379,7 @@ public class URLGrabber implements Runnable {
             ex.printStackTrace();
             return;
         } catch (Exception ex) {
-            event.getBot().sendMessage(event.getChannel(), formatError("YouTube", event.getMessage()));
+            event.getBot().sendMessage(event.getChannel(), formatError("YouTube", ex.getMessage()));
             IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
             ex.printStackTrace();
             return;
