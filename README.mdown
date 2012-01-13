@@ -21,7 +21,7 @@ In order to build and use IRCBot successfully, you will need the following:
 Building
 --------
 
-To build IRCBot, import the Java source files and libraries into an IDE of your choice, or use the provided Ant build script to automatically build and package IRCBot.
+To build IRCBot, import the Java source files and libraries into an IDE of your choice, or use the provided Maven build script to automatically build and package IRCBot.
 
 Usage
 -----
