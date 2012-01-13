@@ -39,6 +39,11 @@ import java.nio.charset.Charset;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
 import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
@@ -242,7 +247,7 @@ public class URLGrabber implements Runnable {
      * @return the page title
      * @throws Exception if an error occurs downloading the page
      */
-    public String getPageTitle(URL url) throws Exception {
+    private String getPageTitle(URL url) throws Exception {
         // Connect to the server
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         // Set a proper user agent, some sites return HTTP 409 without it
@@ -424,6 +429,35 @@ public class URLGrabber implements Runnable {
             ex.printStackTrace();
             event.getBot().sendMessage(event.getChannel(), formatError("URL", ex.getMessage()));
             return;
+        }
+    }
+    
+    /*
+     * Static block to ensure that HTTPS connections don't bother validating certificate chains
+     * Only executes on the initial class creation, doesn't run in every thread 
+     */
+    static {
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(
+                            java.security.cert.X509Certificate[] certs, String authType) {
+                    }
+                    public void checkServerTrusted(
+                            java.security.cert.X509Certificate[] certs, String authType) {
+                    }
+                }
+        };
+        try {
+            // Ensure that HTTPS connections use our custom trust manager
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 }
