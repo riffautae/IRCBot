@@ -176,7 +176,7 @@ public class Shouts implements Runnable {
         if(getShoutMap().getQuote().length() < 11) {
             return getShoutMap().getSubmitter() + " shouted \"" + getShoutMap().getQuote() + "\" about " + getShoutMap().getReadableDate() + " ago.";
         } else {
-            return getShoutMap().getSubmitter() + " shouted \"" + getShoutMap().getQuote().substring(0, (int)(getShoutMap().getQuote().length() * 0.6)) + "...\" " + getShoutMap().getReadableDate() + ".";
+            return getShoutMap().getSubmitter() + " shouted \"" + getShoutMap().getQuote().substring(0, (int)(getShoutMap().getQuote().length() * 0.6)) + "...\" about " + getShoutMap().getReadableDate() + " ago.";
         }
     }
 
