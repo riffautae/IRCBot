@@ -63,19 +63,6 @@ public class UserMode implements Runnable {
         String modeUser = event.getMessage().split(" ")[1];
         if(isAllowable(event.getChannel(), event.getUser(), event.getBot().getUser(modeUser))) {
             switch(mode) {
-            case KICK:
-                User kickUser = event.getBot().getUser(modeUser);
-                if(kickUser != null) {
-                    event.getBot().kick(event.getChannel(), kickUser, getReason());
-                }
-                break;
-            case BAN:
-                User banUser = event.getBot().getUser(modeUser);
-                if(banUser != null) {
-                    event.getBot().kick(event.getChannel(), banUser, getReason());
-                    event.getBot().ban(event.getChannel(), banUser.getHostmask());
-                }
-                break;
             case OWNER:
                 event.getBot().owner(event.getChannel(), event.getBot().getUser(modeUser));
                 break;

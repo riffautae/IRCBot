@@ -255,7 +255,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             new Thread(new Shouts(event, Shouts.ShoutEvents.RANDOM_SHOUT)).start();
             return;
         }
-        if(event.getMessage().charAt(0) == '!') {
+        if(event.getMessage().charAt(0) == '!' || event.getMessage().charAt(0) == '.') {
             if(checkForCommands(event)) return;
         }
         if(!Configuration.getDisabledFunctions().contains("url")) {
