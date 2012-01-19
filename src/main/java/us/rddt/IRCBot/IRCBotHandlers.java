@@ -103,19 +103,19 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!sandwich")) {
+        if(event.getMessage().startsWith("!sandwich ")) {
             if(!Configuration.getDisabledFunctions().contains("sandwich")) {
                 new Thread(new Sandwich(event)).start();
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!ud")) {
+        if(event.getMessage().startsWith("!ud ")) {
             if(!Configuration.getDisabledFunctions().contains("urbandictionary")) {
                 new Thread(new Define(event)).start();
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!g")) {
+        if(event.getMessage().startsWith("!g ")) {
             if(!Configuration.getDisabledFunctions().contains("google")) {
                 new Thread(new Search(event)).start();
                 return true;

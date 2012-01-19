@@ -66,7 +66,7 @@ public class Search implements Runnable {
     public void run() {
         try {
             // Retrieves the search results
-            result = GoogleSearch.performSearch(event.getMessage().substring(2));
+            result = GoogleSearch.performSearch(event.getMessage().substring(3));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
