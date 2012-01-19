@@ -49,6 +49,7 @@ import us.rddt.IRCBot.Enums.UserModes;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
 import us.rddt.IRCBot.Handlers.Sandwich;
+import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
 import us.rddt.IRCBot.Handlers.UserMode;
@@ -111,6 +112,12 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(event.getMessage().startsWith("!ud")) {
             if(!Configuration.getDisabledFunctions().contains("urbandictionary")) {
                 new Thread(new Define(event)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!g")) {
+            if(!Configuration.getDisabledFunctions().contains("google")) {
+                new Thread(new Search(event)).start();
                 return true;
             }
         }
