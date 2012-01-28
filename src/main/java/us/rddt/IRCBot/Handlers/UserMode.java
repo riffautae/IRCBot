@@ -144,7 +144,7 @@ public class UserMode implements Runnable {
         // Ensure that the kick command is allowable (user is an op and is kicking someone below their level)
         if(isAllowable(event.getChannel(), event.getUser(), event.getBot().getUser(kickUser))) {
             // Don't allow users to kick the bot
-            if(!kickUser.equals(event.getBot())) {
+            if(!kickUser.equals(event.getBot().getNick())) {
                 // Kick the offending user! (Reason optional)
                 if(kickReason != "") {
                     event.getBot().kick(event.getChannel(), event.getBot().getUser(kickUser), kickReason + " (" + event.getUser().getNick() + ")");
