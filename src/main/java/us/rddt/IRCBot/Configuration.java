@@ -59,6 +59,8 @@ public class Configuration {
     private static String password;
     private static String[] channels;
     
+    private static String channel_announcement;
+    
     private static List<String> disabled_functions;
 
     private static String[] watchSubreddits;
@@ -91,6 +93,7 @@ public class Configuration {
         port = Integer.parseInt(config.getProperty("port"));
         password = config.getProperty("password");
         channels = config.getProperty("channels").split(",");
+        channel_announcement = config.getProperty("channel_announcement");
         disabled_functions = new ArrayList<String>(Arrays.asList(config.getProperty("disabled_functions").split(",")));
         watchSubreddits = config.getProperty("watch_subreddits").split(",");
         admin_nick = config.getProperty("admin_nick");
@@ -192,6 +195,14 @@ public class Configuration {
      */
     public static String[] getChannels() {
         return channels;
+    }
+    
+    /**
+     * Returns the channel announcement
+     * @return the channel announcement
+     */
+    public static String getChannelAnnouncement() {
+        return channel_announcement;
     }
     
     /**

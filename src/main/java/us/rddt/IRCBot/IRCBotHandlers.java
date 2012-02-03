@@ -38,6 +38,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.ListenerAdapter;
 import org.pircbotx.hooks.events.InviteEvent;
+import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.KickEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
@@ -236,6 +237,18 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
     public void onInvite(InviteEvent<PircBotX> event) {
         if(event.getUser().equals(Configuration.getAdminNick())) event.getBot().joinChannel(event.getChannel());
         return;
+    }
+    
+    /**
+     * Handler when someone has joined the channel
+     * (non-Javadoc)
+     * @see org.pircbotx.hooks.ListenerAdapter#onJoin(org.pircbotx.hooks.events.JoinEvent)
+     * @param event the JoinEvent to parse
+     */
+    public void onJoin(JoinEvent<PircBotX> event) {
+        if(!Configuration.getChannelAnnouncement().equals("")) {
+            event.getBot().sendMessage(event.getUser(), "ANNOUNCEMENT: " + Configuration.getChannelAnnouncement());
+        }
     }
 
     /**
