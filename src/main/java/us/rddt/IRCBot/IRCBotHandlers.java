@@ -29,6 +29,7 @@
 package us.rddt.IRCBot;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -246,7 +247,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @param event the JoinEvent to parse
      */
     public void onJoin(JoinEvent<PircBotX> event) {
-        if(!Configuration.getChannelAnnouncement().equals("")) {
+        if(!Configuration.getChannelAnnouncement().equals("") && Arrays.asList(Configuration.getChannelsParticipating()).contains(event.getChannel().getName())) {
             event.getBot().sendMessage(event.getUser(), "ANNOUNCEMENT: " + Configuration.getChannelAnnouncement());
         }
     }
