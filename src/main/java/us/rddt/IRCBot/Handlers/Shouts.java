@@ -145,8 +145,8 @@ public class Shouts implements Runnable {
      */
     private int deleteQuote(String quote) throws SQLException {
         PreparedStatement statement = database.getConnection().prepareStatement("DELETE FROM Quotes WHERE Quote = ? AND Channel = ?");
-        statement.setString(0, quote);
-        statement.setString(1, event.getChannel().getName());
+        statement.setString(1, quote);
+        statement.setString(2, event.getChannel().getName());
         return statement.executeUpdate();
     }
 
