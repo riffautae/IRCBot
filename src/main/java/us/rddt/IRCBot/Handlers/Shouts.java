@@ -111,7 +111,8 @@ public class Shouts implements Runnable {
         LOOKUP_COMMAND,
         LAST_COMMAND,
         LIST_COMMAND,
-        TOP10_COMMAND
+        TOP10_COMMAND,
+        DELETE_COMMAND
     }
 
     /**
@@ -135,6 +136,18 @@ public class Shouts implements Runnable {
         statement.setString(3, event.getChannel().getName());
         statement.setString(4, event.getMessage());
         statement.executeUpdate();
+    }
+    
+    /**
+     * Deletes a quote from the database
+     * @param quote the quote text to delete
+     * @throws SQLException if the SQL query does not execute correctly
+     */
+    private int deleteQuote(String quote) throws SQLException {
+        PreparedStatement statement = database.getConnection().prepareStatement("DELETE FROM Quotes WHERE Quote = ? AND Channel = ?");
+        statement.setString(0, quote);
+        statement.setString(1, event.getChannel().getName());
+        return statement.executeUpdate();
     }
 
     /**
@@ -345,6 +358,14 @@ public class Shouts implements Runnable {
             } else if(eventType.equals(ShoutEvents.TOP10_COMMAND)) {
                 // We're dealing with a !who top10 command - respond to the user with the top 10 users
                 event.respond(getTop10Shouters());
+            } else if(eventType.equals(ShoutEvents.DELETE_COMMAND)) {
+                // We're dealing with a !who delete command - delete the provided quote from the database
+                // Operator status has already been confirmed at this point
+                if(deleteQuote(event.getMessage().split("!who delete ")[1]) > 0) {
+                    event.respond("Quote has been removed from the database.");
+                } else {
+                    event.respond("Could not delete quote - quote not found.");
+                }
             }
             // Disconnect from the database
             database.disconnect();
