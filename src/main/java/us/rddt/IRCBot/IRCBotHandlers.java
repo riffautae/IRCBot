@@ -87,6 +87,12 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 return true;
             }
         }
+        if(event.getMessage().startsWith("!who delete")) {
+            if(!Configuration.getDisabledFunctions().contains("shout") && isUserOperator(event.getUser(), event.getChannel())) {
+                new Thread(new Shouts(event, Shouts.ShoutEvents.DELETE_COMMAND)).start();
+                return true;
+            }
+        }
         if(event.getMessage().startsWith("!who ")) {
             if(!Configuration.getDisabledFunctions().contains("shout")) {
                 new Thread(new Shouts(event, Shouts.ShoutEvents.LOOKUP_COMMAND)).start();
@@ -333,6 +339,17 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      */
     private boolean isUserAdmin(User user) {
         if(user.getNick().equals(Configuration.getAdminNick()) && user.getHostmask().equals(Configuration.getAdminHostmask())) return true;
+        else return false;
+    }
+    
+    /**
+     * Checks to see if a user is a channel operator or higher
+     * @param user the user to check
+     * @param channel the channel to check against
+     * @return true if the user is a channel operator or higher, false if they are not
+     */
+    private boolean isUserOperator(User user, Channel channel) {
+        if(channel.isOp(user) || channel.isSuperOp(user) || channel.isOwner(user)) return true;
         else return false;
     }
 
