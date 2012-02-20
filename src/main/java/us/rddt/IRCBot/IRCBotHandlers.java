@@ -221,17 +221,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @return true if the string is uppercase, false if it is not
      */
     private boolean isUpperCase(String s) {
-        // Boolean value to ensure that an all numeric string does not trigger the shouting functions
-        boolean includesLetter = false;
-        // Loop through each character in the string individually
-        for(int i = 0; i < s.length(); i++) {
-            // If there's at least one letter then the string could qualify as being a 'shout'
-            if(Character.isLetter(s.charAt(i))) includesLetter = true;
-            // Any lower case letters immediately disqualifies the string, return immediately instead of continuing the loop
-            if(Character.isLowerCase(s.charAt(i))) return false;
-        }
-        // If there's at least one letter in the string return true, otherwise disqualify it
-        if(includesLetter) return true;
+        if(s.matches(".*[A-Z]+.*")) return true;
         else return false;
     }
 
