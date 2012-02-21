@@ -221,8 +221,10 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @return true if the string is uppercase, false if it is not
      */
     private boolean isUpperCase(String s) {
-        if(s.matches(".*[A-Z]+.*")) return true;
-        else return false;
+        for(int i = 0; i < s.length(); i++) {
+            if(!Character.isUpperCase(s.charAt(i))) return false;
+        }
+        return true;
     }
 
     /**
