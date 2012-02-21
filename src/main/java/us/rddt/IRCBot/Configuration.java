@@ -57,6 +57,8 @@ public class Configuration {
     private static String server;
     private static int port;
     private static String password;
+    private static boolean use_ssl;
+    private static boolean ssl_verify;
     private static String[] channels;
     
     private static String channel_announcement;
@@ -93,6 +95,8 @@ public class Configuration {
         server = config.getProperty("server");
         port = Integer.parseInt(config.getProperty("port"));
         password = config.getProperty("password");
+        use_ssl = Boolean.parseBoolean(config.getProperty("use_ssl"));
+        ssl_verify = Boolean.parseBoolean(config.getProperty("ssl_verify"));
         channels = config.getProperty("channels").split(",");
         channel_announcement = config.getProperty("channel_announcement");
         channel_participating = config.getProperty("channel_participating").split(",");
@@ -190,7 +194,7 @@ public class Configuration {
     public static String getPassword() {
         return password;
     }
-
+    
     /**
      * Returns the channels to join
      * @return the channels to join
@@ -293,5 +297,21 @@ public class Configuration {
      */
     public static String getSQLiteDatabase() {
         return sqlite_database;
+    }
+
+    /**
+     * Returns if the connection should be secured through SSL
+     * @return true if SSL should be used, false for unsecured connections
+     */
+    public static boolean isSSL() {
+        return use_ssl;
+    }
+    
+    /**
+     * Returns if the SSL connection should verify certificates
+     * @return true for SSL certificate verification, false to trust all certificates
+     */
+    public static boolean isSSLVerified() {
+        return ssl_verify;
     }
 }

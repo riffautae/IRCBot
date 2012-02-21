@@ -29,6 +29,7 @@
 package us.rddt.IRCBot;
 
 import org.pircbotx.PircBotX;
+import org.pircbotx.UtilSSLSocketFactory;
 import org.pircbotx.exception.NickAlreadyInUseException;
 import org.pircbotx.hooks.ListenerAdapter;
 
@@ -84,7 +85,13 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
         // Attempt to connect to the server and join the required channel(s)
         IRCUtils.Log(LogLevels.INFORMATION, "Connecting to " + Configuration.getServer() + " and joining channel(s).");
         try {
-            bot.connect(Configuration.getServer(), Configuration.getPort(), Configuration.getPassword());
+            if(Configuration.isSSL() && Configuration.isSSLVerified()) {
+                bot.connect(Configuration.getServer(), Configuration.getPort(), Configuration.getPassword(), new UtilSSLSocketFactory());
+            } else if (Configuration.isSSL() && !Configuration.isSSLVerified()) {
+                bot.connect(Configuration.getServer(), Configuration.getPort(), Configuration.getPassword(), new UtilSSLSocketFactory().trustAllCertificates());
+            } else {
+                bot.connect(Configuration.getServer(), Configuration.getPort(), Configuration.getPassword());
+            }
         } catch (NickAlreadyInUseException ex) {
             IRCUtils.Log(LogLevels.WARNING, ex.getMessage());
             bot.setName(bot.getNick() + "_");
