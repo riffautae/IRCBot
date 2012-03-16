@@ -309,7 +309,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      */
     public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) {
         // There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
-        event.respond("Hi! I am IRCBot version " + IRCBot.class.getPackage().getImplementationVersion() + ". If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my creator, got_milk, instead!");
+        event.respond("Hi! I am IRCBot version " + Configuration.getApplicationVersion() + ". If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my administrator, " + Configuration.getAdminNick() + " instead!");
     }
 
     /**
