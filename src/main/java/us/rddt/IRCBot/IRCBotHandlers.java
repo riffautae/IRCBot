@@ -88,8 +88,10 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             }
         }
         if(event.getMessage().startsWith("!who delete")) {
-            if(!Configuration.getDisabledFunctions().contains("shout") && isUserOperator(event.getUser(), event.getChannel())) {
-                new Thread(new Shouts(event, Shouts.ShoutEvents.DELETE_COMMAND)).start();
+            if(!Configuration.getDisabledFunctions().contains("shout")) {
+                if(isUserOperator(event.getUser(), event.getChannel())) {
+                    new Thread(new Shouts(event, Shouts.ShoutEvents.DELETE_COMMAND)).start();
+                }
                 return true;
             }
         }
