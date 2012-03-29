@@ -26,7 +26,7 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-package us.rddt.IRCBot;
+package us.rddt.IRCBot.Implementations;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -52,10 +52,8 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Enums.LogLevels;
-import us.rddt.IRCBot.Implementations.RedditLink;
-import us.rddt.IRCBot.Implementations.RedditUser;
-import us.rddt.IRCBot.Implementations.YouTubeLink;
 
 /**
  * @author Ryan Morrison

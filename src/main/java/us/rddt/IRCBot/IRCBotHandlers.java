@@ -55,6 +55,7 @@ import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
 import us.rddt.IRCBot.Handlers.UserMode;
+import us.rddt.IRCBot.Implementations.URLGrabber;
 
 /**
  * @author Ryan Morrison
