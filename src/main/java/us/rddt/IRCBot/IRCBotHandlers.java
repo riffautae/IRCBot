@@ -54,6 +54,7 @@ import us.rddt.IRCBot.Handlers.Sandwich;
 import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
+import us.rddt.IRCBot.Handlers.Topic;
 import us.rddt.IRCBot.Handlers.UserMode;
 import us.rddt.IRCBot.Implementations.URLGrabber;
 
@@ -129,6 +130,18 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(event.getMessage().startsWith("!g ")) {
             if(!Configuration.getDisabledFunctions().contains("google")) {
                 new Thread(new Search(event)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!appendtopic")) {
+            if(isUserOperator(event.getUser(), event.getChannel())) {
+                new Thread(new Topic(event, false)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!removetopic")) {
+            if(isUserOperator(event.getUser(), event.getChannel())) {
+                new Thread(new Topic(event, true)).start();
                 return true;
             }
         }
