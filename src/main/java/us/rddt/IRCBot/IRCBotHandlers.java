@@ -47,6 +47,7 @@ import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
 import us.rddt.IRCBot.Enums.LogLevels;
+import us.rddt.IRCBot.Enums.TopicUpdates;
 import us.rddt.IRCBot.Enums.UserModes;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
@@ -135,13 +136,13 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         }
         if(event.getMessage().startsWith("!appendtopic")) {
             if(isUserOperator(event.getUser(), event.getChannel())) {
-                new Thread(new Topic(event, false)).start();
+                new Thread(new Topic(event, TopicUpdates.ADD_TO_TOPIC)).start();
                 return true;
             }
         }
         if(event.getMessage().startsWith("!removetopic")) {
             if(isUserOperator(event.getUser(), event.getChannel())) {
-                new Thread(new Topic(event, true)).start();
+                new Thread(new Topic(event, TopicUpdates.REMOVE_FROM_TOPIC)).start();
                 return true;
             }
         }

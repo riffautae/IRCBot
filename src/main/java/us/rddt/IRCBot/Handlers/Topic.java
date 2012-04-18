@@ -30,8 +30,11 @@ package us.rddt.IRCBot.Handlers;
 
 import java.util.regex.Pattern;
 
+import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
+
+import us.rddt.IRCBot.Enums.TopicUpdates;
 
 /**
  * @author Ryan Morrison
@@ -39,32 +42,36 @@ import org.pircbotx.hooks.events.MessageEvent;
 public class Topic implements Runnable {
     // Variables
     private MessageEvent<PircBotX> event;
-    private boolean isRemoving;
+    private TopicUpdates updateMode;
     
     /**
      * Class constructor
      * @param event the MessageEvent that triggered this class
      */
-    public Topic(MessageEvent<PircBotX> event, boolean isRemoving) {
+    public Topic(MessageEvent<PircBotX> event, TopicUpdates updateMode) {
         this.event = event;
-        this.isRemoving = isRemoving;
+        this.updateMode = updateMode;
     }
     
     /**
      * Appends a string to the current channel's topic
+     * @param channel the channel to apply the topic update to
+     * @param appendString the string to append to the topic
      */
-    private void appendToTopic() {
-        event.getBot().setTopic(event.getChannel(), event.getChannel().getTopic() + " " + event.getMessage().substring(13));
+    private void appendToTopic(Channel channel, String appendString) {
+        event.getBot().setTopic(channel, channel.getTopic() + " " + appendString);
     }
     
     /**
      * Removes a string from the current channel's topic, if the string exists within the current topic
+     * @param channel the channel to apply the topic update to
+     * @param removeString the string to remove from the topic
      */
-    private void removeFromTopic() {
-        String currentTopic = event.getChannel().getTopic();
-        String newTopic = currentTopic.replaceFirst(Pattern.quote(event.getMessage().substring(13)), "");
+    private void removeFromTopic(Channel channel, String removeString) {
+        String currentTopic = channel.getTopic();
+        String newTopic = currentTopic.replaceFirst(Pattern.quote(removeString), "");
         if(!currentTopic.equals(newTopic)) {
-            event.getBot().setTopic(event.getChannel(), newTopic);
+            event.getBot().setTopic(channel, newTopic);
         }
     }
     
@@ -74,7 +81,17 @@ public class Topic implements Runnable {
      * @see java.lang.Runnable#run()
      */
     public void run() {
-        if(isRemoving) removeFromTopic();
-        else appendToTopic();
+        switch(updateMode) {
+        case ADD_TO_TOPIC:
+            appendToTopic(event.getChannel(), event.getMessage().substring(13));
+            break;
+        case REMOVE_FROM_TOPIC:
+            removeFromTopic(event.getChannel(), event.getMessage().substring(13));
+            break;
+        case RESET_TOPIC:
+            break;
+        default:
+            return;
+        }
     }
 }
