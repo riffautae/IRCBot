@@ -28,6 +28,8 @@
 
 package us.rddt.IRCBot.Handlers;
 
+import java.util.regex.Pattern;
+
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
@@ -60,7 +62,7 @@ public class Topic implements Runnable {
      */
     private void removeFromTopic() {
         String currentTopic = event.getChannel().getTopic();
-        String newTopic = currentTopic.replaceFirst(event.getMessage().substring(13), "");
+        String newTopic = currentTopic.replaceFirst(Pattern.quote(event.getMessage().substring(13)), "");
         if(!currentTopic.equals(newTopic)) {
             event.getBot().setTopic(event.getChannel(), newTopic);
         }
