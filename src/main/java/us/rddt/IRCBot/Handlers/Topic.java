@@ -59,7 +59,7 @@ public class Topic implements Runnable {
      * @param appendString the string to append to the topic
      */
     private void appendToTopic(Channel channel, String appendString) {
-        event.getBot().setTopic(channel, channel.getTopic() + " " + appendString);
+        if(!appendString.isEmpty()) event.getBot().setTopic(channel, channel.getTopic() + " " + appendString);
     }
     
     /**
@@ -68,10 +68,12 @@ public class Topic implements Runnable {
      * @param removeString the string to remove from the topic
      */
     private void removeFromTopic(Channel channel, String removeString) {
-        String currentTopic = channel.getTopic();
-        String newTopic = currentTopic.replaceFirst(Pattern.quote(removeString), "");
-        if(!currentTopic.equals(newTopic)) {
-            event.getBot().setTopic(channel, newTopic);
+        if(!removeString.isEmpty()) {
+            String currentTopic = channel.getTopic();
+            String newTopic = currentTopic.replaceFirst(Pattern.quote(removeString), "");
+            if(!currentTopic.equals(newTopic)) {
+                event.getBot().setTopic(channel, newTopic);
+            }
         }
     }
     
