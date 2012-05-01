@@ -310,15 +310,12 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
     public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) {
         if(isUserAdmin(event.getUser())) {
             if(event.getMessage().startsWith("announce ")) {
-                String[] splitLine = event.getMessage().split(" ");
-                Channel channelToSend = event.getBot().getChannel(splitLine[1]);
-                if(event.getBot().getChannels().contains(channelToSend)) {
-                    StringBuilder builtString = new StringBuilder();
-                    for(int i = 2; i < splitLine.length; i++) {
-                        builtString.append(splitLine[i] + " ");
-                    }
-                    event.getBot().sendMessage(channelToSend, builtString.toString());
-                }
+                sendAnnouncement(event.getBot(), false, event.getMessage());
+                return;
+            }
+            if(event.getMessage().startsWith("notice ")) {
+                sendAnnouncement(event.getBot(), true, event.getMessage());
+                return;
             }
             if(event.getMessage().equals("disconnect")) {
                 IRCUtils.Log(LogLevels.INFORMATION, "Disconnecting due to administrator request");
@@ -338,6 +335,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 }
                 IRCUtils.Log(LogLevels.INFORMATION, "Reload complete");
                 sendGlobalMessage(event.getBot(), "Successfully reloaded configuration.");
+                return;
             }
         } else {
             // There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
@@ -387,6 +385,25 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         Iterator<Channel> itr = bot.getChannels().iterator();
         while(itr.hasNext()) {
             bot.sendMessage(itr.next(), message);
+        }
+    }
+    
+    /**
+     * Sends a targeted message or notice to a specific channel
+     * @param bot the IRC bot
+     * @param isNotice true if the announcement should be a CTCP notice, false if it should be a raw message
+     * @param rawLine the raw line to be parsed
+     */
+    private void sendAnnouncement(PircBotX bot, boolean isNotice, String rawLine) {
+        String[] splitLine = rawLine.split(" ");
+        Channel channelToSend = bot.getChannel(splitLine[1]);
+        if(bot.getChannels().contains(channelToSend)) {
+            StringBuilder builtString = new StringBuilder();
+            for(int i = 2; i < splitLine.length; i++) {
+                builtString.append(splitLine[i] + " ");
+            }
+            if(isNotice) bot.sendNotice(channelToSend, builtString.toString());
+            else bot.sendMessage(channelToSend, builtString.toString());
         }
     }
 }
