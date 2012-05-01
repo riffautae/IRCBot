@@ -152,31 +152,6 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 return true;
             }
         }
-        if(event.getMessage().equals("!disconnect")) {
-            if(isUserAdmin(event.getUser())) {
-                IRCUtils.Log(LogLevels.INFORMATION, "Disconnecting due to administrator request");
-                event.getBot().quitServer("Disconnecting due to administrator request");
-                System.exit(0);
-            }
-        }
-        if(event.getMessage().equals("!reload")) {
-            if(isUserAdmin(event.getUser())) {
-                IRCUtils.Log(LogLevels.INFORMATION, "Reloading configuration due to administrator request...");
-                sendGlobalMessage(event.getBot(), "Reloading configuration...");
-                try {
-                    Configuration.loadConfiguration();
-                    Configuration.startScheduler(event.getBot());
-                } catch (Exception ex) {
-                    IRCUtils.Log(LogLevels.INFORMATION, "Failed to reload configuration!");
-                    ex.printStackTrace();
-                    sendGlobalMessage(event.getBot(), "Failed to reload configuration: " + ex.getMessage());
-                    return true;
-                }
-                IRCUtils.Log(LogLevels.INFORMATION, "Reload complete");
-                sendGlobalMessage(event.getBot(), "Successfully reloaded configuration.");
-                return true;
-            }
-        }
 
         /*
          * User mode change events
@@ -344,6 +319,25 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                     }
                     event.getBot().sendMessage(channelToSend, builtString.toString());
                 }
+            }
+            if(event.getMessage().equals("disconnect")) {
+                IRCUtils.Log(LogLevels.INFORMATION, "Disconnecting due to administrator request");
+                event.getBot().quitServer("Disconnecting due to administrator request");
+                System.exit(0);
+            }
+            if(event.getMessage().equals("reload")) {
+                IRCUtils.Log(LogLevels.INFORMATION, "Reloading configuration due to administrator request...");
+                sendGlobalMessage(event.getBot(), "Reloading configuration...");
+                try {
+                    Configuration.loadConfiguration();
+                    Configuration.startScheduler(event.getBot());
+                } catch (Exception ex) {
+                    IRCUtils.Log(LogLevels.INFORMATION, "Failed to reload configuration!");
+                    ex.printStackTrace();
+                    sendGlobalMessage(event.getBot(), "Failed to reload configuration: " + ex.getMessage());
+                }
+                IRCUtils.Log(LogLevels.INFORMATION, "Reload complete");
+                sendGlobalMessage(event.getBot(), "Successfully reloaded configuration.");
             }
         } else {
             // There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
