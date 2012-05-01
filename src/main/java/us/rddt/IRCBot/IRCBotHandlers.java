@@ -333,8 +333,22 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @param event the PrivateMessageEvent to parse
      */
     public void onPrivateMessage(PrivateMessageEvent<PircBotX> event) {
-        // There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
-        event.respond("Hi! I am IRCBot version " + Configuration.getApplicationVersion() + ". If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my administrator, " + Configuration.getAdminNick() + " instead!");
+        if(isUserAdmin(event.getUser())) {
+            if(event.getMessage().startsWith("announce ")) {
+                String[] splitLine = event.getMessage().split(" ");
+                Channel channelToSend = event.getBot().getChannel(splitLine[1]);
+                if(event.getBot().getChannels().contains(channelToSend)) {
+                    StringBuilder builtString = new StringBuilder();
+                    for(int i = 2; i < splitLine.length; i++) {
+                        builtString.append(splitLine[i] + " ");
+                    }
+                    event.getBot().sendMessage(channelToSend, builtString.toString());
+                }
+            }
+        } else {
+            // There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
+            event.respond("Hi! I am IRCBot version " + Configuration.getApplicationVersion() + ". If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my administrator, " + Configuration.getAdminNick() + " instead!");
+        }
     }
 
     /**
