@@ -56,6 +56,7 @@ import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
 import us.rddt.IRCBot.Handlers.Topic;
+import us.rddt.IRCBot.Handlers.TrollRating;
 import us.rddt.IRCBot.Handlers.UserMode;
 import us.rddt.IRCBot.Implementations.URLGrabber;
 
@@ -72,25 +73,25 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         /*
          * Most commands below spawn threads to prevent blocking.
          */
-        if(event.getMessage().startsWith("!who last")) {
+        if(event.getMessage().startsWith("!who last ")) {
             if(!Configuration.getDisabledFunctions().contains("shout")) {
                 new Thread(new Shouts(event, Shouts.ShoutEvents.LAST_COMMAND)).start();
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!who list")) {
+        if(event.getMessage().startsWith("!who list ")) {
             if(!Configuration.getDisabledFunctions().contains("shout")) {
                 new Thread(new Shouts(event, Shouts.ShoutEvents.LIST_COMMAND)).start();
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!who top10")) {
+        if(event.getMessage().equals("!who top10")) {
             if(!Configuration.getDisabledFunctions().contains("shout")) {
                 new Thread(new Shouts(event, Shouts.ShoutEvents.TOP10_COMMAND)).start();
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!who delete")) {
+        if(event.getMessage().startsWith("!who delete ")) {
             if(!Configuration.getDisabledFunctions().contains("shout")) {
                 if(isUserOperator(event.getUser(), event.getChannel())) {
                     new Thread(new Shouts(event, Shouts.ShoutEvents.DELETE_COMMAND)).start();
@@ -122,6 +123,12 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 return true;
             }
         }
+        if(event.getMessage().equals("!steve")) {
+            if(!Configuration.getDisabledFunctions().contains("shout")) {
+                new Thread(new Shouts(event, Shouts.ShoutEvents.STEVE_COMMAND)).start();
+                return true;
+            }
+        }
         if(event.getMessage().startsWith("!ud ")) {
             if(!Configuration.getDisabledFunctions().contains("urbandictionary")) {
                 new Thread(new Define(event)).start();
@@ -134,13 +141,13 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!appendtopic")) {
+        if(event.getMessage().startsWith("!appendtopic ")) {
             if(isUserOperator(event.getUser(), event.getChannel())) {
                 new Thread(new Topic(event, TopicUpdates.ADD_TO_TOPIC)).start();
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!removetopic")) {
+        if(event.getMessage().startsWith("!removetopic ")) {
             if(isUserOperator(event.getUser(), event.getChannel())) {
                 new Thread(new Topic(event, TopicUpdates.REMOVE_FROM_TOPIC)).start();
                 return true;
@@ -276,6 +283,10 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         }
         if(event.getMessage().charAt(0) == '!' || event.getMessage().charAt(0) == '.') {
             if(checkForCommands(event)) return;
+        }
+        if(!Configuration.getDisabledFunctions().contains("trollrating") && event.getMessage().contains(":t")) {
+            new Thread(new TrollRating(event)).start();
+            return;
         }
         if(!Configuration.getDisabledFunctions().contains("url")) {
             // Use a regex pattern to match URLs out of user messages
