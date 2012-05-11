@@ -74,7 +74,7 @@ public class URLGrabber implements Runnable {
     // Regex pattern to match the HTML title tag to extract from the URL
     private static final Pattern TITLE_TAG = Pattern.compile("\\<title>(.*)\\</title>", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
     // Regex pattern to match Twitter tweets
-    private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
+    private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/(www\\.)?twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
     // Regex pattern to match YouTube videos
     private static final Pattern YOUTUBE_VIDEO = Pattern.compile("http:\\/\\/(www.)?youtube\\.com\\/watch\\?v=.+");
 
