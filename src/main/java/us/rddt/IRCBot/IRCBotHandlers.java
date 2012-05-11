@@ -284,7 +284,9 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(event.getMessage().charAt(0) == '!' || event.getMessage().charAt(0) == '.') {
             if(checkForCommands(event)) return;
         }
-        if(!Configuration.getDisabledFunctions().contains("trollrating") && event.getMessage().contains("\\b\\s:t\\s?\\b")) {
+        Pattern TROLL_PATTERN = Pattern.compile("\\s:t(\\s+|$)");
+        Matcher trollMatcher = TROLL_PATTERN.matcher(event.getMessage());
+        if(!Configuration.getDisabledFunctions().contains("trollrating") && trollMatcher.find()) {
             new Thread(new TrollRating(event)).start();
             return;
         }
