@@ -14,42 +14,8 @@ public class TrollRating implements Runnable {
     
     public void run() {
         Random generator = new Random();
-        String message = new String();
+		String[] ratings = { "poor", "weak", "mild", "sub-par", "moderate", "solid", "successful", "good", "great", "excellent" };
         int randomNum = generator.nextInt(10);
-        
-        switch(randomNum) {
-        case 1:
-            message = randomNum + "/10, poor troll";
-            break;
-        case 2:
-            message = randomNum + "/10, weak troll";
-            break;
-        case 3:
-            message = randomNum + "/10, mild troll";
-            break;
-        case 4:
-            message = randomNum + "/10, sub-par troll";
-            break;
-        case 5:
-            message = randomNum + "/10, moderate troll";
-            break;
-        case 6:
-            message = randomNum + "/10, solid troll";
-            break;
-        case 7:
-            message = randomNum + "/10, successful troll";
-            break;
-        case 8:
-            message = randomNum + "/10, good troll";
-            break;
-        case 9:
-            message = randomNum + "/10, great troll";
-            break;
-        case 10:
-            message = randomNum + "/10, excellent troll";
-            break;
-        }
-        
-        event.getBot().sendMessage(event.getChannel(), message);
+        event.getBot().sendMessage(event.getChannel(), randomNum + "/10, " + ratings[randomNum] + " troll");
     }
 }
