@@ -51,7 +51,7 @@
 						<mainClass>us.rddt.IRCBot.IRCBot</mainClass>
 					</manifest>
 					<manifestEntries>
-						<Build-Version>${version}-${buildNumber}</Build-Version>
+						<Build-Version>${project.version}-${buildNumber}</Build-Version>
 					</manifestEntries>
 				</archive>
 			</configuration>
@@ -90,7 +90,7 @@
 		</plugin>
 	</plugins>
 
-	<finalName>${artifactId}-${version}</finalName>
+	<finalName>${project.artifactId}-${project.version}</finalName>
 
     <pluginManagement>
     	<plugins>
