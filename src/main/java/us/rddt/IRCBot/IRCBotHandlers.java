@@ -73,13 +73,13 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         /*
          * Most commands below spawn threads to prevent blocking.
          */
-        if(event.getMessage().startsWith("!who last ")) {
+        if(event.getMessage().equals("!who last")) {
             if(!Configuration.getDisabledFunctions().contains("shout")) {
                 new Thread(new Shouts(event, Shouts.ShoutEvents.LAST_COMMAND)).start();
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!who list ")) {
+        if(event.getMessage().equals("!who list")) {
             if(!Configuration.getDisabledFunctions().contains("shout")) {
                 new Thread(new Shouts(event, Shouts.ShoutEvents.LIST_COMMAND)).start();
                 return true;
