@@ -350,6 +350,16 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 sendGlobalMessage(event.getBot(), "Successfully reloaded configuration.");
                 return;
             }
+            if(event.getMessage().equals("restart")) {
+                IRCUtils.Log(LogLevels.INFORMATION, "Restarting due to administrator request...");
+                sendGlobalMessage(event.getBot(), "Restarting due to administrator request...");
+                try {
+                    IRCUtils.restartApplication(null);
+                } catch (Exception ex) {
+                    IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
         } else {
             // There's no reason for anyone to privately message the bot - remind them that they are messaging a bot!
             event.respond("Hi! I am IRCBot version " + Configuration.getApplicationVersion() + ". If you don't know already, I'm just a bot and can't respond to your questions/comments. :( You might want to talk to my administrator, " + Configuration.getAdminNick() + " instead!");
