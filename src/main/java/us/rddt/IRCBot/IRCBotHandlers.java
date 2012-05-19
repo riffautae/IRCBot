@@ -354,7 +354,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 IRCUtils.Log(LogLevels.INFORMATION, "Restarting due to administrator request...");
                 sendGlobalMessage(event.getBot(), "Restarting due to administrator request...");
                 try {
-                    IRCUtils.restartApplication(null);
+                    IRCUtils.restartApplication();
                 } catch (Exception ex) {
                     IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
                     ex.printStackTrace();

@@ -30,9 +30,9 @@ package us.rddt.IRCBot;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
+import java.net.URISyntaxException;
 import java.util.Date;
-import java.util.List;
+import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -96,62 +96,26 @@ public class IRCUtils {
     
     /**
      * Restart the current Java application
-     * @param runBeforeRestart some custom code to be run before restarting
-     * @throws IOException
+     * @throws URISyntaxException 
      */
-    public static void restartApplication(Runnable runBeforeRestart) throws IOException {
-        try {
-            // Retrieve the system's Java binary location
-            String java = System.getProperty("java.home") + "/bin/java";
-            // Java VM arguments to be passed
-            List<String> vmArguments = ManagementFactory.getRuntimeMXBean().getInputArguments();
-            StringBuffer vmArgsOneLine = new StringBuffer();
-            for (String arg : vmArguments) {
-                // Ignore the agent argument as it will conflict with the new application's address
-                if (!arg.contains("-agentlib")) {
-                    vmArgsOneLine.append(arg);
-                    vmArgsOneLine.append(" ");
-                }
-            }
-            // Initialize the command to execute
-            final StringBuffer cmd = new StringBuffer("\"" + java + "\" " + vmArgsOneLine);
+    public static void restartApplication() throws IOException, URISyntaxException
+    {
+      final String javaBin = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+      final File currentJar = new File(IRCBot.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 
-            // Get the program's entry point and arguments
-            String[] mainCommand = System.getProperty(SUN_JAVA_COMMAND).split(" ");
-            // Check to see if it's a JAR package
-            if (mainCommand[0].endsWith(".jar")) {
-                // If so, append the proper jar argument
-                cmd.append("-jar " + new File(mainCommand[0]).getPath());
-            } else {
-                // Otherwise, it's a compiled class file, therefore append the proper argument
-                cmd.append("-cp \"" + System.getProperty("java.class.path") + "\" " + mainCommand[0]);
-            }
-            // Add the program's command line arguments
-            for (int i = 1; i < mainCommand.length; i++) {
-                cmd.append(" ");
-                cmd.append(mainCommand[i]);
-            }
-            // Relaunch the application in a shutdown hook to ensure all resources have been properly disposed
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    try {
-                        Runtime.getRuntime().exec(cmd.toString());
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            });
-            // Execute any custom code before restarting the application
-            if (runBeforeRestart != null) {
-                runBeforeRestart.run();
-            }
-            // Exit the current application
-            System.exit(0);
-        } catch (Exception e) {
-            // Throw an exception as something went wrong
-            throw new IOException("Error while trying to restart the application", e);
-        }
+      /* is it a jar file? */
+      if(!currentJar.getName().endsWith(".jar"))
+        return;
+
+      /* Build command: java -jar application.jar */
+      final ArrayList<String> command = new ArrayList<String>();
+      command.add(javaBin);
+      command.add("-jar");
+      command.add(currentJar.getPath());
+
+      final ProcessBuilder builder = new ProcessBuilder(command);
+      builder.start();
+      System.exit(0);
     }
 
     /**
