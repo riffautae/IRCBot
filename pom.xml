@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>IRCBot</groupId>
   <artifactId>IRCBot</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <name>IRCBot - the RDDT IRC Bot</name>
   <description>A custom IRC bot to handle various functions in the RDDT IRC Network.</description>
   <url>https://github.com/GotMilk/IRCBot</url>
