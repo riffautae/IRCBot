@@ -35,7 +35,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
@@ -101,7 +100,6 @@ public class Shouts implements Runnable {
      * Class variables.
      */
     private static volatile Map<String,Shout> shoutMap = Collections.synchronizedMap(new HashMap<String,Shout>());
-    private static volatile Map<String,Boolean> playingMap = Collections.synchronizedMap(new HashMap<String,Boolean>());
     private Database database;
     private MessageEvent<PircBotX> event = null;
     private ShoutEvents eventType;
@@ -115,7 +113,6 @@ public class Shouts implements Runnable {
         LIST_COMMAND,
         TOP10_COMMAND,
         DELETE_COMMAND,
-        STEVE_COMMAND
     }
 
     /**
@@ -321,33 +318,6 @@ public class Shouts implements Runnable {
             return false;
         }
     }
-    
-    /**
-     * Plays a game where a random quote is provided to a channel to guess who shouted it
-     * @throws SQLException if the SQL query does not execute properly
-     * @throws InterruptedException if the thread is interrupted while sleeping
-     */
-    private void playGuessingGame() throws SQLException, InterruptedException {
-        // Make sure a game isn't currently in progress
-        if(!playingMap.containsKey(event.getChannel().getName()) || !playingMap.get(event.getChannel().getName())) {
-            // Put a "lock" so another game can't be started while one is active
-            playingMap.put(event.getChannel().getName(), new Boolean(true));
-            // We use prepared statements to sanitize input from the user
-            // Specifying the channel allows different channels to have their own list of quotes available
-            PreparedStatement statement= database.getConnection().prepareStatement("SELECT * FROM Quotes WHERE Channel = ? ORDER BY RAND() LIMIT 1");
-            statement.setString(1, event.getChannel().getName());
-            // Execute our query against the database
-            ResultSet resultSet = statement.executeQuery();
-            if(resultSet.next()) {
-                // Plays the game!
-                event.getBot().sendMessage(event.getChannel(), "30 seconds to guess: who said \"" + resultSet.getString("Quote") + "\"?");
-                Thread.sleep(TimeUnit.SECONDS.toMillis(30));
-                event.getBot().sendMessage(event.getChannel(), "Time's up! " + resultSet.getString("Nick") + " said that!");
-            }
-            // Removes the "lock" so a new game can be played
-            playingMap.remove(event.getChannel().getName());
-        }
-    }
 
     /**
      * Method that executes upon thread start
@@ -396,9 +366,6 @@ public class Shouts implements Runnable {
                 } else {
                     event.respond("Could not delete quote - quote not found.");
                 }
-            } else if(eventType.equals(ShoutEvents.STEVE_COMMAND)) {
-                // We're dealing with a !steve command - play the guessing game
-                playGuessingGame();
             }
             // Disconnect from the database
             database.disconnect();

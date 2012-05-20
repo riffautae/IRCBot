@@ -51,12 +51,10 @@ import us.rddt.IRCBot.Enums.TopicUpdates;
 import us.rddt.IRCBot.Enums.UserModes;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
-import us.rddt.IRCBot.Handlers.Sandwich;
 import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
 import us.rddt.IRCBot.Handlers.Topic;
-import us.rddt.IRCBot.Handlers.TrollRating;
 import us.rddt.IRCBot.Handlers.UserMode;
 import us.rddt.IRCBot.Implementations.URLGrabber;
 
@@ -114,18 +112,6 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(event.getMessage().startsWith("!seen ")) {
             if(!Configuration.getDisabledFunctions().contains("seen")) {
                 new Thread(new Seen(event)).start();
-                return true;
-            }
-        }
-        if(event.getMessage().startsWith("!sandwich ")) {
-            if(!Configuration.getDisabledFunctions().contains("sandwich")) {
-                new Thread(new Sandwich(event)).start();
-                return true;
-            }
-        }
-        if(event.getMessage().equals("!steve")) {
-            if(!Configuration.getDisabledFunctions().contains("shout")) {
-                new Thread(new Shouts(event, Shouts.ShoutEvents.STEVE_COMMAND)).start();
                 return true;
             }
         }
@@ -283,12 +269,6 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         }
         if(event.getMessage().charAt(0) == '!' || event.getMessage().charAt(0) == '.') {
             if(checkForCommands(event)) return;
-        }
-        Pattern TROLL_PATTERN = Pattern.compile("\\s:t(\\s+|$)");
-        Matcher trollMatcher = TROLL_PATTERN.matcher(event.getMessage());
-        if(!Configuration.getDisabledFunctions().contains("trollrating") && trollMatcher.find()) {
-            new Thread(new TrollRating(event)).start();
-            return;
         }
         if(!Configuration.getDisabledFunctions().contains("url")) {
             // Use a regex pattern to match URLs out of user messages
