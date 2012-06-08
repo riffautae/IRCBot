@@ -49,7 +49,6 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
      * @param args arguments passed through the command line
      */
     public static void main(String[] args) throws Exception {
-        Configuration.getLogger().write(Level.INFO, "Initializing bot (IRCBot version " + Configuration.getApplicationVersion() + ")");
         try {
             Configuration.loadConfiguration();
         } catch(Exception ex) {
@@ -57,6 +56,8 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
             Configuration.getLogger().write(Level.SEVERE, ex.getMessage());
             System.exit(-1);
         }
+        Configuration.getLogger().write(Level.INFO, "Initializing bot (IRCBot version " + Configuration.getApplicationVersion() + ")");
+        
         // Create a new instance of the IRC bot
         bot = new PircBotX();
         // Add new listeners for the actions we want the bot to handle
