@@ -84,7 +84,7 @@ public class Configuration {
     private static ScheduledExecutorService scheduler;
     
     private static IRCLogger logger;
-    private static String logfile;
+    private static String log_output;
 
     /**
      * Loads the configuration provided via a properties file
@@ -117,7 +117,7 @@ public class Configuration {
         } else if(database_driver.equalsIgnoreCase("sqlite")) {
             sqlite_database = config.getProperty("sqlite_database");
         }
-        logfile = config.getProperty("log_output");
+        log_output = config.getProperty("log_output");
     }
 
     /**
@@ -325,7 +325,7 @@ public class Configuration {
      * @return the log file to output the HTML-formatted log to
      */
     public static String getLogFile() {
-        return logfile;
+        return log_output;
     }
     
     /**
