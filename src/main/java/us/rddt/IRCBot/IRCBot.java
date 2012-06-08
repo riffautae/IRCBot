@@ -28,12 +28,12 @@
 
 package us.rddt.IRCBot;
 
+import java.util.logging.Level;
+
 import org.pircbotx.PircBotX;
 import org.pircbotx.UtilSSLSocketFactory;
 import org.pircbotx.exception.NickAlreadyInUseException;
 import org.pircbotx.hooks.ListenerAdapter;
-
-import us.rddt.IRCBot.Enums.LogLevels;
 
 /**
  * @author Ryan Morrison
@@ -49,12 +49,12 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
      * @param args arguments passed through the command line
      */
     public static void main(String[] args) throws Exception {
-        IRCUtils.Log(LogLevels.INFORMATION, "Initialzing bot (IRCBot version " + Configuration.getApplicationVersion() + ")");
+        Configuration.getLogger().write(Level.INFO, "Initializing bot (IRCBot version " + Configuration.getApplicationVersion() + ")");
         try {
             Configuration.loadConfiguration();
         } catch(Exception ex) {
             ex.printStackTrace();
-            IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
+            Configuration.getLogger().write(Level.SEVERE, ex.getMessage());
             System.exit(-1);
         }
         // Create a new instance of the IRC bot
@@ -83,7 +83,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
      */
     private static void connect(PircBotX bot) {
         // Attempt to connect to the server and join the required channel(s)
-        IRCUtils.Log(LogLevels.INFORMATION, "Connecting to " + Configuration.getServer() + " and joining channel(s).");
+        Configuration.getLogger().write(Level.INFO, "Connecting to " + Configuration.getServer() + " and joining channel(s).");
         try {
             if(Configuration.isSSL() && Configuration.isSSLVerified()) {
                 bot.connect(Configuration.getServer(), Configuration.getPort(), Configuration.getPassword(), new UtilSSLSocketFactory());
@@ -93,10 +93,10 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
                 bot.connect(Configuration.getServer(), Configuration.getPort(), Configuration.getPassword());
             }
         } catch (NickAlreadyInUseException ex) {
-            IRCUtils.Log(LogLevels.WARNING, ex.getMessage());
+            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
             bot.setName(bot.getNick() + "_");
         } catch (Exception ex) {
-            IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
+            Configuration.getLogger().write(Level.SEVERE, ex.getMessage());
             bot.disconnect();
             System.exit(-1);
         }

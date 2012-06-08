@@ -26,11 +26,36 @@
  *  POSSIBILITY OF SUCH DAMAGE.
  */
 
-package us.rddt.IRCBot.Enums;
+package us.rddt.IRCBot.Logging;
 
-public enum LogLevels {
-    INFORMATION,
-    WARNING,
-    ERROR,
-    FATAL
+import java.io.IOException;
+import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+/**
+ * @author Ryan Morrison
+ */
+public class IRCLogger {
+    /*
+     * Class variables
+     */
+    private FileHandler fileHTML;
+    private Formatter formatterHTML;
+    
+    private final Logger LOGGER = Logger.getLogger(IRCLogger.class.getName());
+
+    public void setup() throws IOException {
+        Logger logger = Logger.getLogger("");
+        fileHTML = new FileHandler("IRCBot-Log.html");
+
+        formatterHTML = new HTMLFormatter();
+        fileHTML.setFormatter(formatterHTML);
+        logger.addHandler(fileHTML);
+    }
+    
+    public void write(Level level, String output) {
+        LOGGER.log(level, output);
+    }
 }

@@ -42,11 +42,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
+import java.util.logging.Level;
 
 import org.pircbotx.PircBotX;
 
-import us.rddt.IRCBot.Enums.LogLevels;
 import us.rddt.IRCBot.Implementations.RedditWatcher;
+import us.rddt.IRCBot.Logging.IRCLogger;
 
 public class Configuration {
     /*
@@ -81,6 +82,8 @@ public class Configuration {
     private static String sqlite_database;
 
     private static ScheduledExecutorService scheduler;
+    
+    private static IRCLogger logger;
 
     /**
      * Loads the configuration provided via a properties file
@@ -122,7 +125,7 @@ public class Configuration {
     public static void startScheduler(PircBotX bot) {
         if(watchSubreddits.length > 0 && !watchSubreddits[0].equals("") && !disabled_functions.contains("watcher")) {
             if(scheduler != null) {
-                IRCUtils.Log(LogLevels.INFORMATION, "Shutting down existing subreddit updates");
+                Configuration.getLogger().write(Level.INFO, "Shutting down existing subreddit updates");
                 scheduler.shutdownNow();
             }
             scheduler = Executors.newScheduledThreadPool(watchSubreddits.length);
@@ -130,7 +133,7 @@ public class Configuration {
                 String[] configuration = watchSubreddits[i].split(":");
                 String subreddit = configuration[0];
                 int frequency = Integer.parseInt(configuration[1]);
-                IRCUtils.Log(LogLevels.INFORMATION, "Scheduling subreddit updates for r/" + subreddit + " starting in " + (5 * i) + " minutes (frequency: " + frequency + " minutes)");
+                Configuration.getLogger().write(Level.INFO, "Scheduling subreddit updates for r/" + subreddit + " starting in " + (5 * i) + " minutes (frequency: " + frequency + " minutes)");
                 scheduler.scheduleWithFixedDelay(new RedditWatcher(bot, subreddit), (5 * i), frequency, TimeUnit.MINUTES);
             }
         }
@@ -298,7 +301,23 @@ public class Configuration {
     public static String getSQLiteDatabase() {
         return sqlite_database;
     }
-
+    
+    /**
+     * Returns the logger for use if it exists, otherwise initialize and return a new one
+     * @return the logger to use
+     */
+    public static IRCLogger getLogger() {
+        if(logger == null) {
+            logger = new IRCLogger();
+            try {
+                logger.setup();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return logger;
+    }
+    
     /**
      * Returns if the connection should be secured through SSL
      * @return true if SSL should be used, false for unsecured connections

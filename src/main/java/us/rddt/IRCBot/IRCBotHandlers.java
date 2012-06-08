@@ -31,6 +31,7 @@ package us.rddt.IRCBot;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,7 +47,6 @@ import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
-import us.rddt.IRCBot.Enums.LogLevels;
 import us.rddt.IRCBot.Enums.TopicUpdates;
 import us.rddt.IRCBot.Enums.UserModes;
 import us.rddt.IRCBot.Handlers.Define;
@@ -311,32 +311,32 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 return;
             }
             if(event.getMessage().equals("disconnect")) {
-                IRCUtils.Log(LogLevels.INFORMATION, "Disconnecting due to administrator request");
+                Configuration.getLogger().write(Level.INFO, "Disconnecting due to administrator request");
                 event.getBot().quitServer("Disconnecting due to administrator request");
                 System.exit(0);
             }
             if(event.getMessage().equals("reload")) {
-                IRCUtils.Log(LogLevels.INFORMATION, "Reloading configuration due to administrator request...");
+                Configuration.getLogger().write(Level.INFO, "Reloading configuration due to administrator request...");
                 sendGlobalMessage(event.getBot(), "Reloading configuration...");
                 try {
                     Configuration.loadConfiguration();
                     Configuration.startScheduler(event.getBot());
                 } catch (Exception ex) {
-                    IRCUtils.Log(LogLevels.INFORMATION, "Failed to reload configuration!");
+                    Configuration.getLogger().write(Level.INFO, "Failed to reload configuration!");
                     ex.printStackTrace();
                     sendGlobalMessage(event.getBot(), "Failed to reload configuration: " + ex.getMessage());
                 }
-                IRCUtils.Log(LogLevels.INFORMATION, "Reload complete");
+                Configuration.getLogger().write(Level.INFO, "Reload complete");
                 sendGlobalMessage(event.getBot(), "Successfully reloaded configuration.");
                 return;
             }
             if(event.getMessage().equals("restart")) {
-                IRCUtils.Log(LogLevels.INFORMATION, "Restarting due to administrator request...");
+                Configuration.getLogger().write(Level.INFO, "Restarting due to administrator request...");
                 sendGlobalMessage(event.getBot(), "Restarting due to administrator request...");
                 try {
                     IRCUtils.restartApplication();
                 } catch (Exception ex) {
-                    IRCUtils.Log(LogLevels.FATAL, ex.getMessage());
+                    Configuration.getLogger().write(Level.SEVERE, ex.getMessage());
                     ex.printStackTrace();
                 }
             }

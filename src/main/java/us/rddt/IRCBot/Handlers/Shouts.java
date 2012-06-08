@@ -35,14 +35,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 
 import org.pircbotx.Colors;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
+import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
-import us.rddt.IRCBot.Enums.LogLevels;
 
 /**
  * @author Ryan Morrison
@@ -370,7 +371,7 @@ public class Shouts implements Runnable {
             // Disconnect from the database
             database.disconnect();
         } catch (Exception ex) {
-            IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
             ex.printStackTrace();
             return;
         }

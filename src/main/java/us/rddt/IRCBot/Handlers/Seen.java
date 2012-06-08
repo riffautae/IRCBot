@@ -31,6 +31,7 @@ package us.rddt.IRCBot.Handlers;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Iterator;
+import java.util.logging.Level;
 
 import org.pircbotx.Channel;
 import org.pircbotx.PircBotX;
@@ -38,9 +39,9 @@ import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
+import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
-import us.rddt.IRCBot.Enums.LogLevels;
 
 /**
  * @author Ryan Morrison
@@ -157,7 +158,7 @@ public class Seen implements Runnable {
                 // Disconnect from the database
                 database.disconnect();
             } catch (Exception ex) {
-                IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+                Configuration.getLogger().write(Level.WARNING, ex.getMessage());
                 ex.printStackTrace();
             }
         }
@@ -198,7 +199,7 @@ public class Seen implements Runnable {
             // Disconnect from the database
             database.disconnect();
         } catch (Exception ex) {
-            IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
             ex.printStackTrace();
         }
     }

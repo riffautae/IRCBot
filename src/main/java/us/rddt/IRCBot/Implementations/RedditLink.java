@@ -35,13 +35,14 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
-import us.rddt.IRCBot.Enums.LogLevels;
 
 /**
  * @author Ryan Morrison
@@ -215,7 +216,7 @@ public class RedditLink {
             try {
                 weightScore = (submissionScore / ((double)((new Date().getTime() / 1000) - submissionDate) / 3600));
             } catch (ArithmeticException ex) {
-                IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+                Configuration.getLogger().write(Level.WARNING, ex.getMessage());
                 ex.printStackTrace();
             }
             if(weightScore > bestWeightValue) {

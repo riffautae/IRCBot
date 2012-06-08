@@ -36,6 +36,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -52,8 +53,8 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
+import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
-import us.rddt.IRCBot.Enums.LogLevels;
 
 /**
  * @author Ryan Morrison
@@ -221,10 +222,10 @@ public class URLGrabber implements Runnable {
                 return false;
             }
         } catch (MalformedURLException ex) {
-            IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
             ex.printStackTrace();
         } catch (Exception ex) {
-            IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
             ex.printStackTrace();
         }
         return false;
@@ -331,12 +332,12 @@ public class URLGrabber implements Runnable {
                 return;
             }
         } catch (MalformedURLException ex) {
-            IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
             ex.printStackTrace();
             return;
         } catch (Exception ex) {
             event.getBot().sendMessage(event.getChannel(), formatError("Reddit", ex.getMessage()));
-            IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
             ex.printStackTrace();
             return;
         }
@@ -354,7 +355,7 @@ public class URLGrabber implements Runnable {
             event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] " + Colors.BOLD + "@" + status.getUser().getScreenName() + Colors.NORMAL + ": " + status.getText());
         } catch (TwitterException te) {
             event.getBot().sendMessage(event.getChannel(), formatError("Twitter", te.getMessage()));
-            IRCUtils.Log(LogLevels.ERROR, te.getMessage());
+            Configuration.getLogger().write(Level.WARNING, te.getMessage());
             te.printStackTrace();
         }
     }
@@ -373,12 +374,12 @@ public class URLGrabber implements Runnable {
             event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (" + link.getReadableDuration() + ")");
             return;
         } catch (MalformedURLException ex) {
-            IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
             ex.printStackTrace();
             return;
         } catch (Exception ex) {
             event.getBot().sendMessage(event.getChannel(), formatError("YouTube", ex.getMessage()));
-            IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
             ex.printStackTrace();
             return;
         }
@@ -423,7 +424,7 @@ public class URLGrabber implements Runnable {
         try {
             event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
         } catch (Exception ex) {
-            IRCUtils.Log(LogLevels.ERROR, ex.getMessage());
+            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
             ex.printStackTrace();
             event.getBot().sendMessage(event.getChannel(), formatError("URL", ex.getMessage()));
             return;

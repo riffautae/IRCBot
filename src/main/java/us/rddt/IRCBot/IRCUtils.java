@@ -36,8 +36,6 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
-import us.rddt.IRCBot.Enums.LogLevels;
-
 /**
  * @author Ryan Morrison
  */
@@ -61,37 +59,6 @@ public class IRCUtils {
     public static String escapeHTMLEntities(String toEscape) {
         new StringEscapeUtils();
         return StringEscapeUtils.unescapeHtml4(toEscape);
-    }
-
-    /**
-     * Writes a log entry to the console
-     * @param level the level to display
-     * @param toLog the text to be logged
-     */
-    public static void Log(LogLevels level, String toLog) {
-        // Temporary string to construct the log output
-        String output;
-        // Prepend the proper log level to the string
-        switch(level) {
-        case INFORMATION:
-            output = "[INFO] ";
-            break;
-        case WARNING:
-            output = "[WARNING] ";
-            break;
-        case ERROR:
-            output = "[ERROR] ";
-            break;
-        case FATAL:
-            output = "[FATAL] ";
-            break;
-        default:
-            output = "[UNKNOWN] ";
-        }
-        // Add the current date/time and the string to log
-        output += (new Date().toString() + ": " + toLog);
-        // Log to the console
-        System.out.println(output);
     }
     
     /**
