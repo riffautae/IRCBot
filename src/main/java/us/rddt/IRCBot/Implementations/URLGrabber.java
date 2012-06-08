@@ -251,7 +251,11 @@ public class URLGrabber implements Runnable {
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         // Set a proper user agent, some sites return HTTP 409 without it
         conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
-        // Initiate the connection
+        // Follow 301 redirects
+        if(conn.getResponseCode() == 301) {
+            return getPageTitle(new URL(conn.getHeaderField("Location")));
+        }
+        // Return an error if the response code is over 400
         if(conn.getResponseCode() >= 400) {
             throw new IOException("Server returned response code: " + conn.getResponseCode());
         }
@@ -430,7 +434,7 @@ public class URLGrabber implements Runnable {
             return;
         }
     }
-    
+
     /*
      * Static block to ensure that HTTPS connections don't bother validating certificate chains
      * Only executes on the initial class creation, doesn't run in every thread 
