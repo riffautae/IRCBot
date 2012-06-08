@@ -72,8 +72,6 @@ public class URLGrabber implements Runnable {
     private static final Pattern REDDIT_LINK = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/r\\/.+\\/comments\\/.+\\/.+\\/");
     // Regex pattern to match Reddit users
     private static final Pattern REDDIT_USER = Pattern.compile("https?:\\/\\/(www.)?reddit\\.com\\/user\\/.+");
-    // Regex pattern to match the HTML title tag to extract from the URL
-    private static final Pattern TITLE_TAG = Pattern.compile("\\<title>(.*)\\</title>", Pattern.CASE_INSENSITIVE|Pattern.DOTALL);
     // Regex pattern to match Twitter tweets
     private static final Pattern TWITTER_TWEET = Pattern.compile("https?:\\/\\/(www\\.)?twitter\\.com\\/(?:#!\\/)?(\\w+)\\/status(es)?\\/(\\d+)");
     // Regex pattern to match YouTube videos
@@ -289,15 +287,14 @@ public class URLGrabber implements Runnable {
             // Disconnect from the web server
             conn.disconnect();
 
-            // Use the Regex defined earlier to match and extract the title tag
-            // If the title tag can't be matched, it likely wasn't part of the first 8192 bytes
-            Matcher matcher = TITLE_TAG.matcher(content);
-            if (matcher.find()) {
-                // Properly escape any HTML entities present in the title
-                return Colors.BOLD + IRCUtils.escapeHTMLEntities((matcher.group(1).replaceAll("[\\s\\<>]+", " ").trim()));
-            }
-            else
+            // Regex giving you trouble? Well, it's only 8192 bytes, so let's just do a straight-up string search
+            int titleIndex = content.indexOf("<title>");
+            int titleEndIndex = content.indexOf("</title>");
+            if (titleIndex == -1 || titleEndIndex == -1 || titleIndex >= content.length() || titleEndIndex >= content.length())
+            {
                 return "Title not found or not within first 8192 bytes of page, aborting.";
+            }
+            return Colors.BOLD + IRCUtils.escapeHTMLEntities(content.substring(titleIndex + 7, titleEndIndex).replaceAll("[\\s\\<>]+", " ").trim());
         }
     }
 
