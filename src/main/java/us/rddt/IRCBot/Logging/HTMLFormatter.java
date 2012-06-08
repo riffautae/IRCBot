@@ -84,7 +84,7 @@ public class HTMLFormatter extends Formatter {
      * @return the header
      */
     public String getHead(Handler h) {
-        return "<html>\n<head></head>\n<body>" + (new Date()) + "\n<pre>\n"
+        return "<html>\n<head></head>\n<body>Log Started: " + (new Date()) + "\n<pre>\n"
                 + "<table border>\n  "
                 + "<tr><th>Level</th><th>Time</th><th>Message</th></tr>\n";
     }

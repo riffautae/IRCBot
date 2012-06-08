@@ -34,6 +34,8 @@ import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import us.rddt.IRCBot.Configuration;
+
 /**
  * @author Ryan Morrison
  */
@@ -48,7 +50,7 @@ public class IRCLogger {
 
     public void setup() throws IOException {
         Logger logger = Logger.getLogger("");
-        fileHTML = new FileHandler("IRCBot-Log.html");
+        fileHTML = new FileHandler(Configuration.getLogFile());
 
         formatterHTML = new HTMLFormatter();
         fileHTML.setFormatter(formatterHTML);
