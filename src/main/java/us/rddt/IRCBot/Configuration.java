@@ -85,6 +85,8 @@ public class Configuration {
     
     private static IRCLogger logger;
     private static String log_output;
+    
+    private static String user_agent;
 
     /**
      * Loads the configuration provided via a properties file
@@ -118,6 +120,7 @@ public class Configuration {
             sqlite_database = config.getProperty("sqlite_database");
         }
         log_output = config.getProperty("log_output");
+        user_agent = config.getProperty("user_agent");
     }
 
     /**
@@ -318,6 +321,13 @@ public class Configuration {
             }
         }
         return logger;
+    }
+    
+    public static String getUserAgent() {
+        if(user_agent != null && !user_agent.isEmpty()) {
+            return user_agent;
+        }
+        return "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
     }
     
     /**

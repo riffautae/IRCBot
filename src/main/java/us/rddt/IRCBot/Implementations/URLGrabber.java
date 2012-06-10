@@ -248,7 +248,7 @@ public class URLGrabber implements Runnable {
         // Connect to the server
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         // Set a proper user agent, some sites return HTTP 409 without it
-        conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
+        conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
         // Follow 301 redirects
         if(conn.getResponseCode() == 301) {
             return getPageTitle(new URL(conn.getHeaderField("Location")));

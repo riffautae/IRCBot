@@ -40,11 +40,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
  * @author Ryan Morrison
  */
 public class IRCUtils {
-    /*
-     * User agent string for HTTP connections, used to workaround HTTP 402 errors on certain hosts
-     */
-    public static final String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1; rv:6.0) Gecko/20110814 Firefox/6.0";
-    
     /* 
      * Sun property pointing the main class and its arguments. 
      * Might not be defined on non Hotspot VM implementations.

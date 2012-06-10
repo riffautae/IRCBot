@@ -39,7 +39,7 @@ import java.util.Date;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import us.rddt.IRCBot.IRCUtils;
+import us.rddt.IRCBot.Configuration;
 
 /**
  * @author Ryan Morrison
@@ -94,7 +94,7 @@ public class RedditUser {
          * Opens a connection to the provided URL, and downloads the data into a temporary variable.
          */
         HttpURLConnection conn = (HttpURLConnection)link.openConnection();
-        conn.setRequestProperty("User-Agent", IRCUtils.USER_AGENT);
+        conn.setRequestProperty("User-Agent", Configuration.getUserAgent());
         if(conn.getResponseCode() >= 400) {
             throw new IOException("Server returned response code: " + conn.getResponseCode());
         }
