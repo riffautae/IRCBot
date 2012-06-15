@@ -220,11 +220,9 @@ public class URLGrabber implements Runnable {
                 return false;
             }
         } catch (MalformedURLException ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
         } catch (Exception ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
         }
         return false;
     }
@@ -333,13 +331,11 @@ public class URLGrabber implements Runnable {
                 return;
             }
         } catch (MalformedURLException ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
             return;
         } catch (Exception ex) {
             event.getBot().sendMessage(event.getChannel(), formatError("Reddit", ex.getMessage()));
-            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
             return;
         }
     }
@@ -356,8 +352,7 @@ public class URLGrabber implements Runnable {
             event.getBot().sendMessage(event.getChannel(), "[Tweet by '" + event.getUser().getNick() + "'] " + Colors.BOLD + "@" + status.getUser().getScreenName() + Colors.NORMAL + ": " + status.getText());
         } catch (TwitterException te) {
             event.getBot().sendMessage(event.getChannel(), formatError("Twitter", te.getMessage()));
-            Configuration.getLogger().write(Level.WARNING, te.getMessage());
-            te.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, te.getStackTrace().toString());
         }
     }
 
@@ -375,13 +370,11 @@ public class URLGrabber implements Runnable {
             event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (" + link.getReadableDuration() + ")");
             return;
         } catch (MalformedURLException ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
             return;
         } catch (Exception ex) {
             event.getBot().sendMessage(event.getChannel(), formatError("YouTube", ex.getMessage()));
-            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
             return;
         }
     }
@@ -425,8 +418,7 @@ public class URLGrabber implements Runnable {
         try {
             event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
         } catch (Exception ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getMessage());
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
             event.getBot().sendMessage(event.getChannel(), formatError("URL", ex.getMessage()));
             return;
         }
@@ -457,7 +449,7 @@ public class URLGrabber implements Runnable {
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
         }
     }
 }

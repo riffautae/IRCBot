@@ -322,8 +322,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                     Configuration.loadConfiguration();
                     Configuration.startScheduler(event.getBot());
                 } catch (Exception ex) {
-                    Configuration.getLogger().write(Level.INFO, "Failed to reload configuration!");
-                    ex.printStackTrace();
+                    Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
                     sendGlobalMessage(event.getBot(), "Failed to reload configuration: " + ex.getMessage());
                 }
                 Configuration.getLogger().write(Level.INFO, "Reload complete");
@@ -336,8 +335,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 try {
                     IRCUtils.restartApplication();
                 } catch (Exception ex) {
-                    Configuration.getLogger().write(Level.SEVERE, ex.getMessage());
-                    ex.printStackTrace();
+                    Configuration.getLogger().write(Level.SEVERE, ex.getStackTrace().toString());
                 }
             }
         } else {

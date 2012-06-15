@@ -29,11 +29,13 @@
 package us.rddt.IRCBot.Handlers;
 
 import java.io.IOException;
+import java.util.logging.Level;
 
 import org.json.JSONException;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
+import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Implementations.UrbanLookup;
 
@@ -97,12 +99,12 @@ public class Define implements Runnable {
         try {
             lookupResult = UrbanLookup.getDefinition(toDefine);
         } catch (IOException ex) {
-            ex.printStackTrace();
+            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
             event.respond("Error while downloading definition: " + IRCUtils.trimString(event.getMessage(), 50));
             return;
         } catch (JSONException ex) {
+            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
             event.respond("Error while parsing definition: " + IRCUtils.trimString(event.getMessage(), 50));
-            ex.printStackTrace();
         }
         
         /*

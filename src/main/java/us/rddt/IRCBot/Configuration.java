@@ -158,7 +158,7 @@ public class Configuration {
             }
             return null;
         } catch (IOException ex) {
-            ex.printStackTrace();
+            getLogger().write(Level.WARNING, ex.getStackTrace().toString());
             return null;
         }
     }

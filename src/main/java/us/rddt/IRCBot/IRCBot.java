@@ -52,8 +52,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
         try {
             Configuration.loadConfiguration();
         } catch(Exception ex) {
-            ex.printStackTrace();
-            Configuration.getLogger().write(Level.SEVERE, ex.getMessage());
+            Configuration.getLogger().write(Level.SEVERE, ex.getStackTrace().toString());
             System.exit(-1);
         }
         Configuration.getLogger().write(Level.INFO, "Initializing bot (IRCBot version " + Configuration.getApplicationVersion() + ")");
