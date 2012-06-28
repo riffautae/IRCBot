@@ -33,6 +33,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -243,6 +244,10 @@ public class URLGrabber implements Runnable {
      * @throws Exception if an error occurs downloading the page
      */
     private String getPageTitle(URL url) throws Exception {
+        // Is the connection IPv6 or not?
+        boolean isV6 = false;
+        // Is the connection secured or not?
+        boolean isSecure = false;
         // Connect to the server
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         // Set a proper user agent, some sites return HTTP 409 without it
@@ -255,6 +260,11 @@ public class URLGrabber implements Runnable {
         if(conn.getResponseCode() >= 400) {
             throw new IOException("Server returned response code: " + conn.getResponseCode());
         }
+        // Check whether the connection is IPv6 or IPv4
+        String ip = InetAddress.getByName(url.getHost()).getHostAddress();
+        if(ip.contains(":") && !ip.contains(".")) isV6 = true;
+        // Check whether the connection is over HTTPS
+        if (url.getProtocol().toLowerCase().equals("https")) isSecure = true;
         // No need to check validity of the URL - it's already been proven valid at this point
         // Get the Content-Type property from the HTTP headers so we can parse accordingly
         ContentType contentType = getContentTypeHeader(conn);
@@ -284,6 +294,12 @@ public class URLGrabber implements Runnable {
             reader.close();
             // Disconnect from the web server
             conn.disconnect();
+            
+            // Prefix for marking SSL/TLS and IPv6 connections
+            StringBuilder built = new StringBuilder();
+            
+            if(isV6) built.append(Colors.BOLD + Colors.GREEN + "[IPv6]" + Colors.NORMAL + " ");
+            if(isSecure) built.append(Colors.BOLD + Colors.GREEN + "[SSL/TLS]" + Colors.NORMAL + " ");
 
             // Regex giving you trouble? Well, it's only 8192 bytes, so let's just do a straight-up string search
             int titleIndex = content.indexOf("<title>");
@@ -292,7 +308,7 @@ public class URLGrabber implements Runnable {
             {
                 return "Title not found or not within first 8192 bytes of page, aborting.";
             }
-            return Colors.BOLD + IRCUtils.escapeHTMLEntities(content.substring(titleIndex + 7, titleEndIndex).replaceAll("[\\s\\<>]+", " ").trim());
+            return built.append(Colors.BOLD + IRCUtils.escapeHTMLEntities(content.substring(titleIndex + 7, titleEndIndex).replaceAll("[\\s\\<>]+", " ").trim())).toString();
         }
     }
 
