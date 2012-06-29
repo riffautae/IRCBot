@@ -244,10 +244,6 @@ public class URLGrabber implements Runnable {
      * @throws Exception if an error occurs downloading the page
      */
     private String getPageTitle(URL url) throws Exception {
-        // Is the connection IPv6 or not?
-        boolean isV6 = false;
-        // Is the connection secured or not?
-        boolean isSecure = false;
         // Connect to the server
         HttpURLConnection conn = (HttpURLConnection)url.openConnection();
         // Set a proper user agent, some sites return HTTP 409 without it
@@ -260,17 +256,26 @@ public class URLGrabber implements Runnable {
         if(conn.getResponseCode() >= 400) {
             throw new IOException("Server returned response code: " + conn.getResponseCode());
         }
-        // Check whether the connection is IPv6 or IPv4
-        String ip = InetAddress.getByName(url.getHost()).getHostAddress();
-        if(ip.contains(":") && !ip.contains(".")) isV6 = true;
-        // Check whether the connection is over HTTPS
-        if (url.getProtocol().toLowerCase().equals("https")) isSecure = true;
         // No need to check validity of the URL - it's already been proven valid at this point
         // Get the Content-Type property from the HTTP headers so we can parse accordingly
         ContentType contentType = getContentTypeHeader(conn);
+        
+        // Prefix for marking SSL/TLS and IPv6 connections
+        StringBuilder built = new StringBuilder();
+        
+        // Check whether the connection is IPv6 or IPv4
+        String ip = InetAddress.getByName(url.getHost()).getHostAddress();
+        if(ip.contains(":") && !ip.contains(".")) {
+            built.append(Colors.BOLD + Colors.GREEN + "[IPv6]" + Colors.NORMAL + " ");
+        }
+        // Check whether the connection is over HTTPS
+        if (conn instanceof HttpsURLConnection) {
+            built.append(Colors.BOLD + Colors.GREEN + "[SSL/TLS]" + Colors.NORMAL + " ");
+        }
+        
         // If the document isn't HTML, return the Content-Type and Content-Length instead
         if(!contentType.contentType.equals("text/html")) {
-            return "Type: " + contentType.contentType + ", length: " + humanReadableByteCount(getContentLengthHeader(conn), true);
+            return built.append("Type: " + contentType.contentType + ", length: " + humanReadableByteCount(getContentLengthHeader(conn), true)).toString();
         }
         else {
             // Get the character set or use the default accordingly
@@ -294,12 +299,6 @@ public class URLGrabber implements Runnable {
             reader.close();
             // Disconnect from the web server
             conn.disconnect();
-            
-            // Prefix for marking SSL/TLS and IPv6 connections
-            StringBuilder built = new StringBuilder();
-            
-            if(isV6) built.append(Colors.BOLD + Colors.GREEN + "[IPv6]" + Colors.NORMAL + " ");
-            if(isSecure) built.append(Colors.BOLD + Colors.GREEN + "[SSL/TLS]" + Colors.NORMAL + " ");
 
             // Regex giving you trouble? Well, it's only 8192 bytes, so let's just do a straight-up string search
             int titleIndex = content.indexOf("<title>");
