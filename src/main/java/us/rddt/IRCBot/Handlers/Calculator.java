@@ -27,6 +27,7 @@ public class Calculator implements Runnable {
      * @return the expression in postfix notation
      */
     private String inflixToPostfix(String input) {
+        System.out.println(input);
         /*
          * Variables
          */
@@ -34,13 +35,14 @@ public class Calculator implements Runnable {
         String finalExp = "";
         Stack<String> s = new Stack<String>();
 
-        StringReader reader = new StringReader(input);
+        StringReader reader = new StringReader(input.replaceAll("\\D", " $0 "));
         Scanner scan = new Scanner(reader);
 
         while(scan.hasNext()) {
-            if(scan.hasNextDouble()) finalExp += " " + scan.nextDouble();
+            if(scan.hasNextDouble()) finalExp += scan.nextDouble() + " ";
             else {
                 tmp = scan.next();
+                System.out.println(tmp);
                 if(isOperator(tmp)) {
                     // If the stack is empty there is no precedence so push
                     if(s.isEmpty()) s.push(tmp);
@@ -55,7 +57,7 @@ public class Calculator implements Runnable {
                          */
                         String top = s.peek();
                         while(getPrecedence(top, tmp).equals(top) && !s.isEmpty()) {
-                            finalExp += " " + s.pop();
+                            finalExp += s.pop() + " ";
                             if(!s.isEmpty()) top = s.peek();
                         }
                         // Push the operator on the stack
@@ -66,7 +68,8 @@ public class Calculator implements Runnable {
         }
 
         // Append all the operators on the stack to the final expression and return it
-        while(!s.isEmpty()) finalExp += " " + s.pop();
+        while(!s.isEmpty()) finalExp += s.pop() + " ";
+        System.out.println(finalExp);
         return finalExp;
     }
 
@@ -108,7 +111,6 @@ public class Calculator implements Runnable {
          * Variables
          */
         String postfix = inflixToPostfix(input);
-        System.out.println(postfix);
         StringReader reader = new StringReader(postfix);
 
         Scanner scan = new Scanner(reader);
