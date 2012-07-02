@@ -76,7 +76,7 @@ public class Calculator implements Runnable {
      * @return true if the string is an operator, false if it is not
      */
     private boolean isOperator(String input) {
-        String operators = "*/%+-";
+        String operators = "*/%^+-";
         if (operators.indexOf(input) != -1) return true;
         else return false;
     }
@@ -89,7 +89,7 @@ public class Calculator implements Runnable {
      */
     private String getPrecedence(String op1, String op2){
         // Variables to hold the appropriate operators
-        String multiplicativeOps = "*/%";
+        String multiplicativeOps = "*/^%";
         String additiveOps = "+-";
 
         // Determine which operator has higher precedence and return it
@@ -140,6 +140,9 @@ public class Calculator implements Runnable {
                 } else if(token.equals("%")) {
                     tmp = s.pop();
                     s.push(s.pop() % tmp);
+                } else if(token.equals("^")) {
+                    tmp = s.pop();
+                    s.push(Math.pow(s.pop(), tmp));
                 }
             }
         }
