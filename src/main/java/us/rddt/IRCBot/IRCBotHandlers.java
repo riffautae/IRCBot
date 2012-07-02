@@ -49,6 +49,7 @@ import org.pircbotx.hooks.events.QuitEvent;
 
 import us.rddt.IRCBot.Enums.TopicUpdates;
 import us.rddt.IRCBot.Enums.UserModes;
+import us.rddt.IRCBot.Handlers.Calculator;
 import us.rddt.IRCBot.Handlers.Convert;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
@@ -101,6 +102,12 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(event.getMessage().startsWith("!who ")) {
             if(!Configuration.getDisabledFunctions().contains("shout")) {
                 new Thread(new Shouts(event, Shouts.ShoutEvents.LOOKUP_COMMAND)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!calc ")) {
+            if(!Configuration.getDisabledFunctions().contains("calc")) {
+                new Thread(new Calculator(event)).start();
                 return true;
             }
         }
