@@ -20,6 +20,12 @@ public class Calculator implements Runnable {
     public Calculator(MessageEvent<PircBotX> event) {
         this.event = event;
     }
+    
+    private double factorial(double n) {
+        double ret = 1;
+        for (int i = 1; i <= n; ++i) ret *= i;
+        return ret;
+    }
 
     /**
      * Converts an inflix (in-order) mathematical expression to postfix notation
@@ -27,7 +33,6 @@ public class Calculator implements Runnable {
      * @return the expression in postfix notation
      */
     private String inflixToPostfix(String input) {
-        System.out.println(input);
         /*
          * Variables
          */
@@ -42,7 +47,6 @@ public class Calculator implements Runnable {
             if(scan.hasNextDouble()) finalExp += scan.nextDouble() + " ";
             else {
                 tmp = scan.next();
-                System.out.println(tmp);
                 if(isOperator(tmp)) {
                     // If the stack is empty there is no precedence so push
                     if(s.isEmpty()) s.push(tmp);
@@ -63,13 +67,18 @@ public class Calculator implements Runnable {
                         // Push the operator on the stack
                         s.push(tmp);
                     }
+                } else if(tmp.equals("(")) {
+                    s.push(tmp);
+                } else if(tmp.equals(")")) {
+                    while(!s.empty() && !s.peek().equals("(")) {
+                        finalExp += s.pop() + " ";
+                    }
                 }
             }
         }
 
         // Append all the operators on the stack to the final expression and return it
         while(!s.isEmpty()) finalExp += s.pop() + " ";
-        System.out.println(finalExp);
         return finalExp;
     }
 
@@ -79,7 +88,7 @@ public class Calculator implements Runnable {
      * @return true if the string is an operator, false if it is not
      */
     private boolean isOperator(String input) {
-        String operators = "*/%^+-";
+        String operators = "*/%^!+-";
         if (operators.indexOf(input) != -1) return true;
         else return false;
     }
@@ -92,7 +101,7 @@ public class Calculator implements Runnable {
      */
     private String getPrecedence(String op1, String op2){
         // Variables to hold the appropriate operators
-        String multiplicativeOps = "*/^%";
+        String multiplicativeOps = "*/^!%";
         String additiveOps = "+-";
 
         // Determine which operator has higher precedence and return it
@@ -145,6 +154,8 @@ public class Calculator implements Runnable {
                 } else if(token.equals("^")) {
                     tmp = s.pop();
                     s.push(Math.pow(s.pop(), tmp));
+                } else if(token.equals("!")) {
+                    s.push(factorial(s.pop()));
                 }
             }
         }
