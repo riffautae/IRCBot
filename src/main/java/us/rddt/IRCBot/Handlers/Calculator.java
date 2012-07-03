@@ -40,7 +40,7 @@ public class Calculator implements Runnable {
         String finalExp = "";
         Stack<String> s = new Stack<String>();
 
-        StringReader reader = new StringReader(input.replaceAll("\\D", " $0 "));
+        StringReader reader = new StringReader(input.replaceAll("[^0-9.]+", " $0 "));
         Scanner scan = new Scanner(reader);
 
         while(scan.hasNext()) {
