@@ -32,7 +32,7 @@ public class Calculator implements Runnable {
      * @param input the inflix expression to convert
      * @return the expression in postfix notation
      */
-    private String inflixToPostfix(String input) {
+    private String inflixToPostfix(String input) throws Exception {
         /*
          * Variables
          */
@@ -47,6 +47,7 @@ public class Calculator implements Runnable {
             if(scan.hasNextDouble()) finalExp += scan.nextDouble() + " ";
             else {
                 tmp = scan.next();
+                System.out.println("tmp: " + tmp);
                 if(isOperator(tmp)) {
                     // If the stack is empty there is no precedence so push
                     if(s.isEmpty()) s.push(tmp);
@@ -73,6 +74,12 @@ public class Calculator implements Runnable {
                     while(!s.empty() && !s.peek().equals("(")) {
                         finalExp += s.pop() + " ";
                     }
+                } else {
+                    /* 
+                     * This isn't an integer, decimal or operator, so there's no point wasting
+                     * computation time on an invalid expression.
+                     */
+                    throw new Exception("One or more operator(s) in expression is invalid");
                 }
             }
         }
@@ -119,7 +126,15 @@ public class Calculator implements Runnable {
         /*
          * Variables
          */
-        String postfix = inflixToPostfix(input);
+        String postfix;
+        
+        try {
+            postfix = inflixToPostfix(input);
+        } catch (Exception ex) {
+            event.respond("An error has occurred while parsing the expression: " + ex.getMessage());
+            return;
+        }
+        
         StringReader reader = new StringReader(postfix);
 
         Scanner scan = new Scanner(reader);
