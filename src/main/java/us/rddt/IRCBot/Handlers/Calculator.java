@@ -32,90 +32,57 @@ public class Calculator implements Runnable {
      * @param input the inflix expression to convert
      * @return the expression in postfix notation
      */
-    private String inflixToPostfix(String input) throws Exception {
+    private static String inflixToPostfix(String input) {
+        // Return null if the string is null or empty
+        if (input == null || input.isEmpty()) return null;
+        // Convert the string into a character array
+        char[] in = input.toCharArray();
+        
+        // The stack to hold the expression during conversion
+        Stack<Character> stack = new Stack<Character>();
+        // The StringBuilder that will build the converted expression
+        StringBuilder out = new StringBuilder();
+        
         /*
-         * Variables
+         * We loop through each element in the character array of the original expression,
+         * pushing and popping off the stack in an appropriate manner to convert the
+         * expression into postfix notation
          */
-        String tmp;
-        String finalExp = "";
-        Stack<String> s = new Stack<String>();
-
-        StringReader reader = new StringReader(input.replaceAll("[^0-9.]+", " $0 "));
-        Scanner scan = new Scanner(reader);
-
-        while(scan.hasNext()) {
-            if(scan.hasNextDouble()) finalExp += scan.nextDouble() + " ";
-            else {
-                tmp = scan.next();
-                System.out.println("tmp: " + tmp);
-                if(isOperator(tmp)) {
-                    // If the stack is empty there is no precedence so push
-                    if(s.isEmpty()) s.push(tmp);
-                    else {
-                        /*
-                         * If the current character is an operator, we need to check the stack 
-                         * status and if the stack top contains an operator with lower
-                         * precedence, we push the current character in the stack - otherwise, we pop
-                         * the character from the stack and add it to the postfix string. This 
-                         * continues until we either find an operator with lower precedence in the 
-                         * stack or we find the stack to be empty.
-                         */
-                        String top = s.peek();
-                        while(getPrecedence(top, tmp).equals(top) && !s.isEmpty()) {
-                            finalExp += s.pop() + " ";
-                            if(!s.isEmpty()) top = s.peek();
-                        }
-                        // Push the operator on the stack
-                        s.push(tmp);
-                    }
-                } else if(tmp.equals("(")) {
-                    s.push(tmp);
-                } else if(tmp.equals(")")) {
-                    while(!s.empty() && !s.peek().equals("(")) {
-                        finalExp += s.pop() + " ";
-                    }
-                } else {
-                    /* 
-                     * This isn't an integer, decimal or operator, so there's no point wasting
-                     * computation time on an invalid expression.
-                     */
-                    throw new Exception("One or more operator(s) in expression is invalid");
+        for (int i = 0; i < in.length; i++) {
+            switch (in[i]) {
+            case '+':
+            case '-':
+                while (!stack.empty() && (stack.peek() == '*' || stack.peek() == '/')) {
+                    out.append(' ').append(stack.pop());
                 }
+            case '^':
+            case '!':
+            case '*':
+            case '/':
+                out.append(' ');
+            case '(':
+                stack.push(in[i]);
+            case ' ':
+                break;
+            case ')':
+                while (!stack.empty() && stack.peek() != '(') {
+                    out.append(' ').append(stack.pop());
+                }
+                if (!stack.empty()) stack.pop();
+                break;
+            default:
+                out.append(in[i]);
+                break;
             }
         }
-
-        // Append all the operators on the stack to the final expression and return it
-        while(!s.isEmpty()) finalExp += s.pop() + " ";
-        return finalExp;
-    }
-
-    /**
-     * Helper method to check if a string is a mathematical operator
-     * @param input the input string to check
-     * @return true if the string is an operator, false if it is not
-     */
-    private boolean isOperator(String input) {
-        String operators = "*/%^!+-";
-        if (operators.indexOf(input) != -1) return true;
-        else return false;
-    }
-
-    /**
-     * Helper method to determine the precedence of mathematical operators
-     * @param op1 the first operator to compare
-     * @param op2 the second operator to compare
-     * @return the operator with higher precedence
-     */
-    private String getPrecedence(String op1, String op2){
-        // Variables to hold the appropriate operators
-        String multiplicativeOps = "*/^!%";
-        String additiveOps = "+-";
-
-        // Determine which operator has higher precedence and return it
-        if ((multiplicativeOps.indexOf(op1) != -1) && (additiveOps.indexOf(op2) != -1)) return op1;
-        else if ((multiplicativeOps.indexOf(op2) != -1) && (additiveOps.indexOf(op1) != -1)) return op2;
-        else if((multiplicativeOps.indexOf(op1) != -1) && (multiplicativeOps.indexOf(op2) != -1)) return op1;
-        else return op1;
+        
+        // Pop the rest of the stack into the output string
+        while (!stack.isEmpty()) {
+            out.append(' ').append(stack.pop());
+        }
+        
+        // Return the newly converted string
+        return out.toString();
     }
 
     /**
@@ -123,15 +90,12 @@ public class Calculator implements Runnable {
      * @param input the inflix expression to calculate
      */
     private void parseCalculation(String input) {
-        /*
-         * Variables
-         */
-        String postfix;
-        
-        try {
-            postfix = inflixToPostfix(input);
-        } catch (Exception ex) {
-            event.respond("An error has occurred while parsing the expression: " + ex.getMessage());
+        // Convert the input expression from inflix to postfix notation
+        String postfix = inflixToPostfix(input);
+
+        // Make sure the conversion was successful - return an error if not
+        if(postfix == null) {
+            event.respond("An error has occurred parsing your expression - please ensure the expression is in valid inflix notation and uses compatible operators.");
             return;
         }
         
