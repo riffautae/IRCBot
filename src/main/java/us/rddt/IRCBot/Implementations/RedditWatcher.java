@@ -36,7 +36,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -149,12 +148,11 @@ public class RedditWatcher implements Runnable {
      * @param redditLink the reddit submission to update
      */
     private void updateChannels(RedditLink redditLink) {
-        Iterator<Channel> itr = bot.getChannels().iterator();
-        while(itr.hasNext()) {
+        for(Channel c : bot.getChannels()) {
             if(redditLink.isOver18()) {
-                bot.sendMessage(itr.next(), "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ") " + Colors.BOLD + Colors.RED + "[NSFW]");
+                bot.sendMessage(c, "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ") " + Colors.BOLD + Colors.RED + "[NSFW]");
             } else {
-                bot.sendMessage(itr.next(), "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ")");
+                bot.sendMessage(c, "[r/" + redditLink.getSubreddit() + "] " + redditLink.getTitle() + " (submitted by " + redditLink.getAuthor() + " about " +  redditLink.getCreatedReadableUTC() + " ago, " + redditLink.getScore() + " points: http://redd.it/" + redditLink.getId() + ")");
             }
         }
     }

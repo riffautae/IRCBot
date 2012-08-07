@@ -30,7 +30,6 @@ package us.rddt.IRCBot.Handlers;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.Iterator;
 import java.util.logging.Level;
 
 import org.pircbotx.Channel;
@@ -101,9 +100,8 @@ public class Seen implements Runnable {
                 updateSeen(pEvent.getUser().getNick(), pEvent.getChannel().getName());
                 return;
             } else if(qEvent != null) {
-                Iterator<Channel> itr = qEvent.getUser().getChannels().iterator();
-                while(itr.hasNext()) {
-                    updateSeen(qEvent.getUser().getNick(), itr.next().getName());
+                for(Channel c : qEvent.getUser().getChannels()) {
+                    updateSeen(qEvent.getUser().getNick(), c.getName());
                 }
                 return;
             }

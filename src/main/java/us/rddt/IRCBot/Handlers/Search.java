@@ -28,7 +28,6 @@
 
 package us.rddt.IRCBot.Handlers;
 
-import java.util.Iterator;
 import java.util.List;
 
 import org.pircbotx.PircBotX;
@@ -72,9 +71,8 @@ public class Search implements Runnable {
         }
         // The second value in the ArrayList should contain our list of results
         searchResults = (List<GoogleResult>)result.get(1);
-        for(Iterator<GoogleResult> itr = searchResults.iterator(); itr.hasNext(); ) {
-            GoogleResult result = itr.next();
-            resultText.append(result.getTitle() + ": " + result.getUrl() + " | ");
+        for(GoogleResult gr : searchResults) {
+            resultText.append(gr.getTitle() + ": " + gr.getUrl() + " | ");
         }
         resultText.append("+" + result.get(0) + " more results");
         event.respond(resultText.toString());
