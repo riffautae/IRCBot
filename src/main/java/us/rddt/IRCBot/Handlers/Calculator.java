@@ -22,6 +22,7 @@ public class Calculator implements Runnable {
         this.event = event;
     }
     
+    // 
     private static final int LEFT_ASSOC = 0;
     private static final int RIGHT_ASSOC = 1;
     
@@ -52,9 +53,9 @@ public class Calculator implements Runnable {
     }
     
     /**
-     * Converts an inflix (in-order) mathematical expression to Reverse Polish notation
-     * @param input the inflix expression to convert
-     * @return the expression in postfix notation
+     * Converts an infix (in-order) mathematical expression to Reverse Polish notation
+     * @param input the infix expression to convert
+     * @return the expression in Reverse Polish notation
      */
     private static String[] infixToRPN(String[] inputTokens) {
         ArrayList<String> out = new ArrayList<String>();
@@ -89,8 +90,8 @@ public class Calculator implements Runnable {
     }
 
     /**
-     * Parses and outputs the result of an inflix calculation to the user
-     * @param input the inflix expression to calculate
+     * Calculates the result of a Reverse Polish notation expression to the user
+     * @param input the tokenized expression to calculate
      */
     private static double rpnToDouble(String[] tokens) {
         Stack<String> stack = new Stack<String>();
