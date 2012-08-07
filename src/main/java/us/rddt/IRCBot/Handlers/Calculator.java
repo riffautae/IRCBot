@@ -1,7 +1,8 @@
 package us.rddt.IRCBot.Handlers;
 
-import java.io.StringReader;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 import org.pircbotx.PircBotX;
@@ -21,135 +22,108 @@ public class Calculator implements Runnable {
         this.event = event;
     }
     
-    private double factorial(double n) {
-        double ret = 1;
-        for (int i = 1; i <= n; ++i) ret *= i;
-        return ret;
+    private static final int LEFT_ASSOC = 0;
+    private static final int RIGHT_ASSOC = 1;
+    
+    private static final Map<String, int[]> operators = new HashMap<String, int[]>();
+    
+    static {
+        operators.put("+", new int[] { 0, LEFT_ASSOC });
+        operators.put("-", new int[] { 0, LEFT_ASSOC });
+        operators.put("*", new int[] { 5, LEFT_ASSOC });
+        operators.put("/", new int[] { 5, LEFT_ASSOC });
+        operators.put("%", new int[] { 5, LEFT_ASSOC });
+        operators.put("^", new int[] { 10, RIGHT_ASSOC });
     }
-
+    
+    private static boolean isOperator(String token) {
+        return operators.containsKey(token);
+    }
+    
+    private static boolean isAssociative(String token, int type) {
+        if(!isOperator(token)) throw new IllegalArgumentException("Invalid token: " + token);
+        if(operators.get(token)[1] == type) return true;
+        else return false;
+    }
+    
+    private static final int cmpPrecedence(String token1, String token2) {
+        if(!isOperator(token1) || !isOperator(token2)) throw new IllegalArgumentException("Invalid tokens: " + token1 + " " + token2);
+        return operators.get(token1)[0] - operators.get(token2)[0];
+    }
+    
     /**
-     * Converts an inflix (in-order) mathematical expression to postfix notation
+     * Converts an inflix (in-order) mathematical expression to Reverse Polish notation
      * @param input the inflix expression to convert
      * @return the expression in postfix notation
      */
-    private static String inflixToPostfix(String input) {
-        // Return null if the string is null or empty
-        if (input == null || input.isEmpty()) return null;
-        // Convert the string into a character array
-        char[] in = input.toCharArray();
+    private static String[] infixToRPN(String[] inputTokens) {
+        ArrayList<String> out = new ArrayList<String>();
+        Stack<String> stack = new Stack<String>();
         
-        // The stack to hold the expression during conversion
-        Stack<Character> stack = new Stack<Character>();
-        // The StringBuilder that will build the converted expression
-        StringBuilder out = new StringBuilder();
-        
-        /*
-         * We loop through each element in the character array of the original expression,
-         * pushing and popping off the stack in an appropriate manner to convert the
-         * expression into postfix notation
-         */
-        for (int i = 0; i < in.length; i++) {
-            switch (in[i]) {
-            case '+':
-            case '-':
-                while (!stack.empty() && (stack.peek() == '*' || stack.peek() == '/')) {
-                    out.append(' ').append(stack.pop());
+        for(String token : inputTokens) {
+            if(token.isEmpty()) continue;
+            if(isOperator(token)) {
+                while(!stack.empty() && isOperator(stack.peek())) {
+                    if((isAssociative(token, LEFT_ASSOC) && cmpPrecedence(token, stack.peek()) <= 0) || (isAssociative(token, RIGHT_ASSOC) && cmpPrecedence(token, stack.peek()) < 0)) {
+                        out.add(stack.pop());
+                        continue;
+                    }
+                    break;
                 }
-            case '^':
-            case '!':
-            case '*':
-            case '/':
-                out.append(' ');
-            case '(':
-                stack.push(in[i]);
-            case ' ':
-                break;
-            case ')':
-                while (!stack.empty() && stack.peek() != '(') {
-                    out.append(' ').append(stack.pop());
+                stack.push(token);
+            } else if(token.equals("(")) {
+                stack.push(token);
+            } else if(token.equals(")")) {
+                while(!stack.empty() && !stack.peek().equals("(")) {
+                    out.add(stack.pop());
                 }
-                if (!stack.empty()) stack.pop();
-                break;
-            default:
-                out.append(in[i]);
-                break;
+                stack.pop();
+            } else {
+                out.add(token);
             }
+        } while(!stack.empty()) {
+            out.add(stack.pop());
         }
-        
-        // Pop the rest of the stack into the output string
-        while (!stack.isEmpty()) {
-            out.append(' ').append(stack.pop());
-        }
-        
-        // Return the newly converted string
-        return out.toString();
+        String[] output = new String[out.size()];
+        return out.toArray(output);
     }
 
     /**
      * Parses and outputs the result of an inflix calculation to the user
      * @param input the inflix expression to calculate
      */
-    private void parseCalculation(String input) {
-        // Convert the input expression from inflix to postfix notation
-        String postfix = inflixToPostfix(input);
-
-        // Make sure the conversion was successful - return an error if not
-        if(postfix == null) {
-            event.respond("An error has occurred parsing your expression - please ensure the expression is in valid inflix notation and uses compatible operators.");
-            return;
-        }
+    private static double rpnToDouble(String[] tokens) {
+        Stack<String> stack = new Stack<String>();
         
-        StringReader reader = new StringReader(postfix);
-
-        Scanner scan = new Scanner(reader);
-        Stack<Double> s = new Stack<Double>();
-
-        double tmp;
-
-        // Loop through the expression string
-        while(scan.hasNext()) {
-            /*
-             * If the next value in the string is a integer/double value, push
-             * it onto the stack. Otherwise, perform the appropriate mathematical
-             * function on the stack.
-             */
-            if(scan.hasNextDouble()) {
-                s.push(scan.nextDouble());
-            } else {
-                String token = scan.next();
-                if(token.equals("+")) {
-                    s.push(s.pop() + s.pop());
-                } else if(token.equals("-")) {
-                    tmp = s.pop();
-                    s.push(s.pop() - tmp);
-                } else if(token.equals("*")) {
-                    s.push(s.pop() * s.pop());
-                } else if(token.equals("/")) {
-                    tmp = s.pop();
-                    s.push(s.pop() / tmp);
-                } else if(token.equals("%")) {
-                    tmp = s.pop();
-                    s.push(s.pop() % tmp);
-                } else if(token.equals("^")) {
-                    tmp = s.pop();
-                    s.push(Math.pow(s.pop(), tmp));
-                } else if(token.equals("!")) {
-                    s.push(factorial(s.pop()));
-                }
+        for(String token : tokens) {
+            if(!isOperator(token)) stack.push(token);
+            else {
+                Double d2 = Double.valueOf(stack.pop());
+                Double d1 = Double.valueOf(stack.pop());
+                
+                Double result = token.compareTo("+") == 0 ? d1 + d2 :
+                                token.compareTo("-") == 0 ? d1 - d2 :
+                                token.compareTo("*") == 0 ? d1 * d2 :
+                                token.compareTo("/") == 0 ? d1 / d2 :    
+                                token.compareTo("^") == 0 ? Math.pow(d1, d2) :
+                                token.compareTo("%") == 0 ? d1 % d2 :
+                                    d1 + d2;
+                
+                stack.push(String.valueOf(result));
             }
         }
-
-        // Return the correct answer to the user
-        event.respond(s.peek().toString());
-
+        
+        return Double.valueOf(stack.pop());
     }
-
+    
     /**
      * Method that executes upon thread-start
      * (non-Javadoc)
      * @see java.lang.Runnable#run()
      */
     public void run() {
-        parseCalculation(event.getMessage().substring(6));
+        String[] rpn = infixToRPN(event.getMessage().substring(6).replaceAll("[+*()-/^%]", " $0 ").split(" "));
+        double result = rpnToDouble(rpn);
+        event.respond(String.valueOf(result));
     }
 }
