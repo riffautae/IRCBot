@@ -30,7 +30,6 @@ package us.rddt.IRCBot;
 
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -397,9 +396,8 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
      * @param message the message to send
      */
     private void sendGlobalMessage(PircBotX bot, String message) {
-        Iterator<Channel> itr = bot.getChannels().iterator();
-        while(itr.hasNext()) {
-            bot.sendMessage(itr.next(), message);
+        for(Channel c : bot.getChannels()) {
+            bot.sendMessage(c, message);
         }
     }
     
