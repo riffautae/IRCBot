@@ -254,6 +254,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(!Configuration.getChannelAnnouncement().equals("") && Arrays.asList(Configuration.getChannelsParticipating()).contains(event.getChannel().getName())) {
             event.getBot().sendMessage(event.getUser(), "ANNOUNCEMENT: " + Configuration.getChannelAnnouncement());
         }
+        new Thread(new Intros(event, IntrosType.JOIN)).start();
     }
 
     /**
