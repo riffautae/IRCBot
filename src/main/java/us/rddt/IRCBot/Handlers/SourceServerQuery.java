@@ -98,7 +98,7 @@ public class SourceServerQuery implements Runnable {
         String[] address = event.getMessage().split(" ")[1].split(":");
         // Attempt to query or return an error if it fails
         try {
-            if(!address[1].isEmpty()) doSourceQuery(address[0], Integer.parseInt(address[1]));
+            if(address.length > 2) doSourceQuery(address[0], Integer.parseInt(address[1]));
             else doSourceQuery(address[0], 27015);
         } catch (Exception ex) {
             event.respond("Could not query the server - it may be offline, not a Source engine game or an incorrect IP address or port has been provided");
