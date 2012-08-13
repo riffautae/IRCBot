@@ -52,6 +52,7 @@ import us.rddt.IRCBot.Handlers.Calculator;
 import us.rddt.IRCBot.Handlers.Convert;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
+import us.rddt.IRCBot.Handlers.SourceServerQuery;
 import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
@@ -137,6 +138,12 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(event.getMessage().startsWith("!g ")) {
             if(!Configuration.getDisabledFunctions().contains("google")) {
                 new Thread(new Search(event)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!query ")) {
+            if(!Configuration.getDisabledFunctions().contains("sourcequery")) {
+                new Thread(new SourceServerQuery(event)).start();
                 return true;
             }
         }
