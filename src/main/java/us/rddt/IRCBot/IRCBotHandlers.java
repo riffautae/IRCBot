@@ -56,6 +56,7 @@ import us.rddt.IRCBot.Handlers.SourceServerQuery;
 import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
+import us.rddt.IRCBot.Handlers.SteamUserQuery;
 import us.rddt.IRCBot.Handlers.Topic;
 import us.rddt.IRCBot.Handlers.UserMode;
 import us.rddt.IRCBot.Implementations.URLGrabber;
@@ -144,6 +145,12 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(event.getMessage().startsWith("!query ")) {
             if(!Configuration.getDisabledFunctions().contains("sourcequery")) {
                 new Thread(new SourceServerQuery(event)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!steam ")) {
+            if(!Configuration.getDisabledFunctions().contains("steamquery")) {
+                new Thread(new SteamUserQuery(event)).start();
                 return true;
             }
         }
