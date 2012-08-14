@@ -59,6 +59,8 @@ public class SourceServerQuery implements Runnable {
      * Queries a Source engine server and returns basic information about it to the client
      * @param ip The IP address of the server
      * @param port The port of the server
+     * @throws SteamCondenserException if the server returns in an undefined manner
+     * @throws TimeoutException if the connection attempt to the server times out
      */
     private void doSourceQuery(String ip, int port) throws SteamCondenserException, TimeoutException {
         // Perform the query against the server
