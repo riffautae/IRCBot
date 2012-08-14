@@ -17,6 +17,7 @@ In order to build and use IRCBot successfully, you will need the following:
 * Apache Commons Lang library (http://commons.apache.org/lang/)
 * Twitter4j library (http://twitter4j.org/en/index.html)
 * JSON.org Java libraries (http://json.org/java/)
+* Steam Condenser library (http://www.github.com/koraktor/steam-condenser)
 
 Building
 --------
@@ -90,3 +91,25 @@ IRCBot accurately mimics the shorthand kick and ban functions that Anope's BotSe
 > 20:44 <~got_milk> .k CrazyAl90 need this for documentation, thanks :)
 
 > 20:44 -!- CrazyAl90 was kicked from #rddt by BOT [need this for documentation, thanks :) (got_milk)]
+
+### Calculator and Google-powered conversions
+
+Users can use the IRCBot to evaluate basic mathematical expressions. IRCBot supports adhering to the order of operations and correctly handles operator precedence.
+
+> 21:08 <~got_milk> !calc (4 * 2)^2
+
+> 21:08 < BOT> got_milk: 64.0
+
+IRCBot is also capable of performing conversions, backed by Google.
+
+> 21:10 <~got_milk> !convert 125CAD to USD
+
+> 21:10 < BOT> got_milk: 125 Canadian dollars is 126.05875 U.S. dollars
+
+### Game Server querying (Source Engine based games)
+
+IRCBot can query servers provided by users to return their status. IRCBot supports querying Source Engine based games, including: Counter-Strike: Source and Counter-Strike: Global Offensive, Half-Life 2 Deathmatch, Left 4 Dead and Left 4 Dead 2, Garry's Mod, Team Fortress 2 and more.
+
+> 21:13 <~got_milk> !query chia.spoontacular.com
+
+> 21:13 < BOT> got_milk: Spoontacular gaming playing Team Fortress on map cp_fastlane with 0/24 players
