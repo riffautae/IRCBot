@@ -86,6 +86,7 @@ public class GameStatus implements Runnable {
             builder.append(prefix);
             prefix = ", ";
             builder.append(resultSet.getString("Nick") + " playing " + resultSet.getString("Game") + " (" + IRCUtils.toReadableTime(resultSet.getTimestamp("Date"), false, false) + ")");
+            emptyRows = false;
         }
 
         // Disconnect from the database
