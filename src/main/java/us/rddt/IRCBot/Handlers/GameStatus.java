@@ -58,7 +58,49 @@ public class GameStatus implements Runnable {
     public GameStatus(MessageEvent<PircBotX> event) {
         this.event = event;
     }
-    
+
+    /**
+     * Returns the users who have statuses set
+     * @throws ClassNotFoundException if the database class cannot be found
+     * @throws SQLException if the SQL query fails
+     * @throws IOException if reading from the ResultSet fails
+     */
+    private void getAllStatus() throws ClassNotFoundException, SQLException, IOException {
+        // Boolean value to determine if results were returned or not
+        boolean emptyRows = true;
+        
+        // Connect to the database
+        database = new Database();
+        database.connect();
+        // Prepare the StringBuilder to hold the list of nicks playing
+        StringBuilder builder = new StringBuilder();
+
+        // Prepare and execute the SQL query
+        PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM GameStatus");
+        ResultSet resultSet = statement.executeQuery();
+
+        // If a result was returned, tell the channel what the user is playing
+        // Otherwise, they aren't playing anything
+        String prefix = "";
+        while(resultSet.next()) {
+            builder.append(prefix);
+            prefix = ", ";
+            builder.append(resultSet.getString("Nick") + " playing " + resultSet.getString("Game") + " (" + IRCUtils.toReadableTime(resultSet.getTimestamp("Date"), false, false) + ")");
+        }
+
+        // Disconnect from the database
+        database.disconnect();
+
+        /*
+         * JDBC does not provide a clear method of determining whether a ResultSet actually has any rows.
+         * We have to use a boolean to work out whether it actually returned anything.
+         */
+        if(emptyRows) builder.append("nobody");
+
+        // Return the result
+        event.getBot().sendMessage(event.getChannel(), builder.toString());
+    }
+
     /**
      * Returns the users playing the provided game
      * @param game the game to retrieve the status of
@@ -284,20 +326,17 @@ public class GameStatus implements Runnable {
                 return;
             }
             event.respond("Done!");
-        } else if(parameters[1].equalsIgnoreCase("game")) {
-            if(parameters.length > 2) {
-                try {
-                    getGameStatus(parameters[2]);
-                } catch(Exception ex) {
-                    event.respond("Unable to get status - " + ex.getMessage());
-                    return;
-                }
-            } else {
-                event.respond("You must provide a game!");
+        } else if(parameters[1].equalsIgnoreCase("all")) {
+            try {
+                getAllStatus();
+            } catch(Exception ex) {
+                event.respond("Unable to get status - " + ex.getMessage());
+                return;
             }
         } else {
             try {
-                getUserStatus(parameters[1]);
+                if(gamesMap.containsKey(parameters[1])) getGameStatus(parameters[1]);
+                else getUserStatus(parameters[1]);
             } catch (Exception ex) {
                 event.respond("Unable to get status - " + ex.getMessage());
             }
