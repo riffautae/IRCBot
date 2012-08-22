@@ -28,6 +28,10 @@ hl2e2,Half-Life 2: Episode Two
 hl2lc,Half-Life 2: Lost Coast
 l4d,Left 4 Dead
 l4d2,Left 4 Dead 2
+me,Mass Effect
+me2,Mass Effect 2
+me3,Mass Effect 3
+mc,Minecraft
 mw2,Call of Duty: Modern Warfare 2
 mw3,Call of Duty: Modern Warfare 3
 por,Portal
