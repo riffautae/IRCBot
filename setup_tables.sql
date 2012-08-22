@@ -55,7 +55,9 @@ CREATE TABLE IF NOT EXISTS Intros(
 	Submitter	VARCHAR(255) NOT NULL,
 	Date		DATETIME NOT NULL,
 	Nick		VARCHAR(255) NOT NULL,
+	Channel		VARCHAR(32) NOT NULL,
 	Intro		VARCHAR(255) NOT NULL,
 	
-	INDEX (Nick)
+	INDEX (Submitter, Channel)
+	INDEX (Nick, Channel)
 );

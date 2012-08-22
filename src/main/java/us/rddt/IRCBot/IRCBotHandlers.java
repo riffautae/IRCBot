@@ -46,12 +46,14 @@ import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 import org.pircbotx.hooks.events.QuitEvent;
 
+import us.rddt.IRCBot.Enums.TitlesType;
 import us.rddt.IRCBot.Enums.TopicUpdates;
 import us.rddt.IRCBot.Enums.UserModes;
 import us.rddt.IRCBot.Handlers.Calculator;
 import us.rddt.IRCBot.Handlers.Convert;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
+import us.rddt.IRCBot.Handlers.Titles;
 import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
@@ -158,6 +160,10 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 return true;
             }
         }
+        if(event.getMessage().startsWith("!title ")) {
+            if(!Configuration.getDisabledFunctions().contains("title"))
+            	new Thread(new Titles(event, TitlesType.CHATTER)).start();
+        }
 
         /*
          * User mode change events
@@ -254,7 +260,8 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(!Configuration.getChannelAnnouncement().equals("") && Arrays.asList(Configuration.getChannelsParticipating()).contains(event.getChannel().getName())) {
             event.getBot().sendMessage(event.getUser(), "ANNOUNCEMENT: " + Configuration.getChannelAnnouncement());
         }
-        new Thread(new Intros(event, IntrosType.JOIN)).start();
+        if(!Configuration.getDisabledFunctions().contains("title"))
+        	new Thread(new Titles(event, TitlesType.JOIN)).start();
     }
 
     /**
@@ -294,6 +301,8 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 new Thread(new URLGrabber(event, new URL(urlMatcher.group()))).start();
             }
         }
+        if(!Configuration.getDisabledFunctions().contains("title"))
+        	new Thread(new Titles(event, TitlesType.CHATTER)).start();
     }
 
     /**

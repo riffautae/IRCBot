@@ -114,4 +114,8 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
             bot.joinChannel(channels[i]);
         }
     }
+    
+    public static PircBotX getBot() {
+    	return bot;
+    }
 }

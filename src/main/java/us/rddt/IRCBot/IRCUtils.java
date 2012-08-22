@@ -31,8 +31,10 @@ package us.rddt.IRCBot;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -132,5 +134,24 @@ public class IRCUtils {
         } else {
             return toTrim;
         }
+    }
+    
+    /**
+     * Why doesn't java have a String.join?!?!?
+     * @param s
+     * @param delim
+     * @return
+     */
+    public static String join(Collection<?> s, String delim) {
+    	StringBuilder builder = new StringBuilder();
+    	Iterator<?> iter = s.iterator();
+    	while (iter.hasNext()) {
+    		builder.append(iter.next());
+    		if (!iter.hasNext()) {
+    			break;
+    		}
+    		builder.append(delim);
+    	}
+    	return builder.toString();
     }
 }

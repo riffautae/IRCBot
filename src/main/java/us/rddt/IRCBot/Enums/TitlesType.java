@@ -1,6 +1,6 @@
 package us.rddt.IRCBot.Enums;
 
-public enum IntrosType {
+public enum TitlesType {
 	JOIN,
 	CHATTER,
 	PM
