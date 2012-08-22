@@ -1,0 +1,29 @@
+aa,America's Army
+add,Amnesia: The Dark Descent
+arma2,ARMA 2
+arma2oa,ARMA 2 Operation Arrowhead
+cs16,Counter-Strike 1.6
+cscz,Counter-Strike: Condition Zero
+csgo,Counter-Strike: Global Offensive
+css,Counter-Strike: Source
+dayz,DayZ
+hl,Half-Life
+hlbs,Half-Life: Blue Shift
+hldm,Half-Life Deathmatch
+hldms,Half-Life Deathmatch: Source
+hlof,Half-Life: Opposing Force
+hls,Half-Life: Source
+hl2,Half-Life 2
+hl2dm,Half-Life 2: Deathmatch
+hl2e1,Half-Life 2: Episode One
+hl2e2,Half-Life 2: Episode Two
+hl2lc,Half-Life 2: Lost Coast
+l4d,Left 4 Dead
+l4d2,Left 4 Dead 2
+por,Portal
+por2,Portal 2
+q3a,Quake III Arena
+q3ta,Quake III: Team Arena
+ql,Quake Live
+tf2,Team Fortress 2
+wsw,Warsow

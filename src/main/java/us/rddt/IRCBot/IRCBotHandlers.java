@@ -52,6 +52,7 @@ import us.rddt.IRCBot.Handlers.Calculator;
 import us.rddt.IRCBot.Handlers.Convert;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
+import us.rddt.IRCBot.Handlers.GameStatus;
 import us.rddt.IRCBot.Handlers.SourceServerQuery;
 import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
@@ -151,6 +152,12 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(event.getMessage().startsWith("!steam ")) {
             if(!Configuration.getDisabledFunctions().contains("steamquery")) {
                 new Thread(new SteamUserQuery(event)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!status ")) {
+            if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
+                new Thread(new GameStatus(event)).start();
                 return true;
             }
         }

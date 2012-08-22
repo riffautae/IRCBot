@@ -263,7 +263,7 @@ public class RedditLink {
      * @return the creation date in UTC time, in a human-readable string format
      */
     public String getCreatedReadableUTC() {
-        return IRCUtils.toReadableTime(new Date(getCreatedUTC() * 1000), false);
+        return IRCUtils.toReadableTime(new Date(getCreatedUTC() * 1000), false, true);
     }
 
     /**

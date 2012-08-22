@@ -149,7 +149,7 @@ public class Seen implements Runnable {
                 ResultSet resultSet = statement.executeQuery();
                 // Respond appropriately should our user exist/not exist in the database
                 if(resultSet.next()) {
-                    event.respond(seenUser + " was last seen about " + IRCUtils.toReadableTime(resultSet.getTimestamp("Date"), false) + " ago.");
+                    event.respond(seenUser + " was last seen about " + IRCUtils.toReadableTime(resultSet.getTimestamp("Date"), false, true) + " ago.");
                 } else {
                     event.respond("I haven't seen " + seenUser + ".");
                 }

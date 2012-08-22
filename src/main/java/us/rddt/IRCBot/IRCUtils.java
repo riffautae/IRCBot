@@ -97,9 +97,10 @@ public class IRCUtils {
      * Converts date formats to human-readable strings
      * @param date the date to be converted
      * @param countingDown true if we are counting down to a date, false if we are determining history
+     * @param showMoment true to show seconds as "a moment", false to show the number of seconds
      * @return the human-readable string
      */
-    public static String toReadableTime(Date date, boolean countingDown) {
+    public static String toReadableTime(Date date, boolean countingDown, boolean showMoment) {
         // Calculate the difference in seconds between the time the user left and now
         long diffInSeconds;
         if(countingDown) diffInSeconds = (date.getTime() - System.currentTimeMillis()) / 1000;
@@ -116,7 +117,10 @@ public class IRCUtils {
         if(diff[0] != 0) return String.format("%d day%s", diff[0], diff[0] > 1 ? "s" : "");
         if(diff[1] != 0) return String.format("%s%s hour%s", diff[1] > 1 ? "" : "an", diff[1] > 1 ? String.valueOf(diff[1]) : "", diff[1] > 1 ? "s" : "");
         if(diff[2] != 0) return String.format("%d minute%s", diff[2], diff[2] > 1 ? "s" : "");
-        if(diff[3] != 0) return "a moment";
+        if(diff[3] != 0) {
+            if(showMoment) return "a moment";
+            else return String.format("%d second%s", diff[3], diff[3] > 1 ? "s" : "");
+        }
         else return "unknown";
     }
 
