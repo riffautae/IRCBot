@@ -58,7 +58,14 @@ public class GameStatus implements Runnable {
     public GameStatus(MessageEvent<PircBotX> event) {
         this.event = event;
     }
-
+    
+    /**
+     * Returns the users playing the provided game
+     * @param game the game to retrieve the status of
+     * @throws ClassNotFoundException if the database class cannot be found
+     * @throws SQLException if the SQL query fails
+     * @throws IOException if reading from the ResultSet fails
+     */
     private void getGameStatus(String game) throws ClassNotFoundException, SQLException, IOException {
         // Check to see if the game exists in the HashMap and if so update accordingly
         if(gamesMap.containsKey(game)) {
