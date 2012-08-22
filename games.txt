@@ -2,6 +2,14 @@ aa,America's Army
 add,Amnesia: The Dark Descent
 arma2,ARMA 2
 arma2oa,ARMA 2 Operation Arrowhead
+bf2,Battlefield 2
+bf2142,Battlefield 2142
+bf3,Battlefield 3
+bfbc,Battlefield: Bad Company
+bfbc2,Battlefield: Bad Company 2
+blops,Call of Duty: Black Ops
+blops2,Call of Duty: Black Ops 2
+cod4,Call of Duty 4: Modern Warfare
 cs16,Counter-Strike 1.6
 cscz,Counter-Strike: Condition Zero
 csgo,Counter-Strike: Global Offensive
@@ -20,6 +28,8 @@ hl2e2,Half-Life 2: Episode Two
 hl2lc,Half-Life 2: Lost Coast
 l4d,Left 4 Dead
 l4d2,Left 4 Dead 2
+mw2,Call of Duty: Modern Warfare 2
+mw3,Call of Duty: Modern Warfare 3
 por,Portal
 por2,Portal 2
 q3a,Quake III Arena
