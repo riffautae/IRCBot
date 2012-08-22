@@ -50,7 +50,7 @@ public class GameStatus implements Runnable {
     private MessageEvent<PircBotX> event;
     private Database database;
     private HashMap<String, String> gamesMap = new HashMap<String, String>();
-    
+
     /**
      * Class constructor
      * @param event the MessageEvent that triggered this class
@@ -58,7 +58,55 @@ public class GameStatus implements Runnable {
     public GameStatus(MessageEvent<PircBotX> event) {
         this.event = event;
     }
-    
+
+    private void getGameStatus(String game) throws ClassNotFoundException, SQLException, IOException {
+        // Check to see if the game exists in the HashMap and if so update accordingly
+        if(gamesMap.containsKey(game)) {
+            // Get the game's full title
+            game = gamesMap.get(game);
+            // Boolean value to determine if results were returned or not
+            boolean emptyRows = true;
+
+            // Connect to the database
+            database = new Database();
+            database.connect();
+            // Prepare the StringBuilder to hold the list of nicks playing
+            StringBuilder builder = new StringBuilder();
+
+            // Prepare and execute the SQL query
+            PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM GameStatus WHERE Game = ?");
+            statement.setString(1, game);
+            ResultSet resultSet = statement.executeQuery();
+
+            builder.append("Users playing " + game + ": ");
+
+            // If a result was returned, tell the channel what the user is playing
+            // Otherwise, they aren't playing anything
+            String prefix = "";
+            while(resultSet.next()) {
+                builder.append(prefix);
+                prefix = ", ";
+                builder.append(resultSet.getString("Nick") + " (" + IRCUtils.toReadableTime(resultSet.getTimestamp("Date"), false, false) + ")");
+                emptyRows = false;
+            }
+
+            // Disconnect from the database
+            database.disconnect();
+
+            /*
+             * JDBC does not provide a clear method of determining whether a ResultSet actually has any rows.
+             * We have to use a boolean to work out whether it actually returned anything.
+             */
+            if(emptyRows) builder.append("nobody");
+
+            // Return the result
+            event.getBot().sendMessage(event.getChannel(), builder.toString());
+        } else {
+            // The game's full title isn't in the HashMap
+            throw new IllegalArgumentException("Game does not exist");
+        }
+    }
+
     /**
      * Returns the status of a given user to the channel
      * @param nick the nick to retrieve the status of
@@ -70,12 +118,12 @@ public class GameStatus implements Runnable {
         // Connect to the database
         database = new Database();
         database.connect();
-        
+
         // Prepare and execute the SQL query
         PreparedStatement statement = database.getConnection().prepareStatement("SELECT * FROM GameStatus WHERE Nick = ?");
         statement.setString(1, nick);
         ResultSet resultSet = statement.executeQuery();
-        
+
         // If a result was returned, tell the channel what the user is playing
         // Otherwise, they aren't playing anything
         if(resultSet.next()) {
@@ -83,11 +131,11 @@ public class GameStatus implements Runnable {
         } else {
             event.getBot().sendMessage(event.getChannel(), nick + " is not playing anything!");
         }
-        
+
         // Disconnect from the database
         database.disconnect();
     }
-    
+
     /**
      * Loads full game titles from a file into a HashMap for easy access
      * @throws FileNotFoundException if the file containing the titles cannot be found
@@ -95,7 +143,7 @@ public class GameStatus implements Runnable {
     private void loadGameTitles() throws FileNotFoundException {
         // Holds the string of the current line being read
         String currentLine = "";
-        
+
         // Open the file for reading
         BufferedReader reader = new BufferedReader(new FileReader("games.txt"));
         try {
@@ -117,7 +165,7 @@ public class GameStatus implements Runnable {
             }
         }
     }
-    
+
     /**
      * Resets the given user's status (deletes the database entry)
      * @param nick the nick to retrieve the status of
@@ -129,16 +177,16 @@ public class GameStatus implements Runnable {
         // Connect to the database
         database = new Database();
         database.connect();
-        
+
         // Prepare and execute the query to delete any entry
         PreparedStatement statement = database.getConnection().prepareStatement("DELETE FROM GameStatus WHERE Nick = ?");
         statement.setString(1, nick);
         statement.executeUpdate();
-        
+
         // Disconnect from the database
         database.disconnect();
     }
-    
+
     /**
      * Sets or updates the given user's status
      * @param nick the nick to update the status for
@@ -151,12 +199,12 @@ public class GameStatus implements Runnable {
     private void setUserStatus(String nick, String game) throws ClassNotFoundException, SQLException, IOException, IllegalArgumentException {
         // Prepare the database object
         database = new Database();
-        
+
         // Check to see if the game exists in the HashMap and if so update accordingly
         if(gamesMap.containsKey(game)) {
             // Get the game's full title
             game = gamesMap.get(game);
-            
+
             // Connect to the database
             database.connect();
             // Prepare the query to check if an entry already exists and execute it
@@ -183,7 +231,7 @@ public class GameStatus implements Runnable {
                 statement.setString(3, game);
                 statement.executeUpdate();
             }
-            
+
             // Disconnect from the database
             database.disconnect();
         } else {
@@ -191,7 +239,7 @@ public class GameStatus implements Runnable {
             throw new IllegalArgumentException("Game does not exist");
         }
     }
-    
+
     /**
      * Method that executes upon thread start
      * (non-Javadoc)
@@ -210,19 +258,36 @@ public class GameStatus implements Runnable {
         String[] parameters = event.getMessage().split(" ");
         // Check the parameters and perform the appropriate actions
         if(parameters[1].equalsIgnoreCase("set")) {
-            try {
-                setUserStatus(event.getUser().getNick(), parameters[2]);
-            } catch(Exception ex) {
-                event.respond("Unable to set status - " + ex.getMessage());
+            if(parameters.length > 2) {
+                try {
+                    setUserStatus(event.getUser().getNick(), parameters[2]);
+                } catch(Exception ex) {
+                    event.respond("Unable to set status - " + ex.getMessage());
+                    return;
+                }
+                event.respond("Done!");
+            } else {
+                event.respond("You must provide a game to play!");
             }
-            event.respond("Done!");
         } else if(parameters[1].equalsIgnoreCase("reset")) {
             try {
                 resetUserStatus(event.getUser().getNick());
             } catch(Exception ex) {
                 event.respond("Unable to reset status - " + ex.getMessage());
+                return;
             }
             event.respond("Done!");
+        } else if(parameters[1].equalsIgnoreCase("game")) {
+            if(parameters.length > 2) {
+                try {
+                    getGameStatus(parameters[2]);
+                } catch(Exception ex) {
+                    event.respond("Unable to get status - " + ex.getMessage());
+                    return;
+                }
+            } else {
+                event.respond("You must provide a game!");
+            }
         } else {
             try {
                 getUserStatus(parameters[1]);
