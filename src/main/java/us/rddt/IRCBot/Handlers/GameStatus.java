@@ -96,7 +96,7 @@ public class GameStatus implements Runnable {
          * JDBC does not provide a clear method of determining whether a ResultSet actually has any rows.
          * We have to use a boolean to work out whether it actually returned anything.
          */
-        if(emptyRows) builder.append("nobody");
+        if(emptyRows) builder.append("Nobody is playing any games.");
 
         // Return the result
         event.getBot().sendMessage(event.getChannel(), builder.toString());
