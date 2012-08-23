@@ -45,6 +45,9 @@ import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
 
+/**
+ * @author Ryan Morrison
+ */
 public class GameStatus implements Runnable {
     // Variables
     private MessageEvent<PircBotX> event;
