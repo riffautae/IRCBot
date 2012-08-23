@@ -68,6 +68,9 @@ public class Configuration {
     private static List<String> disabled_functions;
 
     private static String[] watchSubreddits;
+    
+    private static int votekickDuration;
+    private static int votekickPassPercent;
 
     private static String admin_nick;
     private static String admin_hostmask;
@@ -108,6 +111,8 @@ public class Configuration {
         channel_participating = config.getProperty("channel_participating").split(",");
         disabled_functions = new ArrayList<String>(Arrays.asList(config.getProperty("disabled_functions").split(",")));
         watchSubreddits = config.getProperty("watch_subreddits").split(",");
+        votekickDuration = Integer.parseInt(config.getProperty("votekick_duration"));
+        votekickPassPercent = Integer.parseInt(config.getProperty("votekick_pass_percent"));
         admin_nick = config.getProperty("admin_nick");
         admin_hostmask = config.getProperty("admin_hostmask");
         database_driver = config.getProperty("database_driver");
@@ -242,7 +247,22 @@ public class Configuration {
     public static String[] getWatchSubreddits() {
         return watchSubreddits;
     }
-
+    
+    /**
+     * Returns the duration of votekicks in seconds
+     * @return the duration of votekicks in seconds
+     */
+    public static int getVotekickDuration() {
+        return votekickDuration;
+    }
+    
+    /**
+     * Returns the percentage required for a votekick to pass
+     * @return the percentage required for a votekick to pass
+     */
+    public static int getVotekickPassPercent() {
+        return votekickPassPercent;
+    }
     /**
      * Returns the nick of the administrator
      * @return the nick of the administrator

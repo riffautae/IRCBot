@@ -60,6 +60,7 @@ import us.rddt.IRCBot.Handlers.Shouts;
 import us.rddt.IRCBot.Handlers.SteamUserQuery;
 import us.rddt.IRCBot.Handlers.Topic;
 import us.rddt.IRCBot.Handlers.UserMode;
+import us.rddt.IRCBot.Handlers.Votekick;
 import us.rddt.IRCBot.Implementations.URLGrabber;
 
 /**
@@ -159,6 +160,11 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
                 new Thread(new GameStatus(event)).start();
                 return true;
+            }
+        }
+        if(event.getMessage().startsWith("!votekick ")) {
+            if(!Configuration.getDisabledFunctions().contains("votekick")) {
+                new Thread(new Votekick(event)).start();
             }
         }
         if(event.getMessage().startsWith("!appendtopic ")) {
