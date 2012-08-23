@@ -65,6 +65,8 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
         bot.setName(Configuration.getNick());
         // Set the bot's user
         bot.setLogin(Configuration.getUser());
+        // Automatically split messages longer than IRC's size limit
+        bot.setAutoSplitMessage(true);
         // Connect to the IRC server
         connect(bot);
         // Create the scheduler for watching subreddits
