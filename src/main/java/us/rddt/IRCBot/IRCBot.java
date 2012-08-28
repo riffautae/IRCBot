@@ -51,6 +51,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
     public static void main(String[] args) throws Exception {
         try {
             Configuration.loadConfiguration();
+            SillyConfiguration.loadConfiguration();
         } catch(Exception ex) {
             Configuration.getLogger().write(Level.SEVERE, ex.getStackTrace().toString());
             System.exit(-1);

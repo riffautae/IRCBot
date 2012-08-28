@@ -33,7 +33,11 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.User;
 import org.pircbotx.hooks.Event;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,13 +46,18 @@ import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.MessageEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCBot;
+import us.rddt.IRCBot.IRCUtils;
+import us.rddt.IRCBot.SillyConfiguration;
 import us.rddt.IRCBot.Enums.CommandErrors;
 import us.rddt.IRCBot.Enums.TitlesType;
+import us.rddt.IRCBot.Implementations.RecentAnnounces;
+import us.rddt.IRCBot.Implementations.RecentData;
 import us.rddt.IRCBot.Implementations.TitleDB;
 
 /**
@@ -123,6 +132,9 @@ public class Titles implements Runnable {
 	private TitlesType type;
 	private Database database;
 	
+	// A recentData for each channel
+	private Map<String, RecentData> recentTitles = new ConcurrentHashMap<String, RecentData>();
+
 	public Titles(Event<PircBotX> event, TitlesType type) {
 		this.event = event;
 	}
@@ -138,10 +150,10 @@ public class Titles implements Runnable {
             database.connect();
             switch (type) {
 			case JOIN:
-				handleJoin();
+				handleJoinPart();
 				break;
 			case CHATTER:
-				handleChatt();
+				handleChat();
 				break;
 			case PM:
 				handlePm();
@@ -153,14 +165,17 @@ public class Titles implements Runnable {
         }
     }
     
-    protected void handleJoin() throws SQLException {
+    protected void handleJoinPart() throws SQLException {
 		JoinEvent<PircBotX> je = (JoinEvent<PircBotX>) event;
-		String announce = TitleDB.instanceOf().join(database.getConnection(), je.getChannel(), je.getUser());
-		if (announce != null)
-	    	je.respond(announce);
+		RecentData rd = recentTitles.get(je.getChannel().getName());
+		if (!rd.checkAnnounce(je.getUser().getNick())) {
+			String announce = TitleDB.instanceOf().title(database.getConnection(), je.getChannel(), je.getUser());
+			if (announce != null)
+		    	je.respond(announce);
+		}
     }
     
-    protected void handleChatt() throws SQLException {
+    protected void handleChat() throws SQLException {
 		MessageEvent<PircBotX> me = (MessageEvent<PircBotX>) event;
 		String message = me.getMessage();
 		if( message.startsWith("!title ") ) {
@@ -202,27 +217,35 @@ public class Titles implements Runnable {
 							" from " + icp.channel);
 				}
 			} else if (icp.command == "stats") {
-				String stats = TitleDB.instanceOf().getStats(
+				String[] stats = TitleDB.instanceOf().getStats(
 						database.getConnection(), icp.channel);
 				
 				if( stats != null ) {
-					event.respond(stats);
+					event.respond(formatStats(stats));
 				}
 			} else if (icp.command == "top") {
-				String top = TitleDB.instanceOf().getTop(
+				List<String[]> top = TitleDB.instanceOf().getTop(
 						database.getConnection(), icp.channel);
 				
 				if( top != null ) {
-					event.respond(top);
+					event.respond(formatTop(top));
 				}
 			}
 		} else {
-			// makes fun of users some times
-			String announce = TitleDB.instanceOf().talk(database.getConnection(), 
-					me.getChannel(), me.getUser());
-		
-			if (announce != null)
-				event.respond(announce);
+			RecentData rd = recentTitles.get(me.getChannel().getName());
+			
+			// one in twenty chance that we make fun of them
+			// Also must be in monologue and not too busy in the chat
+			if (rd.inMonologue(me.getUser().getNick()) && rd.checkAnnounce(me.getUser().getNick()) &&
+					(new Random()).nextInt(20)==0 ) {
+				
+				// makes fun of users some times
+				String announce = TitleDB.instanceOf().title(database.getConnection(), 
+						me.getChannel(), me.getUser());
+			
+				if (announce != null)
+					event.respond(announce);
+			}
 		}
     }
 
@@ -265,35 +288,33 @@ public class Titles implements Runnable {
 						" from " + icp.channel);
 			}
 		} else if (icp.command == "stats") {
-			String stats = TitleDB.instanceOf().getStats(
+			String[] stats = TitleDB.instanceOf().getStats(
 					database.getConnection(), icp.channel);
 			
 			if( stats != null ) {
-				event.respond(stats);
+				event.respond(formatStats(stats));
 			}
 		} else if (icp.command == "top") {
-			String top = TitleDB.instanceOf().getTop(
+			List<String[]> top = TitleDB.instanceOf().getTop(
 					database.getConnection(), icp.channel);
 			
 			if( top != null ) {
-				event.respond(top);
+				event.respond(formatTop(top));
 			}
 		} else if (icp.command == "list") {
-			List<String> list = TitleDB.instanceOf().listTitles
+			List<String[]> list = TitleDB.instanceOf().listTitles
 					(database.getConnection(), icp.channel, icp.victim, icp.id);
 			
 			if( list != null ) {
-				for( String s : list) {
+				for( String s : formatTitles(list)) {
 					this.wait(500); // wait 1/2 second between posting multiple things
 					me.respond(s);
 				}
 			}
 		} else if (icp.command == "last") {
-			List<String> list = TitleDB.instanceOf().lastTitles
-					(database.getConnection(), icp.channel);
-			
+			List<String[]> list = lastTitles(icp.channel);
 			if( list != null ) {
-				for( String s : list) {
+				for( String s : formatTitles(list)) {
 					this.wait(500); // wait 1/2 second between posting multiple things
 					me.respond(s);
 				}
@@ -322,4 +343,100 @@ public class Titles implements Runnable {
         if(isUserOperator(user, channel) || channel.isHalfOp(user) || channel.hasVoice(user)) return true;
         else return false;
     }
+    
+    // formating helpers =============
+    
+    /**
+     * Formats a stats string for printing
+     * @param stats Array of [title count, jerk name, jerk count, victim name, victim count]
+     * @return Formatted string ready for printing
+     */
+    private String formatStats(String[] stats) {
+    	String[] alias = IRCUtils.choose( SillyConfiguration.getSubVicAliases() );
+    	return "I have " + stats[0] + " titles. The " + alias[0] + " is " + stats[1] + " (" + stats[2] + "). The " +
+    			alias[1] + " is " + stats[3] + " (" + stats[4] + ").";
+    }
+    
+    /**
+     * Formats a list of top lines for printing
+     * 
+     * @param stats 5 jerks + 5 victims in an array of [name, title count]
+     * @return Formatted strings ready for printing
+     */
+    private String formatTop(List<String[]> stats) {
+    	String[] alias = IRCUtils.choose( SillyConfiguration.getSubVicAliases() );
+    	
+    	List<String> statp = new LinkedList<String>();
+    	for(String[] stat : stats) {
+    		statp.add(stat[0] + " (" + stat[1] + "]");
+    	}
+    	String jerkList = IRCUtils.join(statp.subList(0, 4), ", ");
+    	String vicList = IRCUtils.join(statp.subList(5, 9), ", ");
+    	
+    	return "Top title fellows; The " + alias[0] + "s: " + jerkList + ". The " + vicList + "'s: " + vicList + ".";
+    }
+    
+    /**
+     * Format a list of titles
+     * Form:
+     * [id, title text]
+     * OR
+     * [id, user, title text]
+     * @param titles
+     * @return
+     */
+    private List<String> formatTitles(List<String[]> titles) {
+    	List<String> ret = new LinkedList<String>();
+    	for(String[] t : titles) {
+    		if (t.length == 2)
+    			ret.add(t[0] + ") " + t[1] + ".");
+    		else if (t.length == 3)
+    			ret.add(t[0] + ") " + t[1] + ": " + t[2] + ".");
+    	}
+    	return ret;
+    }
+    
+    // recent data helpers =============
+    
+    /**
+	 * Get a brief history of titles used in the chat
+	 * @param conn db connection
+	 * @param channel irc channel
+	 * @return List of [id, user, title]
+	 */
+	private List<String[]> lastTitles(String channel) {
+		synchronized (recentTitles) {
+			RecentData rd = recentTitles.get(channel);
+			List<String[]> resp = new LinkedList<String[]>();
+			for( RecentAnnounces ra : rd.listHistory() ) {
+				String[] line = {
+						String.valueOf(ra.getTitleId()), 
+						ra.getUser(), 
+						ra.getTitle()
+						};
+				resp.add(line);
+			}
+			return resp;
+		}
+	}
+	
+	/**
+	 * Get the recent data for a specific channel
+	 * Will create it if needed
+	 * @param chanName
+	 * @return
+	 */
+	private RecentData getRecent(String chanName) {
+		synchronized (recentTitles) {
+			RecentData recent;
+			if (recentTitles.containsKey(chanName)) {
+				recent = recentTitles.get(chanName);
+			} else {
+				recent = new RecentData();
+				recentTitles.put(chanName, recent);
+			}
+			return recent;
+		}
+	}
+
 }

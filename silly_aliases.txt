@@ -1,0 +1,37 @@
+[Submitter/Victim Aliases]
+biggest jerk,	tiniest baby
+best attacker,	worst defender
+rock,			paper
+red medic,		blue sniper
+top submitter,	top receiver
+best giver,		best receiver
+:t,				:ok
+spammer,		collector
+
+[Join Wrapper]
+Here be %n, %m.
+Hark! %n, %m, has arrived.
+Now arriving %n, %m.
+%n, %m, has joined the game.
+Warning: incoming %n.
+Abandon ship! %n, %m, be boarden our vessel.
+Look out %r! %n, %m, is here for YOU!
+Good thing %r is prepared for %m.
+Alert! incoming %n
+Looks like we got our selves %m
+				
+[Part Wrapper]
+There be %n, %m.
+%n, %m, will be missed.
+Thank god %n is gone.
+%n has gone. %m troubles us no more.
+%n, %m, leaves, %r can relax.
+%m is gone! Who will protect %r now?
+
+[Chatter Wrapper]
+And thus %n was known as %m.
+%n shows why he is %m.
+Shut up %n.
+Everyone knows why %n is called %m.
+RING RING! %n its for you. Its Mr. STFU.
+Paging %n, Paging %n %m. You left your trap open. 

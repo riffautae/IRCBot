@@ -35,6 +35,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Random;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -154,4 +156,20 @@ public class IRCUtils {
     	}
     	return builder.toString();
     }
+    
+    private static Random rand = new Random();
+	
+    /**
+     * Randomly choose an item from the list
+     * @param lst the list
+     * @return the item
+     */
+	public static
+	<A> A choose(List<A> lst) {
+		if(lst.size() == 0 ) return null;
+		
+		int i = rand.nextInt(lst.size()-1);
+		return lst.get(i);
+	}
+	
 }

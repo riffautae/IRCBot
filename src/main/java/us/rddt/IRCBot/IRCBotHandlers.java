@@ -343,6 +343,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 sendGlobalMessage(event.getBot(), "Reloading configuration...");
                 try {
                     Configuration.loadConfiguration();
+                    SillyConfiguration.loadConfiguration();
                     Configuration.startScheduler(event.getBot());
                 } catch (Exception ex) {
                     Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
