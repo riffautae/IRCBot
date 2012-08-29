@@ -34,6 +34,7 @@ import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.ArrayList;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
@@ -54,6 +55,16 @@ public class IRCUtils {
     public static String escapeHTMLEntities(String toEscape) {
         new StringEscapeUtils();
         return StringEscapeUtils.unescapeHtml4(toEscape);
+    }
+    
+    /**
+     * Returns the stack trace of a throwable object as a string
+     * @param throwable the throwable object to return the stack trace for
+     * @return the stack trace as a string
+     */
+    public static String getStackTraceString(Throwable throwable) {
+        new ExceptionUtils();
+        return ExceptionUtils.getStackTrace(throwable);
     }
     
     /**

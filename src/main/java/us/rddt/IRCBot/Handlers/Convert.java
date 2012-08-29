@@ -6,6 +6,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Implementations.Converter;
 
 public class Convert implements Runnable {
@@ -37,7 +38,7 @@ public class Convert implements Runnable {
                 event.respond("Your conversion request is invalid.");
             }
         } catch (Exception ex) {
-            Configuration.getLogger().write(Level.SEVERE, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.SEVERE, IRCUtils.getStackTraceString(ex));
         }
     }
 }

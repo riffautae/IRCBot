@@ -221,9 +221,9 @@ public class URLGrabber implements Runnable {
                 return false;
             }
         } catch (MalformedURLException ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         } catch (Exception ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         }
         return false;
     }
@@ -346,11 +346,11 @@ public class URLGrabber implements Runnable {
                 return;
             }
         } catch (MalformedURLException ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         } catch (Exception ex) {
             event.getBot().sendMessage(event.getChannel(), formatError("Reddit", ex.getMessage()));
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         }
     }
@@ -385,11 +385,11 @@ public class URLGrabber implements Runnable {
             event.getBot().sendMessage(event.getChannel(), "[YouTube by '" + event.getUser().getNick() + "'] " + Colors.BOLD + link.getTitle() + Colors.NORMAL + " (" + link.getReadableDuration() + ")");
             return;
         } catch (MalformedURLException ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         } catch (Exception ex) {
             event.getBot().sendMessage(event.getChannel(), formatError("YouTube", ex.getMessage()));
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         }
     }
@@ -433,7 +433,7 @@ public class URLGrabber implements Runnable {
         try {
             event.getBot().sendMessage(event.getChannel(), ("[URL by '" + event.getUser().getNick() + "'] " + getPageTitle(url)));
         } catch (Exception ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             event.getBot().sendMessage(event.getChannel(), formatError("URL", ex.getMessage()));
             return;
         }
@@ -464,7 +464,7 @@ public class URLGrabber implements Runnable {
             sc.init(null, trustAllCerts, new java.security.SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
         } catch (Exception ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         }
     }
 }

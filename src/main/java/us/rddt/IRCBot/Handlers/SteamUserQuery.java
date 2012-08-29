@@ -35,6 +35,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.IRCUtils;
 
 import com.github.koraktor.steamcondenser.exceptions.SteamCondenserException;
 import com.github.koraktor.steamcondenser.steam.community.SteamId;
@@ -85,7 +86,7 @@ public class SteamUserQuery implements Runnable {
             doUserQuery(event.getMessage().split(" ")[1]);
         } catch (Exception ex) {
             event.respond("Could not load profile: " + ex.getMessage());
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         }
     }
 }

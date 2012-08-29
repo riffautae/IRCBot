@@ -207,14 +207,14 @@ public class GameStatus implements Runnable {
                 gamesMap.put(lineSplit[0], lineSplit[1]);
             }
         } catch(IOException ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         } finally {
             try {
                 // Close the file
                 if(reader != null) reader.close();
             }
             catch (IOException ex) {
-                Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+                Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             }
         }
     }
@@ -304,7 +304,7 @@ public class GameStatus implements Runnable {
         try {
             this.loadGameTitles();
         } catch (FileNotFoundException ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         }
         // Split the message into parameters

@@ -36,6 +36,7 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
 import us.rddt.IRCBot.Configuration;
+import us.rddt.IRCBot.IRCUtils;
 
 import com.github.koraktor.steamcondenser.exceptions.SteamCondenserException;
 import com.github.koraktor.steamcondenser.steam.servers.SourceServer;
@@ -104,7 +105,7 @@ public class SourceServerQuery implements Runnable {
             else doSourceQuery(address[0], 27015);
         } catch (Exception ex) {
             event.respond("Could not query the server - it may be offline, not a Source engine game or an incorrect IP address or port has been provided");
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         }
     }
 }

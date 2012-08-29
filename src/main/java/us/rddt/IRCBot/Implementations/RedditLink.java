@@ -216,7 +216,7 @@ public class RedditLink {
             try {
                 weightScore = (submissionScore / ((double)((new Date().getTime() / 1000) - submissionDate) / 3600));
             } catch (ArithmeticException ex) {
-                Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+                Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             }
             if(weightScore > bestWeightValue) {
                 bestSubmission = i;

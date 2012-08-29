@@ -371,7 +371,7 @@ public class Shouts implements Runnable {
             // Disconnect from the database
             database.disconnect();
         } catch (Exception ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             return;
         }
     }

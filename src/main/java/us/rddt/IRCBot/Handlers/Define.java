@@ -99,11 +99,11 @@ public class Define implements Runnable {
         try {
             lookupResult = UrbanLookup.getDefinition(toDefine);
         } catch (IOException ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             event.respond("Error while downloading definition: " + IRCUtils.trimString(event.getMessage(), 50));
             return;
         } catch (JSONException ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             event.respond("Error while parsing definition: " + IRCUtils.trimString(event.getMessage(), 50));
         }
         
