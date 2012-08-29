@@ -315,6 +315,8 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
         if(!Configuration.getDisabledFunctions().contains("seen")) {
             new Thread(new Seen(event)).start();
         }
+        if(!Configuration.getDisabledFunctions().contains("title"))
+        	new Thread(new Titles(event, TitlesType.PART)).start();
     }
 
     /**

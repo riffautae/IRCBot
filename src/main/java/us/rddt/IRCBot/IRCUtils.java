@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
@@ -172,4 +173,16 @@ public class IRCUtils {
 		return lst.get(i);
 	}
 	
+	/**
+     * Randomly choose an item from the set
+     * @param lst the list
+     * @return the item
+     */
+	public static
+	<A> A choose(Set<A> lst) {
+		if(lst.size() == 0 ) return null;
+		
+		int i = rand.nextInt(lst.size()-1);
+		return (A)lst.toArray()[i];
+	}
 }

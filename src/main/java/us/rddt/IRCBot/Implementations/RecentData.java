@@ -29,10 +29,10 @@ public class RecentData {
 	// Last time the user got announced
     private Map<String, Date> userLast = new HashMap<String, Date>();
     
-    private final static int MAX_HISTORY = 3;
+    public final static int MAX_HISTORY = 3;
     
     // list of titles
-    private LinkedList<RecentAnnounces> history = new LinkedList<RecentAnnounces>();
+    private LinkedList<RecentAnnouncement> history = new LinkedList<RecentAnnouncement>();
     
  	// Data for monologue checking
     private String lastUser;
@@ -101,7 +101,7 @@ public class RecentData {
     }
     
     public void addHistory(int titleId, String nick, String title) {
-    	history.addLast(new RecentAnnounces(titleId, nick, title));
+    	history.addLast(new RecentAnnouncement(titleId, nick, title));
     	if (history.size() == MAX_HISTORY)
     		history.pop();
     }
@@ -109,7 +109,11 @@ public class RecentData {
     /**
      * @return returns a copy of the history
      */
-    public LinkedList<RecentAnnounces> listHistory() {
-    	return new LinkedList<RecentAnnounces>(history);
+    public LinkedList<RecentAnnouncement> listHistory() {
+    	return new LinkedList<RecentAnnouncement>(history);
+    }
+    
+    public RecentAnnouncement last() {
+    	return history.peek();
     }
 }

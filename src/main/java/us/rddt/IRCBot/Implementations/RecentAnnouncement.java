@@ -5,12 +5,12 @@ package us.rddt.IRCBot.Implementations;
  * @author Milton Thomas
  *
  */
-public class RecentAnnounces {
+public class RecentAnnouncement {
 	private String user;
 	private int titleId;
 	private String title;
 	
-	public RecentAnnounces(int titleId, String user, String title) {
+	public RecentAnnouncement(int titleId, String user, String title) {
 		this.user = user;
 		this.titleId = titleId;
 		this.title = title;

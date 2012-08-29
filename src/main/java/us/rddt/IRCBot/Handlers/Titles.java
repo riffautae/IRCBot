@@ -44,9 +44,9 @@ import java.util.regex.Pattern;
 
 import org.pircbotx.hooks.events.JoinEvent;
 import org.pircbotx.hooks.events.MessageEvent;
+import org.pircbotx.hooks.events.PartEvent;
 import org.pircbotx.hooks.events.PrivateMessageEvent;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import us.rddt.IRCBot.Configuration;
@@ -56,7 +56,7 @@ import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.SillyConfiguration;
 import us.rddt.IRCBot.Enums.CommandErrors;
 import us.rddt.IRCBot.Enums.TitlesType;
-import us.rddt.IRCBot.Implementations.RecentAnnounces;
+import us.rddt.IRCBot.Implementations.RecentAnnouncement;
 import us.rddt.IRCBot.Implementations.RecentData;
 import us.rddt.IRCBot.Implementations.TitleDB;
 
@@ -150,7 +150,10 @@ public class Titles implements Runnable {
             database.connect();
             switch (type) {
 			case JOIN:
-				handleJoinPart();
+				handleJoin();
+				break;
+			case PART:
+				handlePart();
 				break;
 			case CHATTER:
 				handleChat();
@@ -165,16 +168,45 @@ public class Titles implements Runnable {
         }
     }
     
-    protected void handleJoinPart() throws SQLException {
+    protected void handleJoin() throws SQLException {
 		JoinEvent<PircBotX> je = (JoinEvent<PircBotX>) event;
-		RecentData rd = recentTitles.get(je.getChannel().getName());
-		if (!rd.checkAnnounce(je.getUser().getNick())) {
-			String announce = TitleDB.instanceOf().title(database.getConnection(), je.getChannel(), je.getUser());
-			if (announce != null)
-		    	je.respond(announce);
+		
+		synchronized (recentTitles) {
+			RecentData rd = getRecent(je.getChannel().getName());
+			
+			if (!rd.checkAnnounce(je.getUser().getNick()))
+				return;
 		}
+		
+		String announce = TitleDB.instanceOf().title(database.getConnection(), je.getChannel(), je.getUser());
+		String alias = IRCUtils.choose(SillyConfiguration.getJoinWrapper());
+		
+		if (announce != null)
+	    	je.respond(formatSilly(alias, je.getUser().getNick(), announce, je.getChannel()));
+	}
+	
+	protected void handlePart() throws SQLException {
+		PartEvent<PircBotX> pe = (PartEvent<PircBotX>) event;
+		
+		synchronized (recentTitles) {
+			RecentData rd = getRecent(pe.getChannel().getName());
+			
+			if (!rd.checkAnnounce(pe.getUser().getNick()))
+				return;
+		}
+		
+		String announce = TitleDB.instanceOf().title(database.getConnection(), pe.getChannel(), pe.getUser());
+		String alias = IRCUtils.choose(SillyConfiguration.getPartWrapper());
+		
+		if (announce != null)
+	    	pe.respond(formatSilly(alias, pe.getUser().getNick(), announce, pe.getChannel()));
     }
-    
+
+	/**
+	 * Handle chant commands and general chatter
+	 * commands: !title add|rem|stats|top
+	 * @throws SQLException
+	 */
     protected void handleChat() throws SQLException {
 		MessageEvent<PircBotX> me = (MessageEvent<PircBotX>) event;
 		String message = me.getMessage();
@@ -183,11 +215,11 @@ public class Titles implements Runnable {
 			TitleCmdParse icp = TitleCmdParse.parseChat(me.getChannel().getName(), me.getMessage());
 			if (icp.command == "add") {
 				if(icp.victim == me.getUser().getNick()) {
-					event.respond(CommandErrors.NOT_ON_SELF.response);
+					me.respond(CommandErrors.NOT_ON_SELF.response);
 					return;
 				}
 				if(!isUserVoice(me.getUser(), me.getChannel())) {
-					event.respond(CommandErrors.WRONG_PERMISSIONS.response);
+					me.respond(CommandErrors.WRONG_PERMISSIONS.response);
 					return;
 				}
 				int ret = TitleDB.instanceOf().addTitle(database.getConnection(), 
@@ -197,11 +229,11 @@ public class Titles implements Runnable {
 				}
 			} else if (icp.command == "rem") {
 				if(icp.victim == me.getUser().getNick()) {
-					event.respond(CommandErrors.NOT_ON_SELF.response);
+					me.respond(CommandErrors.NOT_ON_SELF.response);
 					return;
 				}
 				if(!isUserVoice(me.getUser(), me.getChannel())) {
-					event.respond(CommandErrors.WRONG_PERMISSIONS.response);
+					me.respond(CommandErrors.WRONG_PERMISSIONS.response);
 					return;
 				}
 				int ret;
@@ -221,31 +253,41 @@ public class Titles implements Runnable {
 						database.getConnection(), icp.channel);
 				
 				if( stats != null ) {
-					event.respond(formatStats(stats));
+					me.respond(formatStats(stats));
 				}
 			} else if (icp.command == "top") {
 				List<String[]> top = TitleDB.instanceOf().getTop(
 						database.getConnection(), icp.channel);
 				
 				if( top != null ) {
-					event.respond(formatTop(top));
+					me.respond(formatTop(top));
+				}
+			} else if (icp.command == "last") {
+				String[] last = lastTitle(icp.channel);
+				
+				if( last != null ) {
+					me.respond(formatTitle(last));
 				}
 			}
 		} else {
-			RecentData rd = recentTitles.get(me.getChannel().getName());
+			synchronized (recentTitles) {	
+				RecentData rd = recentTitles.get(me.getChannel().getName());
 			
-			// one in twenty chance that we make fun of them
-			// Also must be in monologue and not too busy in the chat
-			if (rd.inMonologue(me.getUser().getNick()) && rd.checkAnnounce(me.getUser().getNick()) &&
-					(new Random()).nextInt(20)==0 ) {
-				
-				// makes fun of users some times
-				String announce = TitleDB.instanceOf().title(database.getConnection(), 
-						me.getChannel(), me.getUser());
-			
-				if (announce != null)
-					event.respond(announce);
+				// one in twenty chance that we make fun of them
+				// Also must be in monologue and not too busy in the chat
+				if (!rd.inMonologue(me.getUser().getNick()) && !rd.checkAnnounce(me.getUser().getNick()) &&
+						(new Random()).nextInt(20)>0 )
+					return;
 			}
+				
+			// makes fun of users some times
+			String announce = TitleDB.instanceOf().title(database.getConnection(), 
+					me.getChannel(), me.getUser());
+			
+			String alias = IRCUtils.choose(SillyConfiguration.getChatterWrapper());
+			
+			if (announce != null)
+		    	me.respond(formatSilly(alias, me.getUser().getNick(), announce, me.getChannel()));
 		}
     }
 
@@ -346,6 +388,28 @@ public class Titles implements Runnable {
     
     // formating helpers =============
     
+    private static Pattern PAT_NAME = Pattern.compile("\b%n\b");
+    private static Pattern PAT_TITLE = Pattern.compile("\b%t\b");
+    private static Pattern PAT_RANDOM = Pattern.compile("\b%r\b");
+    
+    private String formatSilly(String format, String user, String title, Channel channel) {
+    	String ret = format;
+    	Matcher r = PAT_RANDOM.matcher(ret);
+    	if( r.matches() ) {
+    		String rNick = IRCUtils.choose( channel.getUsers() ).getNick();
+    		ret = r.replaceAll(rNick);
+    	}
+    	Matcher n = PAT_NAME.matcher(ret);
+    	if( n.matches() ) {
+    		ret = n.replaceAll(user);
+    	}
+    	Matcher t = PAT_TITLE.matcher(ret);
+    	if( t.matches() ) {
+    		ret = t.replaceAll(title);
+    	}
+    	return ret;
+    }
+    
     /**
      * Formats a stats string for printing
      * @param stats Array of [title count, jerk name, jerk count, victim name, victim count]
@@ -388,12 +452,29 @@ public class Titles implements Runnable {
     private List<String> formatTitles(List<String[]> titles) {
     	List<String> ret = new LinkedList<String>();
     	for(String[] t : titles) {
-    		if (t.length == 2)
-    			ret.add(t[0] + ") " + t[1] + ".");
-    		else if (t.length == 3)
-    			ret.add(t[0] + ") " + t[1] + ": " + t[2] + ".");
+    		String r = formatTitle(t);
+    		if (r != null)
+    			ret.add(r);
     	}
     	return ret;
+    }
+    
+    /**
+     * Format a title
+     * Form:
+     * [id, title text]
+     * OR
+     * [id, user, title text]
+     * @param title
+     * @return
+     */
+    private String formatTitle(String[] title) {
+		if (title.length == 2)
+			return title[0] + ") " + title[1] + ".";
+		else if (title.length == 3)
+			return title[0] + ") " + title[1] + ": " + title[2] + ".";
+		else
+			return null;
     }
     
     // recent data helpers =============
@@ -406,9 +487,9 @@ public class Titles implements Runnable {
 	 */
 	private List<String[]> lastTitles(String channel) {
 		synchronized (recentTitles) {
-			RecentData rd = recentTitles.get(channel);
+			RecentData rd = getRecent(channel);
 			List<String[]> resp = new LinkedList<String[]>();
-			for( RecentAnnounces ra : rd.listHistory() ) {
+			for( RecentAnnouncement ra : rd.listHistory() ) {
 				String[] line = {
 						String.valueOf(ra.getTitleId()), 
 						ra.getUser(), 
@@ -421,22 +502,40 @@ public class Titles implements Runnable {
 	}
 	
 	/**
+	 * Get a brief history of titles used in the chat
+	 * @param conn db connection
+	 * @param channel irc channel
+	 * @return List of [id, user, title]
+	 */
+	private String[] lastTitle(String channel) {
+		synchronized (recentTitles) { //TODO: this everywhere
+			RecentData rd = getRecent(channel);
+			RecentAnnouncement ra = rd.listHistory().peek();
+			String[] resp = {
+					String.valueOf(ra.getTitleId()), 
+					ra.getUser(), 
+					ra.getTitle()
+					};
+			return resp;
+		}
+	}
+	
+	/**
 	 * Get the recent data for a specific channel
 	 * Will create it if needed
+	 * Need to obtain lock on recentTitles to use
 	 * @param chanName
 	 * @return
 	 */
 	private RecentData getRecent(String chanName) {
-		synchronized (recentTitles) {
-			RecentData recent;
-			if (recentTitles.containsKey(chanName)) {
-				recent = recentTitles.get(chanName);
-			} else {
-				recent = new RecentData();
-				recentTitles.put(chanName, recent);
-			}
-			return recent;
+		RecentData recent;
+		if (recentTitles.containsKey(chanName)) {
+			recent = recentTitles.get(chanName);
+		} else {
+			recent = new RecentData();
+			recentTitles.put(chanName, recent);
 		}
+		return recent;
 	}
 
 }
