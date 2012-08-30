@@ -156,7 +156,7 @@ public class Seen implements Runnable {
                 // Disconnect from the database
                 database.disconnect();
             } catch (Exception ex) {
-                Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+                Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
             }
         }
     }
@@ -196,7 +196,7 @@ public class Seen implements Runnable {
             // Disconnect from the database
             database.disconnect();
         } catch (Exception ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         }
     }
 }

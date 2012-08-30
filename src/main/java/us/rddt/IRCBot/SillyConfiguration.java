@@ -96,9 +96,9 @@ public class SillyConfiguration {
     				line.charAt(0) == '[' && 
     				line.charAt(line.length()-1) == ']') {
     			
-    			if( section != null ) map.put(secname, section);
     			section = new LinkedList<String>();
-    			secname = line.substring(1, line.length()-2);
+    			secname = line.substring(1, line.length()-1);
+                map.put(secname, section);
     		} else if ( section != null ) {
     			section.add(line);
     		}

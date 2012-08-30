@@ -40,6 +40,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * @author Ryan Morrison
@@ -59,6 +60,16 @@ public class IRCUtils {
     public static String escapeHTMLEntities(String toEscape) {
         new StringEscapeUtils();
         return StringEscapeUtils.unescapeHtml4(toEscape);
+    }
+    
+    /**
+     * Returns the stack trace of a throwable object as a string
+     * @param throwable the throwable object to return the stack trace for
+     * @return the stack trace as a string
+     */
+    public static String getStackTraceString(Throwable throwable) {
+        new ExceptionUtils();
+        return ExceptionUtils.getStackTrace(throwable);
     }
     
     /**

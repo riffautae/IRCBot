@@ -59,6 +59,7 @@ public class TitleDB {
 		ResultSet result = sCount.executeQuery();
 		if (result.next()) {
         	int count = result.getInt(1);
+        	if(count == 0) return null;
         	int item = (new Random()).nextInt(count) + 1;
         	
 			PreparedStatement statement = conn.prepareStatement(
