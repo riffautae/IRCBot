@@ -67,9 +67,9 @@ import us.rddt.IRCBot.Implementations.TitleDB;
  */
 class TitleCmdParse {
 	//  											cmd   chan    user     params
-	static final Pattern PAT_PM = Pattern.compile("(\\w+) (\\w+)(? (#\\w+) (.*))");
+	static final Pattern PAT_PM = Pattern.compile("(\\w+) (\\w+)(?: (#\\w+) (.*))");
 	//													cmd		user	params
-	static final Pattern PAT_CHAT = Pattern.compile("\\!(\\w+)(? (\\w+) (.*))");
+	static final Pattern PAT_CHAT = Pattern.compile("!(\\w+)(?: (\\w+) (.*))");
 	
 	public Boolean isPm;
 	public String command;
@@ -137,6 +137,7 @@ public class Titles implements Runnable {
 
 	public Titles(Event<PircBotX> event, TitlesType type) {
 		this.event = event;
+		this.type = type;
 	}
 
 	/**
@@ -164,7 +165,7 @@ public class Titles implements Runnable {
             }
             database.disconnect();
         } catch (Exception ex) {
-            Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
         }
     }
     
@@ -271,7 +272,7 @@ public class Titles implements Runnable {
 			}
 		} else {
 			synchronized (recentTitles) {	
-				RecentData rd = recentTitles.get(me.getChannel().getName());
+				RecentData rd = getRecent(me.getChannel().getName());
 			
 				// one in twenty chance that we make fun of them
 				// Also must be in monologue and not too busy in the chat

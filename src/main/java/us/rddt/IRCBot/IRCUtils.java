@@ -196,6 +196,7 @@ public class IRCUtils {
      * @param lst the list
      * @return the item
      */
+	@SuppressWarnings("unchecked")
 	public static
 	<A> A choose(Set<A> lst) {
 		if(lst.size() == 0 ) return null;

@@ -98,7 +98,7 @@ public class SillyConfiguration {
     			
     			if( section != null ) map.put(secname, section);
     			section = new LinkedList<String>();
-    			secname = line.substring(1, line.length()-2);
+    			secname = line.substring(1, line.length()-1);
     		} else if ( section != null ) {
     			section.add(line);
     		}
