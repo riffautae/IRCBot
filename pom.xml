@@ -25,12 +25,17 @@
   	<dependency>
   		<groupId>org.pircbotx</groupId>
   		<artifactId>pircbotx</artifactId>
-  		<version>1.6</version>
+  		<version>1.7</version>
   	</dependency>
   	<dependency>
   		<groupId>org.twitter4j</groupId>
   		<artifactId>twitter4j-core</artifactId>
   		<version>2.2.5</version>
+  	</dependency>
+  	<dependency>
+    	<groupId>com.github.koraktor</groupId>
+    	<artifactId>steam-condenser</artifactId>
+    	<version>1.2.0</version>
   	</dependency>
   </dependencies>
   

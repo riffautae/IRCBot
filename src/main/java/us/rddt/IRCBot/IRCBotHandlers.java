@@ -54,11 +54,15 @@ import us.rddt.IRCBot.Handlers.Convert;
 import us.rddt.IRCBot.Handlers.Define;
 import us.rddt.IRCBot.Handlers.Fortune;
 import us.rddt.IRCBot.Handlers.Titles;
+import us.rddt.IRCBot.Handlers.GameStatus;
+import us.rddt.IRCBot.Handlers.SourceServerQuery;
 import us.rddt.IRCBot.Handlers.Search;
 import us.rddt.IRCBot.Handlers.Seen;
 import us.rddt.IRCBot.Handlers.Shouts;
+import us.rddt.IRCBot.Handlers.SteamUserQuery;
 import us.rddt.IRCBot.Handlers.Topic;
 import us.rddt.IRCBot.Handlers.UserMode;
+import us.rddt.IRCBot.Handlers.Votekick;
 import us.rddt.IRCBot.Implementations.URLGrabber;
 
 /**
@@ -140,6 +144,29 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
             if(!Configuration.getDisabledFunctions().contains("google")) {
                 new Thread(new Search(event)).start();
                 return true;
+            }
+        }
+        if(event.getMessage().startsWith("!query ")) {
+            if(!Configuration.getDisabledFunctions().contains("sourcequery")) {
+                new Thread(new SourceServerQuery(event)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!steam ")) {
+            if(!Configuration.getDisabledFunctions().contains("steamquery")) {
+                new Thread(new SteamUserQuery(event)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!status ")) {
+            if(!Configuration.getDisabledFunctions().contains("gamestatus")) {
+                new Thread(new GameStatus(event)).start();
+                return true;
+            }
+        }
+        if(event.getMessage().startsWith("!votekick ")) {
+            if(!Configuration.getDisabledFunctions().contains("votekick")) {
+                new Thread(new Votekick(event)).start();
             }
         }
         if(event.getMessage().startsWith("!appendtopic ")) {
@@ -348,7 +375,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                     SillyConfiguration.loadConfiguration();
                     Configuration.startScheduler(event.getBot());
                 } catch (Exception ex) {
-                    Configuration.getLogger().write(Level.WARNING, ex.getStackTrace().toString());
+                    Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
                     sendGlobalMessage(event.getBot(), "Failed to reload configuration: " + ex.getMessage());
                 }
                 Configuration.getLogger().write(Level.INFO, "Reload complete");
@@ -361,7 +388,7 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 try {
                     IRCUtils.restartApplication();
                 } catch (Exception ex) {
-                    Configuration.getLogger().write(Level.SEVERE, ex.getStackTrace().toString());
+                    Configuration.getLogger().write(Level.SEVERE, IRCUtils.getStackTraceString(ex));
                 }
             }
         } else {

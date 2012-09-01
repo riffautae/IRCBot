@@ -28,92 +28,65 @@
 
 package us.rddt.IRCBot.Handlers;
 
-import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 
-import org.json.JSONException;
 import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
 import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
-import us.rddt.IRCBot.Implementations.UrbanLookup;
+
+import com.github.koraktor.steamcondenser.exceptions.SteamCondenserException;
+import com.github.koraktor.steamcondenser.steam.community.SteamId;
 
 /**
  * @author Ryan Morrison
  */
-public class Define implements Runnable {
-    /*
-     * Class variables
-     */
+public class SteamUserQuery implements Runnable {
+    // Variables
     private MessageEvent<PircBotX> event;
-    
+
     /**
      * Class constructor
      * @param event the MessageEvent that triggered this class
      */
-    public Define(MessageEvent<PircBotX> event) {
+    public SteamUserQuery(MessageEvent<PircBotX> event) {
         this.event = event;
     }
     
     /**
-     * Formats a lookup into a string that can be inserted into a URL
-     * @param phrase the phrase(s) to lookup in array form
-     * @return the properly formatted string
-     * @throws ArrayIndexOutOfBoundsException if the user did not define a phrase to look up
+     * Performs a query on a user and returns basic details
+     * @param user the Steam user string to query
+     * @throws SteamCondenserException if the user's profile cannot be loaded
      */
-    private String formatLookup(String[] phrase) throws ArrayIndexOutOfBoundsException {
-        String temp = "";
-        for(int i = 1; i < phrase.length; i++) {
-            if(i == (phrase.length - 1)) temp += phrase[i];
-            else temp += phrase[i] + "%20";
-        }
-        return temp;
+    private void doUserQuery(String user) throws SteamCondenserException {
+        // Query Steam for the user
+        SteamId userId = SteamId.create(user);
+        
+        // Convert the date since the user's creation into a formatted string
+        String memberSince = new SimpleDateFormat("dd/MM/yyyy").format(userId.getMemberSince());
+        
+        // Build the string to return to the user
+        StringBuilder builtResponse = new StringBuilder();
+        builtResponse.append("User " + userId.getNickname() + ", member since " + memberSince + ". " + userId.getStateMessage());
+        
+        // Return the string to the user
+        event.respond(builtResponse.toString());
     }
     
     /**
-     * Method that executes upon thread-start
+     * Method that executes upon thread start
      * (non-Javadoc)
      * @see java.lang.Runnable#run()
      */
     public void run() {
-        /*
-         * Variables
-         */
-        UrbanLookup lookupResult = null;
-        String toDefine = null;
-        
-        /*
-         * Attempts to extract the phrase to define from the user's message
-         */
         try {
-            toDefine = formatLookup(event.getMessage().split(" "));
-        } catch (ArrayIndexOutOfBoundsException ex) {
-            return;
-        }
-        
-        /*
-         * Attempts to define the phrase via UrbanDictionary. If an exception occurs,
-         * return a proper error message.
-         */
-        try {
-            lookupResult = UrbanLookup.getDefinition(toDefine);
-        } catch (IOException ex) {
+            // Retrieve the user's name to look up from the received message and query it
+            doUserQuery(event.getMessage().split(" ")[1]);
+        } catch (Exception ex) {
+            event.respond("Could not load profile: " + ex.getMessage());
             Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
-            event.respond("Error while downloading definition: " + IRCUtils.trimString(event.getMessage(), 50));
-            return;
-        } catch (JSONException ex) {
-            Configuration.getLogger().write(Level.WARNING, IRCUtils.getStackTraceString(ex));
-            event.respond("Error while parsing definition: " + IRCUtils.trimString(event.getMessage(), 50));
-        }
-        
-        /*
-         * Return the result to the user based upon whether the lookup was successful or not.
-         */
-        if(lookupResult.hasResult()) {
-            event.respond(lookupResult.getWord() + ": " + lookupResult.getDefinition() + " (Example: " + lookupResult.getExample() + ")");
-        } else {
-            event.respond("The definition for " + toDefine + " does not exist.");
         }
     }
 }

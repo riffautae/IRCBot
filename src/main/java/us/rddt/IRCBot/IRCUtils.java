@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
@@ -59,6 +60,16 @@ public class IRCUtils {
     public static String escapeHTMLEntities(String toEscape) {
         new StringEscapeUtils();
         return StringEscapeUtils.unescapeHtml4(toEscape);
+    }
+    
+    /**
+     * Returns the stack trace of a throwable object as a string
+     * @param throwable the throwable object to return the stack trace for
+     * @return the stack trace as a string
+     */
+    public static String getStackTraceString(Throwable throwable) {
+        new ExceptionUtils();
+        return ExceptionUtils.getStackTrace(throwable);
     }
     
     /**
@@ -102,9 +113,10 @@ public class IRCUtils {
      * Converts date formats to human-readable strings
      * @param date the date to be converted
      * @param countingDown true if we are counting down to a date, false if we are determining history
+     * @param showMoment true to show seconds as "a moment" and one hour as "an", false to show the number of seconds and hours
      * @return the human-readable string
      */
-    public static String toReadableTime(Date date, boolean countingDown) {
+    public static String toReadableTime(Date date, boolean countingDown, boolean showMoment) {
         // Calculate the difference in seconds between the time the user left and now
         long diffInSeconds;
         if(countingDown) diffInSeconds = (date.getTime() - System.currentTimeMillis()) / 1000;
@@ -119,9 +131,15 @@ public class IRCUtils {
 
         // Build the readable format string
         if(diff[0] != 0) return String.format("%d day%s", diff[0], diff[0] > 1 ? "s" : "");
-        if(diff[1] != 0) return String.format("%s%s hour%s", diff[1] > 1 ? "" : "an", diff[1] > 1 ? String.valueOf(diff[1]) : "", diff[1] > 1 ? "s" : "");
+        if(diff[1] != 0) {
+            if(showMoment) return String.format("%s%s hour%s", diff[1] > 1 ? "" : "an", diff[1] > 1 ? String.valueOf(diff[1]) : "", diff[1] > 1 ? "s" : "");
+            else return String.format("%s hour%s", diff[1], diff[1] > 1 ? "s" : "");
+        }
         if(diff[2] != 0) return String.format("%d minute%s", diff[2], diff[2] > 1 ? "s" : "");
-        if(diff[3] != 0) return "a moment";
+        if(diff[3] != 0) {
+            if(showMoment) return "a moment";
+            else return String.format("%d second%s", diff[3], diff[3] > 1 ? "s" : "");
+        }
         else return "unknown";
     }
 

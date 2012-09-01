@@ -53,7 +53,7 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
             Configuration.loadConfiguration();
             SillyConfiguration.loadConfiguration();
         } catch(Exception ex) {
-            Configuration.getLogger().write(Level.SEVERE, ex.getStackTrace().toString());
+            Configuration.getLogger().write(Level.SEVERE, IRCUtils.getStackTraceString(ex));
             System.exit(-1);
         }
         Configuration.getLogger().write(Level.INFO, "Initializing bot (IRCBot version " + Configuration.getApplicationVersion() + ")");
@@ -66,6 +66,8 @@ public class IRCBot extends ListenerAdapter<PircBotX> {
         bot.setName(Configuration.getNick());
         // Set the bot's user
         bot.setLogin(Configuration.getUser());
+        // Automatically split messages longer than IRC's size limit
+        bot.setAutoSplitMessage(true);
         // Connect to the IRC server
         connect(bot);
         // Create the scheduler for watching subreddits
