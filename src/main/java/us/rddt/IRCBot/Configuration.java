@@ -49,6 +49,13 @@ import org.pircbotx.PircBotX;
 import us.rddt.IRCBot.Implementations.RedditWatcher;
 import us.rddt.IRCBot.Logging.IRCLogger;
 
+/**
+ * Class which maintains the bot's configuration settings. Settings are loaded upon
+ * bot startup and can be reloaded on the fly via a command provided by a bot
+ * administrator.
+ * 
+ * @author Ryan Morrison
+ */
 public class Configuration {
     /*
      * Class variables.

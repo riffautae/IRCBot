@@ -39,6 +39,10 @@ import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.Implementations.VotekickObject;
 
 /**
+ * Allows any user to start a votekick against another user in the channel. Others
+ * are encouraged to participate if they choose to, and should the user receive the
+ * required number of votes for the votekick to pass, they are kicked from the channel.
+ * 
  * @author Ryan Morrison
  */
 public class Votekick implements Runnable {

@@ -45,6 +45,11 @@ import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
 
 /**
+ * Using the reddit API, this class can return information about a provided reddit
+ * link/comment URL including the submission date, number of votes, and whether
+ * the link should be considered NSFW (not safe for work).
+ * 
+ * @see us.rddt.IRCBot.Implementations.URLGrabber
  * @author Ryan Morrison
  */
 public class RedditLink {

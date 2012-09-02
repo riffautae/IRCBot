@@ -36,6 +36,8 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
 /**
+ * Formats a log entry into an HTML format, for easier reading.
+ * 
  * @author Ryan Morrison
  */
 public class HTMLFormatter extends Formatter {

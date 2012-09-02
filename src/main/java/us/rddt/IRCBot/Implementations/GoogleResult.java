@@ -29,6 +29,9 @@
 package us.rddt.IRCBot.Implementations;
 
 /**
+ * A simple class to define a data type for individual Google search results.
+ * 
+ * @see us.rddt.IRCBot.Implementations.GoogleSearch
  * @author Ryan Morrison
  */
 public class GoogleResult {

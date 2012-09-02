@@ -11,6 +11,12 @@ import org.json.JSONObject;
 
 import us.rddt.IRCBot.Configuration;
 
+/**
+ * Uses a Google API to perform conversions provided by users via a bot command.
+ * 
+ * @see us.rddt.IRCBot.Handlers.Convert
+ * @author Ryan Morrison
+ */
 public class Converter {
     /*
      * Variables

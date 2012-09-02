@@ -42,6 +42,8 @@ import com.github.koraktor.steamcondenser.exceptions.SteamCondenserException;
 import com.github.koraktor.steamcondenser.steam.servers.SourceServer;
 
 /**
+ * Queries a Source-engine based game server given its IP address and port.
+ * 
  * @author Ryan Morrison
  */
 public class SourceServerQuery implements Runnable {

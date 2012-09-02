@@ -42,6 +42,11 @@ import org.json.JSONObject;
 import us.rddt.IRCBot.Configuration;
 
 /**
+ * Using the reddit API, this class can return information about a provided reddit
+ * user's page including their karma scores, account creation date and whether the
+ * user has a subscription to reddit gold.
+ * 
+ * @see us.rddt.IRCBot.Implementations.URLGrabber
  * @author Ryan Morrison
  */
 public class RedditUser {

@@ -40,6 +40,8 @@ import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Implementations.UrbanLookup;
 
 /**
+ * Uses the Urban Dictionary to define words or phrases passed to the bot via a command.
+ * 
  * @author Ryan Morrison
  */
 public class Define implements Runnable {

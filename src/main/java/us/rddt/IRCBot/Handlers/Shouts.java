@@ -46,6 +46,11 @@ import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
 
 /**
+ * Shouts is an interesting way to discourage all caps spam in an IRC channel, or
+ * to amusingly encourage it. When a user types in all capital letters, the bot
+ * stores the "quote" (the all capitals message) in a database and returns a
+ * randomly selected quote to the channel.
+ * 
  * @author Ryan Morrison
  */
 class Shout {

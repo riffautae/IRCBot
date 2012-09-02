@@ -42,6 +42,9 @@ import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
 
 /**
+ * A simple class to define a data type for a YouTube video.
+ * 
+ * @see us.rddt.IRCBot.Implementations.URLGrabber
  * @author Ryan Morrison
  */
 public class YouTubeLink {
