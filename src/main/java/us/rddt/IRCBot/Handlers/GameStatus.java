@@ -46,6 +46,9 @@ import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
 
 /**
+ * Allows users to set games that they are currently playing, and allows other
+ * users to determine who is playing what game or who is playing a provided game.
+ * 
  * @author Ryan Morrison
  */
 public class GameStatus implements Runnable {

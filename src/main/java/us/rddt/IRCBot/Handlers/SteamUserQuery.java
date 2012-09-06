@@ -41,6 +41,8 @@ import com.github.koraktor.steamcondenser.exceptions.SteamCondenserException;
 import com.github.koraktor.steamcondenser.steam.community.SteamId;
 
 /**
+ * Queries Valve's Steam service for the status of a given user.
+ * 
  * @author Ryan Morrison
  */
 public class SteamUserQuery implements Runnable {

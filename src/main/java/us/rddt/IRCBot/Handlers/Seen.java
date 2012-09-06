@@ -43,6 +43,12 @@ import us.rddt.IRCBot.Database;
 import us.rddt.IRCBot.IRCUtils;
 
 /**
+ * Since the services we use on the ircd doesn't support the !seen command, our bot
+ * will reimplement it. On a user quitting or leaving the IRC channel, a database
+ * is updated and maintained with the user's nick and when they were last in the
+ * channel. The database can be queried via a !seen command to determine when a user
+ * was last in the channel.
+ * 
  * @author Ryan Morrison
  */
 public class Seen implements Runnable {

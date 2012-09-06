@@ -41,6 +41,11 @@ import org.json.JSONObject;
 import us.rddt.IRCBot.Configuration;
 
 /**
+ * Queries the Urban Dictionary for a definition for a provided string. The results
+ * are provided in JSON format, which is then parsed and the definition returned
+ * to the user who requested it.
+ * 
+ * @see us.rddt.IRCBot.Handlers.Define
  * @author Ryan Morrison
  */
 public class UrbanLookup {

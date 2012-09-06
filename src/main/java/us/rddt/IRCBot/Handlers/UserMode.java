@@ -36,6 +36,11 @@ import org.pircbotx.hooks.events.MessageEvent;
 import us.rddt.IRCBot.Enums.UserModes;
 
 /**
+ * Allows ops to use shorthand commands for rapidly performing actions on a user.
+ * This attempts to mimic how Anope's BotServ uses shorthand, allowing for
+ * ops to use commands such as !kick/!k or !ban/!b, instead of having to provide
+ * commands like /mode +b to the ircd.
+ * 
  * @author Ryan Morrison
  */
 public class UserMode implements Runnable {

@@ -34,6 +34,8 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
 /**
+ * A simple random number generator class used to predict or choose outcomes.
+ * 
  * @author Ryan Morrison
  */
 public class Fortune implements Runnable {

@@ -37,6 +37,8 @@ import java.util.logging.Logger;
 import us.rddt.IRCBot.Configuration;
 
 /**
+ * Initializes a logger to write HTML logfiles.
+ * 
  * @author Ryan Morrison
  */
 public class IRCLogger {
@@ -48,6 +50,10 @@ public class IRCLogger {
     
     private final Logger LOGGER = Logger.getLogger(IRCLogger.class.getName());
 
+    /**
+     * Initializes the logger and prepares it for use
+     * @throws IOException
+     */
     public void setup() throws IOException {
         Logger logger = Logger.getLogger("");
         fileHTML = new FileHandler(Configuration.getLogFile());
@@ -57,6 +63,11 @@ public class IRCLogger {
         logger.addHandler(fileHTML);
     }
     
+    /**
+     * Writes a log entry to the file
+     * @param level the log level to write
+     * @param output the data to be outputted to the log
+     */
     public void write(Level level, String output) {
         LOGGER.log(level, output);
     }

@@ -43,6 +43,8 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
+ * Utilities and helper methods that are called in various functions of the bot.
+ * 
  * @author Ryan Morrison
  */
 public class IRCUtils {

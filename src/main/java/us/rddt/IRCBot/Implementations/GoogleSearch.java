@@ -43,6 +43,11 @@ import org.json.JSONObject;
 import us.rddt.IRCBot.Configuration;
 
 /**
+ * Performs a Google search with a provided query string. The results are returned
+ * in JSON format, which is then parsed and a string is built to return to the user
+ * who requested the search.
+ * 
+ * @see us.rddt.IRCBot.Handlers.Search
  * @author Ryan Morrison
  */
 public class GoogleSearch {

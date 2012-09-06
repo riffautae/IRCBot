@@ -37,6 +37,10 @@ import org.pircbotx.hooks.events.MessageEvent;
 import us.rddt.IRCBot.Enums.TopicUpdates;
 
 /**
+ * Allows ops to update topics by appending or removing provided strings. IRC
+ * doesn't provide a way to simply append or remove portions of a topic string
+ * without needing to rewrite the whole topic string, which can be a major annoyance.
+ * 
  * @author Ryan Morrison
  */
 public class Topic implements Runnable {

@@ -36,6 +36,9 @@ import org.pircbotx.exception.NickAlreadyInUseException;
 import org.pircbotx.hooks.ListenerAdapter;
 
 /**
+ * The entry point for IRCBot. IRCBot is a custom IRC bot written in Java primarily
+ * to support the RDDT IRC Network.
+ * 
  * @author Ryan Morrison
  */
 public class IRCBot extends ListenerAdapter<PircBotX> {

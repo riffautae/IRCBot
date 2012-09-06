@@ -66,6 +66,13 @@ import us.rddt.IRCBot.Handlers.Votekick;
 import us.rddt.IRCBot.Implementations.URLGrabber;
 
 /**
+ * Handles events as they are registered by the bot. Each command's action is
+ * spawned in a new thread to prevent the bot from locking up on commands which
+ * could potentially take some time to complete - for example, actions that rely
+ * on outside services such as retrieving the title of a webpage. Threading these
+ * actions also allows the bot to handle simultaneous commands, however the bot is
+ * generally rate limited by the ircd to prevent flooding.
+ * 
  * @author Ryan Morrison
  */
 public class IRCBotHandlers extends ListenerAdapter<PircBotX> {

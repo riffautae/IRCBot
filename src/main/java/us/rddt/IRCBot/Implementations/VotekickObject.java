@@ -34,6 +34,9 @@ import java.util.List;
 import org.pircbotx.User;
 
 /**
+ * A simple class to define specific instances of votekicks.
+ * 
+ * @see us.rddt.IRCBot.Handlers.Votekick
  * @author Ryan Morrison
  */
 public class VotekickObject {

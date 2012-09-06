@@ -38,6 +38,10 @@ import org.pircbotx.PircBotX;
 import org.pircbotx.hooks.events.MessageEvent;
 
 /**
+ * A simple calculator implementation using Djikstra's Shunting-Yard algorithm.
+ * Expressions are provided in infix notation, which is then converted to
+ * Reverse Polish Notation (RPN) so that we can evaluate the expression.
+ * 
  * @author Ryan Morrison
  */
 public class Calculator implements Runnable {

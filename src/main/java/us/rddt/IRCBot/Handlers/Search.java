@@ -37,6 +37,8 @@ import us.rddt.IRCBot.Implementations.GoogleResult;
 import us.rddt.IRCBot.Implementations.GoogleSearch;
 
 /**
+ * Searches Google for a provided query string and returns the result to the channel.
+ * 
  * @author Ryan Morrison
  */
 public class Search implements Runnable {

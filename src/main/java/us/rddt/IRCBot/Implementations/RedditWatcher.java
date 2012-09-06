@@ -48,6 +48,10 @@ import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
 
 /**
+ * Using the reddit API, this class is capable of "watching" a subreddit and
+ * returning information such as post title, the user who submitted it and its
+ * current score for new submissions to the subreddit.
+ * 
  * @author Ryan Morrison
  */
 public class RedditWatcher implements Runnable {

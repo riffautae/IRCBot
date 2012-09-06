@@ -37,6 +37,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 /**
+ * Helper class to handle database transactions.
+ * 
  * @author Ryan Morrison
  */
 public class Database {

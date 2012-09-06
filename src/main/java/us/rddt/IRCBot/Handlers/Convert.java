@@ -9,6 +9,11 @@ import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
 import us.rddt.IRCBot.Implementations.Converter;
 
+/**
+ * Uses a Google API to perform conversions provided by users via a bot command.
+ * 
+ * @author Ryan Morrison
+ */
 public class Convert implements Runnable {
     /*
      * Class variables

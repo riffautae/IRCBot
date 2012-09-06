@@ -58,6 +58,15 @@ import us.rddt.IRCBot.Configuration;
 import us.rddt.IRCBot.IRCUtils;
 
 /**
+ * Detects and returns information for URLs the bot sees in a channel. For normal
+ * web pages, the bot downloads a small portion of the page to retrieve the title
+ * tag from the HTML markup, and returns that to the user. Content from reddit
+ * is queried using the reddit API to return additional information. Links to twitter
+ * tweets are queried using the twitter API to return the text of the provided tweet.
+ * Links to YouTube videos queries the YouTube API to return the title of the video
+ * and its duration. Other URLs that are not web pages and are not recognized by the
+ * bot return the MIME type reported and the length (size) of the file.
+ * 
  * @author Ryan Morrison
  */
 public class URLGrabber implements Runnable {
