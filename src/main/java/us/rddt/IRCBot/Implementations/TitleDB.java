@@ -58,10 +58,10 @@ public class TitleDB {
 		if (result.next()) {
         	int count = result.getInt(1);
         	if(count == 0) return null;
-        	int item = (new Random()).nextInt(count) + 1;
+        	int item = (new Random()).nextInt(count);
         	
 			PreparedStatement statement = conn.prepareStatement(
-					"SELECT Title FROM Titles WHERE Nick = ? LIMIT ?, 1");
+					"SELECT Intro FROM Titles WHERE Nick = ? LIMIT ?, 1");
 	        statement.setString(1, user.getNick());
 	        statement.setInt(2, item);
 	        
@@ -83,18 +83,19 @@ public class TitleDB {
 	 */
 	public synchronized int addTitle(Connection conn, String submitter, String chan, String victim, String title) throws SQLException {
 		PreparedStatement statement = conn.prepareStatement(
-				"INSERT INTO Titles(Submitter, Date, Nick, Title) Values (?,?,?,?)");
+				"INSERT INTO Titles(Submitter, Date, Nick, Channel, Intro) Values (?,?,?,?,?)");
 		statement.setString(1, submitter);
 		statement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
 		statement.setString(3, victim);
-		statement.setString(3, title);
+		statement.setString(4, chan);
+		statement.setString(5, title);
 		
 		return statement.executeUpdate();
 	}
 	
 	public synchronized int remTitleByString(Connection conn, String chan, String nick, String title) throws SQLException {
 		PreparedStatement statement = conn.prepareStatement(
-				"DELETE FROM Titles WHERE Channel = ? AND Nick = ? AND Title = ?");
+				"DELETE FROM Titles WHERE Channel = ? AND Nick = ? AND Intro = ?");
 		
 		statement.setString(1, chan);
 		statement.setString(2, nick);
@@ -161,7 +162,7 @@ public class TitleDB {
         ret[0] = String.valueOf( resultSet.getInt("COUNT(*)") );
         
         // the biggest jerk
-        statement = conn.prepareStatement("SELECT COUNT(Submitter), Submitter FROM Titles WHERE Channel = ? GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 1");
+        statement = conn.prepareStatement("SELECT COUNT(Nick), Nick FROM Titles WHERE Channel = ? GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 1");
         statement.setString(1, channel);
         resultSet = statement.executeQuery();
         if(!resultSet.next()) return null;
@@ -169,7 +170,7 @@ public class TitleDB {
         ret[2] = String.valueOf( resultSet.getInt("COUNT(Nick)") );
         
         // the biggest victim
-        statement = conn.prepareStatement("SELECT COUNT(Submitter), Submitter FROM Titles WHERE Channel = ? GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 1");
+        statement = conn.prepareStatement("SELECT COUNT(Nick), Nick FROM Titles WHERE Channel = ? GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 1");
         statement.setString(1, channel);
         resultSet = statement.executeQuery();
         if(!resultSet.next()) return null;
@@ -180,7 +181,7 @@ public class TitleDB {
 	}
 	
 	/**
-	 * A list of the top titlers and victims
+	 * A list of the top titlers
 	 * In the form:
 	 * <pre>
 	 * [ 
@@ -193,7 +194,7 @@ public class TitleDB {
 	 * @return
 	 * @throws SQLException
 	 */
-	public synchronized List<String[]> getTop(Connection conn, String channel) throws SQLException {
+	public synchronized List<String[]> getTopSubmitters(Connection conn, String channel) throws SQLException {
 		List<String[]> ret = new LinkedList<String[]>();
 		
 		// submitters
@@ -203,21 +204,40 @@ public class TitleDB {
 
         while(rSub.next()) {
         	String[] sub = new String[2];
-        	sub[0] = rSub.getString("Nick");
-        	sub[1] = rSub.getString("COUNT(Nick)"); 
+        	sub[0] = rSub.getString("Submitter");
+        	sub[1] = rSub.getString("COUNT(Submitter)"); 
         	ret.add(sub);
         }
-        
-        // victims
+        return ret;
+	}
+	
+	/**
+     * A list of the top titlers and victims
+     * In the form:
+     * <pre>
+     * [ 
+     *   5 jerks [name, given title count],
+     *   5 victims [name, received title count]
+     * ]
+     * </pre>  
+     * @param conn
+     * @param channel
+     * @return
+     * @throws SQLException
+     */
+	public synchronized List<String[]> getTopVictims(Connection conn, String channel) throws SQLException {
+	    List<String[]> ret = new LinkedList<String[]>();
+	    
+	    // victims
         PreparedStatement sVic = conn.prepareStatement("SELECT COUNT(Nick), Nick FROM Titles WHERE Channel = ? GROUP BY Nick ORDER BY COUNT(Nick) DESC LIMIT 5");
         sVic.setString(1, channel);
         ResultSet rVic = sVic.executeQuery();
         
         while(rVic.next()) {
-        	String[] vic = new String[2];
-        	vic[0] = rSub.getString("Nick");
-        	vic[1] = rSub.getString("COUNT(Nick)");
-        	ret.add(vic);
+            String[] vic = new String[2];
+            vic[0] = rVic.getString("Nick");
+            vic[1] = rVic.getString("COUNT(Nick)");
+            ret.add(vic);
         }
         
         return ret;

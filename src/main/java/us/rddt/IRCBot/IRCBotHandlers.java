@@ -187,10 +187,6 @@ public class IRCBotHandlers extends ListenerAdapter<PircBotX> {
                 return true;
             }
         }
-        if(event.getMessage().startsWith("!title ")) {
-            if(!Configuration.getDisabledFunctions().contains("title"))
-            	new Thread(new Titles(event, TitlesType.CHATTER)).start();
-        }
 
         /*
          * User mode change events

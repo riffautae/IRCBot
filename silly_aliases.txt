@@ -5,33 +5,33 @@ rock,			paper
 red medic,		blue sniper
 top submitter,	top receiver
 best giver,		best receiver
-:t,				:ok
+:t',			:ok'
 spammer,		collector
 
 [Join Wrapper]
-Here be %n, %m.
-Hark! %n, %m, has arrived.
-Now arriving %n, %m.
-%n, %m, has joined the game.
-Warning: incoming %n.
-Abandon ship! %n, %m, be boarden our vessel.
-Look out %r! %n, %m, is here for YOU!
-Good thing %r is prepared for %m.
-Alert! incoming %n
-Looks like we got our selves %m
+Here be %n, %t.
+Hark! %n, %t, has arrived.
+Now arriving %n, %t.
+%n, %t, has joined the game.
+Warning: Incoming %n.
+Abandon ship! %n, %t, be boarding our vessel.
+Look out %r! %n, %t, is here for YOU!
+Good thing %r is prepared for %t.
+Alert! Incoming %n!
+Looks like we got ourselves %t!
 				
 [Part Wrapper]
-There be %n, %m.
-%n, %m, will be missed.
-Thank god %n is gone.
-%n has gone. %m troubles us no more.
-%n, %m, leaves, %r can relax.
-%m is gone! Who will protect %r now?
+There be %n, %t.
+%n, %t, will be missed.
+Thank God %n is gone.
+%n has gone. %t troubles us no more.
+%n, %t, leaves, %r can relax.
+%t is gone! Who will protect %r now?
 
 [Chatter Wrapper]
-And thus %n was known as %m.
-%n shows why he is %m.
+And thus %n was known as %t.
+%n shows why he is %t.
 Shut up %n.
-Everyone knows why %n is called %m.
+Everyone knows why %n is called %t.
 RING RING! %n its for you. Its Mr. STFU.
-Paging %n, Paging %n %m. You left your trap open. 
+Paging %n, Paging %n %t. You left your trap open. 

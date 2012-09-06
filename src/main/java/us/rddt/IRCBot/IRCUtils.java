@@ -41,7 +41,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 /**
  * @author Ryan Morrison

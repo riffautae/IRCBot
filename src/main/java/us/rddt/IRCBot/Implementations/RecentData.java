@@ -21,7 +21,7 @@ public class RecentData {
 
 	// rate limiting
 	private final double rate = 3.0; // messages
-	private final double per = 10.0; // milliseconds
+	private final double per = 10.0; // seconds
 	
 	private double allowance = rate;
 	private Date lastCheck = new Date();

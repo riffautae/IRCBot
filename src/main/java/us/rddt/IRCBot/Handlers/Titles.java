@@ -65,10 +65,10 @@ import us.rddt.IRCBot.Implementations.TitleDB;
  * @author Milton Thomas
  */
 class TitleCmdParse {
-	//  											cmd   chan    user     params
-	static final Pattern PAT_PM = Pattern.compile("(\\w+) (\\w+)(?: (#\\w+) (.*))");
-	//													cmd		user	params
-	static final Pattern PAT_CHAT = Pattern.compile("!(\\w+)(?: (\\w+) (.*))");
+	//  											       cmd   chan    user     params
+	static final Pattern PAT_PM = Pattern.compile("title (\\w+) (#\\w+)(?: (\\w+) (.*))?");
+	//													      cmd	  user     params
+	static final Pattern PAT_CHAT = Pattern.compile("!title (\\w+)(?: (\\w+) (.*))?");
 	
 	public Boolean isPm;
 	public String command;
@@ -94,36 +94,44 @@ class TitleCmdParse {
 		this.id = id;
 	}
 		
-	public static TitleCmdParse parsePm(String params) { 
-		Matcher mat = PAT_PM.matcher(params);
-		switch (mat.groupCount()) {
-		case 4:
-			try {
-				return new TitleCmdParse(true, mat.group(1), mat.group(3), mat.group(2), null, Integer.parseInt(mat.group(3)));
-			} catch (NumberFormatException e) {
-				return new TitleCmdParse(true, mat.group(1), mat.group(3), mat.group(2), mat.group(4), null);
-			} 
-		case 2:
-			return new TitleCmdParse(true, mat.group(1), null, mat.group(2), null, null);
-		default:
-			return null;
-		}
+	public static TitleCmdParse parsePm(String params) {
+	    Matcher mat = PAT_PM.matcher(params);
+	    if(mat.matches()) {
+	        switch (mat.groupCount()) {
+	        case 4:
+	            try {
+	                return new TitleCmdParse(true, mat.group(1), mat.group(3), mat.group(2), null, Integer.parseInt(mat.group(3)));
+	            } catch (NumberFormatException e) {
+	                return new TitleCmdParse(true, mat.group(1), mat.group(3), mat.group(2), mat.group(4), null);
+	            } 
+	        case 2:
+	            return new TitleCmdParse(true, mat.group(1), null, mat.group(2), null, null);
+	        default:
+	            return null;
+	        }
+	    } else {
+	        return null;
+	    }
 	}
-	
-	public static TitleCmdParse parseChat(String chan, String params) { 
-		Matcher mat = PAT_CHAT.matcher(params);
-		switch (mat.groupCount()) {
-		case 3:
-			try {
-				return new TitleCmdParse(true, mat.group(1), mat.group(2), chan, null, Integer.parseInt(mat.group(3)));
-			} catch (NumberFormatException e) {
-				return new TitleCmdParse(true, mat.group(1), mat.group(2), chan, mat.group(3), null);
-			}
-		case 1:
-			return new TitleCmdParse(true, mat.group(1), null, chan, null, null);
-		default:
-			return null;
-		}
+
+	public static TitleCmdParse parseChat(String chan, String params) {
+	    Matcher mat = PAT_CHAT.matcher(params);
+	    if(mat.matches()) {
+	        switch (mat.groupCount()) {
+	        case 3:
+	            try {
+	                return new TitleCmdParse(true, mat.group(1), mat.group(2), chan, null, Integer.parseInt(mat.group(3)));
+	            } catch (NumberFormatException e) {
+	                return new TitleCmdParse(true, mat.group(1), mat.group(2), chan, mat.group(3), null);
+	            }
+	        case 1:
+	            return new TitleCmdParse(true, mat.group(1), null, chan, null, null);
+	        default:
+	            return null;
+	        }
+	    } else {
+	        return null;
+	    }
 	}
 }
 
@@ -218,7 +226,7 @@ public class Titles implements Runnable {
 		if( message.startsWith("!title ") ) {
 			// commands
 			TitleCmdParse icp = TitleCmdParse.parseChat(me.getChannel().getName(), me.getMessage());
-			if (icp.command == "add") {
+			if (icp.command.equals("add")) {
 				if(icp.victim == me.getUser().getNick()) {
 					me.respond(CommandErrors.NOT_ON_SELF.response);
 					return;
@@ -232,7 +240,7 @@ public class Titles implements Runnable {
 				if( ret == 1 ) {
 					IRCBot.getBot().sendMessage(me.getUser(), "Added title for " + icp.victim);
 				}
-			} else if (icp.command == "rem") {
+			} else if (icp.command.equals("rem")) {
 				if(icp.victim == me.getUser().getNick()) {
 					me.respond(CommandErrors.NOT_ON_SELF.response);
 					return;
@@ -253,21 +261,22 @@ public class Titles implements Runnable {
 					IRCBot.getBot().sendMessage(me.getUser(), "Removed " + ret + " title(s) for " + icp.victim + 
 							" from " + icp.channel);
 				}
-			} else if (icp.command == "stats") {
+			} else if (icp.command.equals("stats")) {
 				String[] stats = TitleDB.instanceOf().getStats(
 						database.getConnection(), icp.channel);
 				
 				if( stats != null ) {
 					me.respond(formatStats(stats));
 				}
-			} else if (icp.command == "top") {
-				List<String[]> top = TitleDB.instanceOf().getTop(
+			} else if (icp.command.equals("top")) {
+				List<String[]> topSub = TitleDB.instanceOf().getTopSubmitters(
 						database.getConnection(), icp.channel);
-				
-				if( top != null ) {
-					me.respond(formatTop(top));
+				List<String[]> topVic = TitleDB.instanceOf().getTopVictims(
+                        database.getConnection(), icp.channel);
+				if( topSub != null && topVic != null ) {
+					me.getBot().sendMessage(me.getChannel(), formatTop(topSub, topVic));
 				}
-			} else if (icp.command == "last") {
+			} else if (icp.command.equals("last")) {
 				String[] last = lastTitle(icp.channel);
 				
 				if( last != null ) {
@@ -280,9 +289,8 @@ public class Titles implements Runnable {
 			
 				// one in twenty chance that we make fun of them
 				// Also must be in monologue and not too busy in the chat
-				if (!rd.inMonologue(me.getUser().getNick()) && !rd.checkAnnounce(me.getUser().getNick()) &&
-						(new Random()).nextInt(20)>0 )
-					return;
+				if (!(rd.checkAnnounce(me.getUser().getNick()) && rd.inMonologue(me.getUser().getNick()) && (new Random()).nextInt(20)==1 ))
+				    return;
 			}
 				
 			// makes fun of users some times
@@ -292,22 +300,21 @@ public class Titles implements Runnable {
 			String alias = IRCUtils.choose(SillyConfiguration.getChatterWrapper());
 			
 			if (announce != null)
-		    	me.respond(formatSilly(alias, me.getUser().getNick(), announce, me.getChannel()));
+		    	me.getBot().sendMessage(me.getChannel(), formatSilly(alias, me.getUser().getNick(), announce, me.getChannel()));
 		}
     }
 
     protected void handlePm() throws SQLException, InterruptedException {
     	PrivateMessageEvent<PircBotX> me = (PrivateMessageEvent<PircBotX>) event;
 		TitleCmdParse icp = TitleCmdParse.parsePm(me.getMessage());
-		if (icp.command == "add") {
+		if (icp.command.equals("add")) {
 			if( !isUserVoice(me.getUser(), IRCBot.getBot().getChannel(icp.channel))) return;
-			
-			if(icp.victim == me.getUser().getNick()) {
-				event.respond(CommandErrors.NOT_ON_SELF.response);
+			if(icp.victim.equals(me.getUser().getNick())) {
+				me.respond(CommandErrors.NOT_ON_SELF.response);
 				return;
 			}
 			if( !isUserVoice(me.getUser(), IRCBot.getBot().getChannel(icp.channel)) ) {
-				event.respond(CommandErrors.WRONG_PERMISSIONS.response);
+				me.respond(CommandErrors.WRONG_PERMISSIONS.response);
 				return;
 			}
 			int ret = TitleDB.instanceOf().addTitle(database.getConnection(), 
@@ -315,13 +322,13 @@ public class Titles implements Runnable {
 			if( ret == 1 ) {
 				IRCBot.getBot().sendMessage(me.getUser(), "Added title for " + icp.victim);
 			}
-		} else if (icp.command == "rem") {
+		} else if (icp.command.equals("rem")) {
 			if( icp.victim == me.getUser().getNick() ) {
-				event.respond(CommandErrors.NOT_ON_SELF.response);
+				me.respond(CommandErrors.NOT_ON_SELF.response);
 				return;
 			}
 			if( !isUserOperator(me.getUser(), IRCBot.getBot().getChannel(icp.channel)) ) {
-				event.respond(CommandErrors.WRONG_PERMISSIONS.response);
+				me.respond(CommandErrors.WRONG_PERMISSIONS.response);
 				return;
 			}
 			int ret;
@@ -336,21 +343,22 @@ public class Titles implements Runnable {
 				IRCBot.getBot().sendMessage(me.getUser(), "Removed " + ret + " title(s) for " + icp.victim + 
 						" from " + icp.channel);
 			}
-		} else if (icp.command == "stats") {
+		} else if (icp.command.equals("stats")) {
 			String[] stats = TitleDB.instanceOf().getStats(
 					database.getConnection(), icp.channel);
 			
 			if( stats != null ) {
-				event.respond(formatStats(stats));
+				me.respond(formatStats(stats));
 			}
-		} else if (icp.command == "top") {
-			List<String[]> top = TitleDB.instanceOf().getTop(
-					database.getConnection(), icp.channel);
-			
-			if( top != null ) {
-				event.respond(formatTop(top));
-			}
-		} else if (icp.command == "list") {
+		} else if (icp.command.equals("top")) {
+		    List<String[]> topSub = TitleDB.instanceOf().getTopSubmitters(
+                    database.getConnection(), icp.channel);
+            List<String[]> topVic = TitleDB.instanceOf().getTopVictims(
+                    database.getConnection(), icp.channel);
+            if( topSub != null && topVic != null ) {
+                me.respond(formatTop(topSub, topVic));
+            }
+		} else if (icp.command.equals("list")) {
 			List<String[]> list = TitleDB.instanceOf().listTitles
 					(database.getConnection(), icp.channel, icp.victim, icp.id);
 			
@@ -360,7 +368,7 @@ public class Titles implements Runnable {
 					me.respond(s);
 				}
 			}
-		} else if (icp.command == "last") {
+		} else if (icp.command.equals("last")) {
 			List<String[]> list = lastTitles(icp.channel);
 			if( list != null ) {
 				for( String s : formatTitles(list)) {
@@ -395,23 +403,23 @@ public class Titles implements Runnable {
     
     // formating helpers =============
     
-    private static Pattern PAT_NAME = Pattern.compile("\b%n\b");
-    private static Pattern PAT_TITLE = Pattern.compile("\b%t\b");
-    private static Pattern PAT_RANDOM = Pattern.compile("\b%r\b");
+    private static Pattern PAT_NAME = Pattern.compile("%n");
+    private static Pattern PAT_TITLE = Pattern.compile("%t");
+    private static Pattern PAT_RANDOM = Pattern.compile("%r");
     
     private String formatSilly(String format, String user, String title, Channel channel) {
     	String ret = format;
     	Matcher r = PAT_RANDOM.matcher(ret);
-    	if( r.matches() ) {
+    	if( r.find() ) {
     		String rNick = IRCUtils.choose( channel.getUsers() ).getNick();
     		ret = r.replaceAll(rNick);
     	}
     	Matcher n = PAT_NAME.matcher(ret);
-    	if( n.matches() ) {
+    	if( n.find() ) {
     		ret = n.replaceAll(user);
     	}
     	Matcher t = PAT_TITLE.matcher(ret);
-    	if( t.matches() ) {
+    	if( t.find() ) {
     		ret = t.replaceAll(title);
     	}
     	return ret;
@@ -434,17 +442,22 @@ public class Titles implements Runnable {
      * @param stats 5 jerks + 5 victims in an array of [name, title count]
      * @return Formatted strings ready for printing
      */
-    private String formatTop(List<String[]> stats) {
+    private String formatTop(List<String[]> submitters, List<String[]> victims) {
     	String[] alias = IRCUtils.choose( SillyConfiguration.getSubVicAliases() );
     	
-    	List<String> statp = new LinkedList<String>();
-    	for(String[] stat : stats) {
-    		statp.add(stat[0] + " (" + stat[1] + "]");
+    	List<String> statSubmitters = new LinkedList<String>();
+    	for(String[] stat : submitters) {
+    		statSubmitters.add(stat[0] + " (" + stat[1] + "]");
     	}
-    	String jerkList = IRCUtils.join(statp.subList(0, 4), ", ");
-    	String vicList = IRCUtils.join(statp.subList(5, 9), ", ");
+    	List<String> statVictims = new LinkedList<String>();
+        for(String[] stat : victims) {
+            statVictims.add(stat[0] + " (" + stat[1] + "]");
+        }
     	
-    	return "Top title fellows; The " + alias[0] + "s: " + jerkList + ". The " + vicList + "'s: " + vicList + ".";
+    	String subList = IRCUtils.join(statSubmitters.subList(0, statSubmitters.size()), ", ");
+    	String vicList = IRCUtils.join(statVictims.subList(0, statVictims.size()), ", ");
+    	
+    	return "The " + alias[0] + "s: " + subList + " - the " + alias[1] + "s: " + vicList;
     }
     
     /**
