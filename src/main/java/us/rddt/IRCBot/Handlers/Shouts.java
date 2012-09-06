@@ -208,8 +208,8 @@ public class Shouts implements Runnable {
         ResultSet resultSet = statement.executeQuery();
         if(resultSet.next()) {
             // Tease the user if it's their own quote
-            if(resultSet.getString("Nick").equals(event.getUser().getNick())) return Colors.BOLD + "YOU" + Colors.NORMAL + " taught me that! (Don't you remember? Put down the bong!) about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
-            return resultSet.getString("Nick") + " shouted this about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
+            if(resultSet.getString("Nick").equals(event.getUser().getNick())) return Colors.BOLD + "YOU" + Colors.NORMAL + " taught me that! (Don't you remember? Put down the bong!) about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false, true) + " ago.";
+            return resultSet.getString("Nick") + " shouted this about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false, true) + " ago.";
         } else {
             return "Quote not found.";
         }
@@ -251,7 +251,7 @@ public class Shouts implements Runnable {
         statement.setInt(2, line - 1);
         ResultSet resultSet = statement.executeQuery();
         if(resultSet.next()) {
-            return "Quote #" + line + " (" + resultSet.getString("Quote") + ") was shouted by " + resultSet.getString("Nick") + " about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false) + " ago.";
+            return "Quote #" + line + " (" + resultSet.getString("Quote") + ") was shouted by " + resultSet.getString("Nick") + " about " + IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false, true) + " ago.";
         } else {
             return "Quote #" + line + " not found.";
         }
@@ -271,7 +271,7 @@ public class Shouts implements Runnable {
         ResultSet resultSet = statement.executeQuery();
         if(resultSet.next()) {
             // Save the last quote to prevent an extra DB hit on !who last
-            shoutMap.put(event.getChannel().getName(), new Shout(resultSet.getString("Quote"), resultSet.getString("Nick"), IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false)));
+            shoutMap.put(event.getChannel().getName(), new Shout(resultSet.getString("Quote"), resultSet.getString("Nick"), IRCUtils.toReadableTime((Date)resultSet.getTimestamp("Date"), false, true)));
             // Return the random quote
             return resultSet.getString("Quote");
         } else {

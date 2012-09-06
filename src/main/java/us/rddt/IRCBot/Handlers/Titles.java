@@ -63,7 +63,6 @@ import us.rddt.IRCBot.Implementations.TitleDB;
 /**
  * Helper to parse message lines
  * @author Milton Thomas
- *
  */
 class TitleCmdParse {
 	//  											cmd   chan    user     params
@@ -97,27 +96,32 @@ class TitleCmdParse {
 		
 	public static TitleCmdParse parsePm(String params) { 
 		Matcher mat = PAT_PM.matcher(params);
-		if (mat.groupCount() == 3) {
+		switch (mat.groupCount()) {
+		case 4:
 			try {
-				return new TitleCmdParse(true, mat.group(1), mat.group(2), mat.group(3), null, Integer.parseInt(mat.group(3)));
+				return new TitleCmdParse(true, mat.group(1), mat.group(3), mat.group(2), null, Integer.parseInt(mat.group(3)));
 			} catch (NumberFormatException e) {
-				return new TitleCmdParse(true, mat.group(1), mat.group(2), mat.group(3), mat.group(4), null);
+				return new TitleCmdParse(true, mat.group(1), mat.group(3), mat.group(2), mat.group(4), null);
 			} 
-		} else {
+		case 2:
+			return new TitleCmdParse(true, mat.group(1), null, mat.group(2), null, null);
+		default:
 			return null;
 		}
 	}
 	
 	public static TitleCmdParse parseChat(String chan, String params) { 
 		Matcher mat = PAT_CHAT.matcher(params);
-		if (mat.groupCount() == 3) {
+		switch (mat.groupCount()) {
+		case 3:
 			try {
-				return new TitleCmdParse(true, mat.group(1), mat.group(2), chan, null, Integer.parseInt(mat.group(2)));
+				return new TitleCmdParse(true, mat.group(1), mat.group(2), chan, null, Integer.parseInt(mat.group(3)));
 			} catch (NumberFormatException e) {
 				return new TitleCmdParse(true, mat.group(1), mat.group(2), chan, mat.group(3), null);
-			} 
-			
-		} else {
+			}
+		case 1:
+			return new TitleCmdParse(true, mat.group(1), null, chan, null, null);
+		default:
 			return null;
 		}
 	}
@@ -233,7 +237,7 @@ public class Titles implements Runnable {
 					me.respond(CommandErrors.NOT_ON_SELF.response);
 					return;
 				}
-				if(!isUserVoice(me.getUser(), me.getChannel())) {
+				if(!isUserOperator(me.getUser(), me.getChannel())) {
 					me.respond(CommandErrors.WRONG_PERMISSIONS.response);
 					return;
 				}
@@ -296,6 +300,8 @@ public class Titles implements Runnable {
     	PrivateMessageEvent<PircBotX> me = (PrivateMessageEvent<PircBotX>) event;
 		TitleCmdParse icp = TitleCmdParse.parsePm(me.getMessage());
 		if (icp.command == "add") {
+			if( !isUserVoice(me.getUser(), IRCBot.getBot().getChannel(icp.channel))) return;
+			
 			if(icp.victim == me.getUser().getNick()) {
 				event.respond(CommandErrors.NOT_ON_SELF.response);
 				return;
@@ -314,7 +320,7 @@ public class Titles implements Runnable {
 				event.respond(CommandErrors.NOT_ON_SELF.response);
 				return;
 			}
-			if( !isUserVoice(me.getUser(), IRCBot.getBot().getChannel(icp.channel)) ) {
+			if( !isUserOperator(me.getUser(), IRCBot.getBot().getChannel(icp.channel)) ) {
 				event.respond(CommandErrors.WRONG_PERMISSIONS.response);
 				return;
 			}
@@ -538,5 +544,5 @@ public class Titles implements Runnable {
 		}
 		return recent;
 	}
-
+	
 }

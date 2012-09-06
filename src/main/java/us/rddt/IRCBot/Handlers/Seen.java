@@ -149,7 +149,7 @@ public class Seen implements Runnable {
                 ResultSet resultSet = statement.executeQuery();
                 // Respond appropriately should our user exist/not exist in the database
                 if(resultSet.next()) {
-                    event.respond(seenUser + " was last seen about " + IRCUtils.toReadableTime(resultSet.getTimestamp("Date"), false) + " ago.");
+                    event.respond(seenUser + " was last seen about " + IRCUtils.toReadableTime(resultSet.getTimestamp("Date"), false, true) + " ago.");
                 } else {
                     event.respond("I haven't seen " + seenUser + ".");
                 }
@@ -179,6 +179,8 @@ public class Seen implements Runnable {
             ResultSet resultSet = statement.executeQuery();
             // If a record exists, then run another query to update the date appropriately
             if(resultSet.next()) {
+                // Close the previous statement if it isn't closed already
+                if(!statement.isClosed()) statement.close();
                 statement = database.getConnection().prepareStatement("UPDATE Seen SET Date = ? WHERE Nick = ? AND Channel = ?");
                 statement.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
                 statement.setString(2, userToUpdate);
@@ -187,6 +189,8 @@ public class Seen implements Runnable {
             }
             // Otherwise, create a new record in the database for the user
             else {
+                // Close the previous statement if it isn't closed already
+                if(!statement.isClosed()) statement.close();
                 statement = database.getConnection().prepareStatement("INSERT INTO Seen(Nick, Date, Channel) VALUES (?, ?, ?)");
                 statement.setString(1, userToUpdate);
                 statement.setTimestamp(2, new java.sql.Timestamp(System.currentTimeMillis()));
