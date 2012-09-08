@@ -11,6 +11,8 @@ import java.util.Random;
 import org.pircbotx.Channel;
 import org.pircbotx.User;
 
+import us.rddt.IRCBot.Struct.TwoItemStruct;
+
 /**
  * Helper class to do the db work
  * @author Milton Thomas
@@ -43,12 +45,12 @@ public class TitleDB {
 	 * @param conn Db connection
 	 * @param chan channel this took place in
 	 * @param user for who
-	 * @return The title
+	 * @return The id, the title
 	 * @throws SQLException
 	 */
-	public synchronized String title(Connection conn, Channel chan, User user) throws SQLException {
+	public synchronized TwoItemStruct<Integer, String> title(Connection conn, Channel chan, User user) throws SQLException {
 		String title = null;
-		
+		Integer id = null;
 		PreparedStatement sCount = conn.prepareStatement(
 				"SELECT COUNT(Nick) FROM Titles WHERE Channel = ? AND Nick = ?");
 		sCount.setString(1, chan.getName());
@@ -61,15 +63,18 @@ public class TitleDB {
         	int item = (new Random()).nextInt(count);
         	
 			PreparedStatement statement = conn.prepareStatement(
-					"SELECT Intro FROM Titles WHERE Nick = ? LIMIT ?, 1");
+					"SELECT Id, Intro FROM Titles WHERE Nick = ? LIMIT ?, 1");
 	        statement.setString(1, user.getNick());
 	        statement.setInt(2, item);
 	        
 	        result = statement.executeQuery();
-	        if (result.next())
-	        	title = result.getString(1);
-		} 
-        return title;
+	        if (result.next()) {
+	        	id = result.getInt(1);
+	        	title = result.getString(2);
+	        	return new TwoItemStruct<Integer, String>(id, title);
+	        }
+		}
+        return null;
 	}
 
 	/**

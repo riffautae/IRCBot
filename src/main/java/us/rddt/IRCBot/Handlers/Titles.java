@@ -59,6 +59,7 @@ import us.rddt.IRCBot.Enums.TitlesType;
 import us.rddt.IRCBot.Implementations.RecentAnnouncement;
 import us.rddt.IRCBot.Implementations.RecentData;
 import us.rddt.IRCBot.Implementations.TitleDB;
+import us.rddt.IRCBot.Struct.TwoItemStruct;
 
 /**
  * Helper to parse message lines
@@ -191,11 +192,19 @@ public class Titles implements Runnable {
 				return;
 		}
 		
-		String announce = TitleDB.instanceOf().title(database.getConnection(), je.getChannel(), je.getUser());
+		TwoItemStruct<Integer, String> announce = TitleDB.instanceOf().title(
+				database.getConnection(), je.getChannel(), je.getUser());
 		String alias = IRCUtils.choose(SillyConfiguration.getJoinWrapper());
 		
-		if (announce != null)
-	    	je.respond(formatSilly(alias, je.getUser().getNick(), announce, je.getChannel()));
+		if (announce != null) {
+			String silly = formatSilly(alias, je.getUser().getNick(), announce.b, je.getChannel()); 
+	    	je.respond(silly);
+	    	
+	    	synchronized (recentTitles) {
+				RecentData rd = getRecent(je.getChannel().getName());
+				rd.addHistory(announce.a, je.getUser().getNick(), announce.b);
+			}
+		}
 	}
 	
 	protected void handlePart() throws SQLException {
@@ -208,11 +217,19 @@ public class Titles implements Runnable {
 				return;
 		}
 		
-		String announce = TitleDB.instanceOf().title(database.getConnection(), pe.getChannel(), pe.getUser());
+		TwoItemStruct<Integer, String> announce = TitleDB.instanceOf().title(
+				database.getConnection(), pe.getChannel(), pe.getUser());
 		String alias = IRCUtils.choose(SillyConfiguration.getPartWrapper());
 		
-		if (announce != null)
-	    	pe.respond(formatSilly(alias, pe.getUser().getNick(), announce, pe.getChannel()));
+		if (announce != null) {
+			String silly = formatSilly(alias, pe.getUser().getNick(), announce.b, pe.getChannel()); 
+	    	pe.respond(silly);
+	    	
+	    	synchronized (recentTitles) {
+				RecentData rd = getRecent(pe.getChannel().getName());
+				rd.addHistory(announce.a, pe.getUser().getNick(), announce.b);
+			}
+		}
     }
 
 	/**
@@ -294,13 +311,19 @@ public class Titles implements Runnable {
 			}
 				
 			// makes fun of users some times
-			String announce = TitleDB.instanceOf().title(database.getConnection(), 
-					me.getChannel(), me.getUser());
+			TwoItemStruct<Integer, String> announce = TitleDB.instanceOf().title(
+					database.getConnection(), me.getChannel(), me.getUser());
 			
 			String alias = IRCUtils.choose(SillyConfiguration.getChatterWrapper());
 			
-			if (announce != null)
-		    	me.getBot().sendMessage(me.getChannel(), formatSilly(alias, me.getUser().getNick(), announce, me.getChannel()));
+			if (announce != null) {
+				String silly = formatSilly(alias, me.getUser().getNick(), announce.b, me.getChannel());
+		    	me.getBot().sendMessage(me.getChannel(), silly);
+		    	synchronized (recentTitles) {	
+					RecentData rd = getRecent(me.getChannel().getName());
+					rd.addHistory(announce.a, me.getUser().getNick(), announce.b);
+		    	}
+			}
 		}
     }
 
