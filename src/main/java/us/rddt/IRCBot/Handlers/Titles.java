@@ -104,7 +104,7 @@ class TitleCmdParse {
 	                return new TitleCmdParse(true, mat.group(1), mat.group(3), mat.group(2), null, Integer.parseInt(mat.group(3)));
 	            } catch (NumberFormatException e) {
 	                return new TitleCmdParse(true, mat.group(1), mat.group(3), mat.group(2), mat.group(4), null);
-	            } 
+	            }
 	        case 2:
 	            return new TitleCmdParse(true, mat.group(1), null, mat.group(2), null, null);
 	        default:
@@ -538,7 +538,8 @@ public class Titles implements Runnable {
 						ra.getUser(), 
 						ra.getTitle()
 						};
-				resp.add(line);
+				if(line != null)
+					resp.add(line);
 			}
 			return resp;
 		}
@@ -554,12 +555,16 @@ public class Titles implements Runnable {
 		synchronized (recentTitles) { //TODO: this everywhere
 			RecentData rd = getRecent(channel);
 			RecentAnnouncement ra = rd.listHistory().peek();
-			String[] resp = {
-					String.valueOf(ra.getTitleId()), 
-					ra.getUser(), 
-					ra.getTitle()
-					};
-			return resp;
+			if (ra != null ) {
+				String[] resp = {
+						String.valueOf(ra.getTitleId()),
+						ra.getUser(), 
+						ra.getTitle()
+						};
+				return resp;
+			} else {
+				return null;
+			}
 		}
 	}
 	
